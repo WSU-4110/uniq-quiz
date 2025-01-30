@@ -39,4 +39,70 @@ app.post("/Users", async (req, res) => {
     }
 });
 
+//get all users
+app.get("/Users", async (req, res) => {
+    try {
+        const {data: AllUsers, error} = await supabase.from("Users").select('*');
+        console.log(AllUsers);
+        res.json(AllUsers);
+    } catch (err) {
+        console.log(err.message);
+        res.status(201).json(AllUsers);
+    }
+});
+
+//get a user
+app.get("/Users/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {data: aUser, error}  = await supabase.from("Users").select('*').eq('User_id', id).single();
+        console.log(aUser);
+        res.json(aUser);
+    } catch (err) {
+        console.log(err.message);
+        res.status(201).json(aUser);
+    }
+});
+
+//update a user
+app.put("/Users/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const{Username, Password, Email} = req.body;
+
+        const newData = {};
+        if (Username) newData.Username = Username;
+        if (Password) newData.Password = Password;
+        if (Email) newData.Email = Email;
+
+        const {data: updatedUser, error} = await supabase.from("Users").update(newData).eq('User_id', id).select("*");
+        res.json(updatedUser);
+        console.log("Updated user: ", updatedUser);
+
+        if(error){
+            console.log("Error updating user: ", error);
+        }
+
+    } catch (err) {
+        console.log(err.message);
+    }
+});
+
+//delete a user
+app.delete("/Users/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {data: deleteUser, error} = await supabase.from("Users").delete().eq('User_id', id);
+
+        if(error){
+            console.log("Error deleting user: ", error);
+            return res.status(400).json({message: "Error deleting user", error});
+        }
+        
+        console.log("User deleted: ", deleteUser);
+        return res.status(200).json({message: "User successfully deleted", deleteUser});
+    } catch (err) {
+        console.log(err.message);
+    }
+})
 
