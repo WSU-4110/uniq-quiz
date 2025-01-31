@@ -98,11 +98,10 @@ app.delete("/Users/:id", async (req, res) => {
             console.log("Error deleting user: ", error);
             return res.status(400).json({message: "Error deleting user", error});
         }
-        
         console.log("User deleted: ", deleteUser);
         return res.status(200).json({message: "User successfully deleted", deleteUser});
     } catch (err) {
         console.log(err.message);
     }
-})
+});
 
