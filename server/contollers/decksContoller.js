@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
-const { v4: uuidv4 } = require('uuid'); //generate uuid
 
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
@@ -28,7 +27,7 @@ app.use(express.json()); //req.body
 app.post("/Decks", async(req, res) => {
     try{    
         const {Title = "Default"} = req.body;
-        const User_id = "fe28dc6d-77a2-44b0-94ab-dd10533f9f7f";
+        const User_id = "5c230d10-4e3a-4ae1-a6b1-e3063299ced6";
         const {data, error} = await supabase.from("Decks").insert([{User_id: User_id, Title: Title}]);
         res.json(data);
     }catch(err){
@@ -38,7 +37,7 @@ app.post("/Decks", async(req, res) => {
 })
 
 /**
- * read all decks
+ * @description read all decks
  * @param {express.Request} req     request
  * @param {express.Response} res    response
  * @return {json}                   status message
@@ -55,7 +54,7 @@ app.get("/Decks", async(req, res)=>{
 })
 
 /**
- * read a deck
+ * @description read one deck by id
  * @param {express.Request} req     request
  * @param {express.Response} res    response
  * @property {int} Deck_id          this is deck in query
@@ -74,7 +73,7 @@ app.get("/Decks/:Deck_id", async(req, res)=>{
 })
 
 /**
- * update deck
+ * @description update deck
  * @param {express.Request} req     request
  * @param {express.Response} res    response
  * @property {int} Deck_id          this is deck in query
@@ -94,7 +93,7 @@ app.put("/Decks/:Deck_id", async(req, res)=>{
 })
 
 /**
- * delete deck
+ * @description delete deck
  * @param {express.Request} req     request
  * @param {express.Response} res    response
  * @property {string} Deck_id       this is user in query

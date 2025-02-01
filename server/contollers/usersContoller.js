@@ -13,13 +13,17 @@ app.use(cors());
 app.use(express.json()); //req.body
 
 //create user
-app.post("/users", async(req, res) => {
+app.post("/Users", async(req, res) => {
     try{
-        const {username, password, email} = req.body;
-        const {data, err} = await supabase.from("users").insert([{username, password, email}]);
+        const {email, password} = req.body;
+        const {data, error} = await supabase.auth.signUp({
+            email: email,
+            password: password
+          })
         res.json(data);
         console.log(data);
-    }catch (err){
-        console.log(err.message);
+    }catch (error){
+        console.log(error.message);
+        res.status(502).json({error: `Failed to authenticate user ${req.body.email}`});
     }
 })
