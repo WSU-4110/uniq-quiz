@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
+const supabase = require("../supabase"); //import supabase client
 
 /**
  * @todo should not repeat listen command
@@ -9,11 +10,6 @@ const env = require("dotenv").config(); //store environmental variables
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
 });
-
-//connect to supabase
-const supabaseURL = process.env.DATABASE_URL;
-const supabaseKey = process.env.DATABASE_KEY;
-const supabase = require("@supabase/supabase-js").createClient(supabaseURL, supabaseKey);
 
 //middleware
 app.use(cors());
