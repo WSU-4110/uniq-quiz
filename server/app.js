@@ -27,12 +27,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/groups', groupsRouter);
-app.use('/groupMembership', groupMembershipRouter);
-app.use('/games', gamesRouter);
-app.use('/cards', cardsRouter);
-app.use('/decks', deckRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/groups', groupsRouter);
+app.use('/api/groupMembership', groupMembershipRouter);
+app.use('/api/games', gamesRouter);
+app.use('/api/cards', cardsRouter);
+app.use('/api/decks', deckRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
