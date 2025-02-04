@@ -4,10 +4,6 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server has started on port ${process.env.PORT}.`)
-});
-
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
@@ -20,7 +16,7 @@ app.use(express.json()); //req.body
  * @property {string} Title         this is title in query
  * @return {json}                   status message
  */
-app.post("/Decks", async(req, res) => {
+async function createDeck(req, res){
     try{    
         const {Title = "Default"} = req.body;
         const User_id = "5c230d10-4e3a-4ae1-a6b1-e3063299ced6";
@@ -30,7 +26,7 @@ app.post("/Decks", async(req, res) => {
         console.log(err.message);
         res.status(501).json({error: "Failed to create deck."});
     }
-})
+}
 
 /**
  * @description read all decks
@@ -38,7 +34,7 @@ app.post("/Decks", async(req, res) => {
  * @param {express.Response} res    response
  * @return {json}                   status message
  */
-app.get("/Decks", async(req, res)=>{
+async function getAllDecks(req, res){
     try{
         const {data, error} = await supabase.from("Decks").select();
         if(error) throw error;
@@ -47,7 +43,7 @@ app.get("/Decks", async(req, res)=>{
         console.log(err.message);
         res.status(502).json({ error: "Failed to fetch decks." });
     }
-})
+}
 
 /**
  * @description read one deck by id
@@ -56,7 +52,7 @@ app.get("/Decks", async(req, res)=>{
  * @property {int} Deck_id          this is deck in query
  * @return {json}                   status message
  */
-app.get("/Decks/:Deck_id", async(req, res)=>{
+async function getDeck(req, res){
     try{
         const {Deck_id} = req.params;
         const {data, error} = await supabase.from("Decks").select().eq("Deck_id", [Deck_id]);
@@ -66,7 +62,7 @@ app.get("/Decks/:Deck_id", async(req, res)=>{
         console.log(err.message);
         res.status(502).json({error: `Failed to fetch deck ${req.params.Deck_id}`});
     }
-})
+}
 
 /**
  * @description update deck
@@ -76,7 +72,7 @@ app.get("/Decks/:Deck_id", async(req, res)=>{
  * @property {string} Title         this is title in query
  * @return {json}                   status message
  */
-app.put("/Decks/:Deck_id", async(req, res)=>{
+async function updateDeck(req, res) {
     try{
         const {Deck_id} = req.params;
         const {Title = "Default"} = req.body;
@@ -86,7 +82,7 @@ app.put("/Decks/:Deck_id", async(req, res)=>{
         console.log(error.message);
         res.status(502).json({error: `Failed to update deck ${req.params.Deck_id}`});
     }
-})
+}
 
 /**
  * @description delete deck
@@ -95,8 +91,7 @@ app.put("/Decks/:Deck_id", async(req, res)=>{
  * @property {string} Deck_id       this is user in query
  * @return {json}                   status message
  */
-
-app.delete("/Decks/:Deck_id", async(req, res)=>{
+async function deleteDeck(req, res){
     try{
         const {Deck_id} = req.params;
         const {data, error} = await supabase.from("Decks").delete().eq("Deck_id", [Deck_id]).select();
@@ -105,4 +100,12 @@ app.delete("/Decks/:Deck_id", async(req, res)=>{
         console.log(error.message);
         res.status(502).json({error: `Failed to delete deck ${req.params.Deck_id}`});
     }
-})
+}
+
+module.exports = {
+    createDeck,
+    getAllDecks,
+    getDeck,
+    updateDeck,
+    deleteDeck
+}

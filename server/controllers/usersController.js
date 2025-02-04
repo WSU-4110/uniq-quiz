@@ -4,17 +4,17 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server running on port 3000");
-})
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//     console.log("Server running on port 3000");
+// })
 
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
 
 //create user
-app.post("/Users", async (req, res) => {
+async function createUser(req, res) {
     try {
         const { Username, Password, Email } = req.body;
         console.log(req.body);
@@ -33,10 +33,10 @@ app.post("/Users", async (req, res) => {
         console.error("Caught error:", err);  // Log other errors
         res.status(201).json(data);
     }
-});
+}
 
 //get all users
-app.get("/Users", async (req, res) => {
+async function getAllUsers(req, res) {
     try {
         const {data: AllUsers, error} = await supabase.from("Users").select('*');
         console.log(AllUsers);
@@ -45,10 +45,10 @@ app.get("/Users", async (req, res) => {
         console.log(err.message);
         res.status(201).json(AllUsers);
     }
-});
+}
 
 //get a user
-app.get("/Users/:id", async (req, res) => {
+async function getUser(req, res) {
     try {
         const {id} = req.params;
         const {data: aUser, error}  = await supabase.from("Users").select('*').eq('User_id', id).single();
@@ -58,10 +58,10 @@ app.get("/Users/:id", async (req, res) => {
         console.log(err.message);
         res.status(201).json(aUser);
     }
-});
+}
 
 //update a user
-app.put("/Users/:id", async (req, res) => {
+async function updateUser(req, res) {
     try {
         const {id} = req.params;
         const{Username, Password, Email} = req.body;
@@ -82,10 +82,10 @@ app.put("/Users/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
 //delete a user
-app.delete("/Users/:id", async (req, res) => {
+async function deleteUser(req, res){
     try {
         const {id} = req.params;
         const {data: deleteUser, error} = await supabase.from("Users").delete().eq('User_id', id);
@@ -99,5 +99,12 @@ app.delete("/Users/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
+module.exports = {
+    createUser,
+    getAllUsers,
+    getUser,
+    updateUser,
+    deleteUser
+};

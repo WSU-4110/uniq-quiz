@@ -4,17 +4,13 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server running on port 3000");
-})
 
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
 
 //create group
-app.post("/Groups", async(req, res) =>{
+async function createGroup(req, res) {
     try {
         const {Group_id, Group_Name, Founder_id} = req.body;
 
@@ -32,10 +28,10 @@ app.post("/Groups", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(data);
     }
-});
+}
 
 //get all groups
-app.get("/Groups", async(req, res) =>{
+async function getAllGroups(req, res) {
     try {
         const{data: AllGroups, error} = await supabase.from("Groups").select('*');
         console.log(AllGroups);
@@ -44,10 +40,10 @@ app.get("/Groups", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(AllGroups);
     }
-});
+}
 
 //get a group
-app.get("/Groups/:id", async(req, res) =>{
+async function getGroup(req, res){
     try {
         const{id} = req.params;
         const{data: aGroup, error} = await supabase.from("Groups").select('*').eq("Group_id", id).single();
@@ -57,10 +53,10 @@ app.get("/Groups/:id", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(aGroup);
     }
-});
+}
 
 //update a group
-app.put("/Groups/:id", async (req, res) => {
+async function updateGroup(req, res){
     try {
         const {id} = req.params;
         const{Group_id, Group_Name, Founder_id} = req.body;
@@ -80,10 +76,10 @@ app.put("/Groups/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
 //delete a group
-app.delete("/Groups/:id", async (req, res) => {
+async function deleteGroup(req, res){
     try {
         const {id} = req.params;
         const {data: deleteGroup, error} = await supabase.from("Groups").delete().eq('Group_id', id);
@@ -97,4 +93,12 @@ app.delete("/Groups/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
+
+module.exports = {
+    createGroup,
+    getAllGroups,
+    getGroup,
+    updateGroup,
+    deleteGroup
+}
