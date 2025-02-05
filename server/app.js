@@ -4,9 +4,11 @@ const dotenv = require('dotenv').config();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const supabase = require('./supabase');
 
 //Routers
-const indexRouter = require('./routes/index');
+// const indexRouter = require('./routes/index');
+const authRouter = require('./routes/authRouter')
 // const usersRouter = require('./routes/users');   ///This router was there originally. Not sure what for, so I'm keeping it commented. Shares the same name as the one I made.
 const usersRouter = require("./routes/usersRouter"); 
 const groupsRouter = require("./routes/groupsRouter")
@@ -26,17 +28,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/groupMembership', groupMembershipRouter);
 app.use('/api/games', gamesRouter);
 app.use('/api/cards', cardsRouter);
-app.use('/api/decks', deckRouter);
+app.use('/api/decks', decksRouter);
+app.use('/api/auth', authRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
 });
-
 
 module.exports = app;
