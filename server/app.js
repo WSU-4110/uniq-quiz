@@ -15,8 +15,6 @@ const gamesRouter = require("./routes/gamesRouter");
 const cardsRouter = require("./routes/cardsRouter"); 
 const decksRouter = require("./routes/gamesRouter"); 
 
-
-
 const app = express();
 
 //middleware
@@ -32,7 +30,7 @@ app.use('/api/groups', groupsRouter);
 app.use('/api/groupMembership', groupMembershipRouter);
 app.use('/api/games', gamesRouter);
 app.use('/api/cards', cardsRouter);
-app.use('/api/decks', deckRouter);
+app.use('/api/decks', decksRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)

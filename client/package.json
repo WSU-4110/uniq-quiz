@@ -10,7 +10,6 @@
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.14",
     "web-vitals": "^4.2.4"
-    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

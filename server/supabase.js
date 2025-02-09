@@ -1,5 +1,5 @@
-const {createClient} = require('@supabase/supabase-js');
 const env = require("dotenv").config(); //store environmental variables
+const {createClient} = require('@supabase/supabase-js');
 
 //Get URL and API Key from .env file
 const supabaseURL = process.env.DATABASE_URL;

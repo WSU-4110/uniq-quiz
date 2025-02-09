@@ -4,6 +4,13 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
+/**
+ * @todo should not repeat listen command
+ */
+app.listen(process.env.PORT, () => {
+    console.log(`Server has started on port ${process.env.PORT}.`)
+});
+
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
@@ -22,7 +29,7 @@ app.use(express.json()); //req.body
  * @property {string} Image
  * @return {json}                   status message
  */
-async function createCard(req, res){
+app.post("/Cards/:Deck_id", async(req, res) => {
     try{    
         const {Deck_id} = req.params;
         const {Question, Answer, Incorrect1, Incorrect2, Incorrect3, Image} = req.body;
@@ -34,7 +41,7 @@ async function createCard(req, res){
         console.log(err.message);
         res.status(501).json({error: "Failed to create card."});
     }
-}
+})
 
 /**
  * @description get card by deck id
@@ -43,17 +50,18 @@ async function createCard(req, res){
  * @property {int} Deck_id          html req: deck to insert into
  * @return {json}                   status message
  */
-async function getCard(req, res){
+
+app.get("/Cards/:Deck_id", async(req, res)=>{
     try{
         const {Deck_id} = req.params;
         const {data, error} = await supabase.from("Cards").select().eq("Deck_id", [Deck_id]);
         if(error) throw error;
-        res.json(data[0]);
+        res.json(data);
     }catch(err){
         console.log(err.message);
         res.status(502).json({error: `Failed to fetch deck ${req.params.Deck_id}`});
     }
-}
+})
 
 /**
  * @description update card by card id
@@ -64,7 +72,7 @@ async function getCard(req, res){
  * @return {json}                   status message
  * 
  */
-async function updateCard(req, res){
+app.put("/Cards/:Card_id", async(req, res)=>{
     try{
         const {Card_id} = req.params;
         const {Deck_id} = await supabase.from("Cards").select().eq("Card_id", [Card_id]);
@@ -78,8 +86,7 @@ async function updateCard(req, res){
         console.log(error.message);
         res.status(502).json({error: `Failed to update card ${req.params.Card_id}`});
     }
-}
-
+})
 
 /**
  * @description delete card by card id
@@ -89,7 +96,7 @@ async function updateCard(req, res){
  * @return {json}                   status message
  * 
  */
-async function deleteCard(req, res){
+app.delete("/Cards/:Card_id", async(req, res)=>{
     try{
         const {Card_id} = req.params;
         const {data, error} = await supabase.from("Cards").delete().eq("Card_id", [Card_id]).select();
@@ -98,11 +105,4 @@ async function deleteCard(req, res){
         console.log(error.message);
         res.status(502).json({error: `Failed to delete card ${req.params.Card_id}`});
     }
-}
-
-module.exports = {
-    createCard,
-    getCard,
-    updateCard,
-    deleteCard
-}
+})

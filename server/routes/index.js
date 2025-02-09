@@ -2,8 +2,6 @@ const express = require('express');
 const {createClient} = require("@supabase/supabase-js");
 const router = express.Router();
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
