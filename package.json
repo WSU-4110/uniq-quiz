@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "node": "^18.20.6",
-    "react-router": "^7.1.5"
+    "react-router": "^7.1.5",
+    "morgan": "^1.10.0",
   }
 }

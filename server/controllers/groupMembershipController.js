@@ -4,17 +4,12 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server running on port 3000");
-})
-
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
 
 //create group membership
-app.post("/Group_Membership", async(req, res) =>{
+async function createGroupMembership(req, res){
     try {
         const {Group_id, User_id} = req.body;
 
@@ -32,10 +27,10 @@ app.post("/Group_Membership", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(data);
     }
-});
+}
 
 //get all group memberships
-app.get("//Group_Membership", async(req, res) =>{
+async function getAllGroupMemberships(req, res){
     try {
         const{data: AllGroupMems, error} = await supabase.from("Group_Membership").select('*');
         console.log(AllGroupMems);
@@ -44,10 +39,10 @@ app.get("//Group_Membership", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(AllGroupMems);
     }
-});
+}
 
 //get a group membership
-app.get("/Group_Membership/:id", async(req, res) =>{
+async function getGroupMembership(req, res){
     try {
         const{id} = req.params;
         const{data: aGroupMem, error} = await supabase.from("Group_Membership").select('*').eq("Group_id", id).single();
@@ -57,10 +52,10 @@ app.get("/Group_Membership/:id", async(req, res) =>{
         console.log(err.message);
         res.status(201).json(aGroupMem);
     }
-});
+}
 
 //update a group membership
-app.put("/Group_Membership/:id", async (req, res) => {
+async function updateGroupMembership(req, res){
     try {
         const {id} = req.params;
         const{Group_id, User_id} = req.body;
@@ -79,10 +74,10 @@ app.put("/Group_Membership/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
 //delete a group
-app.delete("/Group_Membership/:id", async (req, res) => {
+async function deleteGroupMembership(req, res){
     try {
         const {id} = req.params;
         const {data: deleteGroup, error} = await supabase.from("Group_Membership").delete().eq('Group_id', id);
@@ -96,4 +91,12 @@ app.delete("/Group_Membership/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
+
+module.exports = {
+    createGroupMembership,
+    getAllGroupMemberships,
+    getGroupMembership,
+    updateGroupMembership,
+    deleteGroupMembership
+}
