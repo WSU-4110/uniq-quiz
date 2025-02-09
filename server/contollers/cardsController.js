@@ -60,7 +60,7 @@ app.get("/Cards/:Deck_id", async(req, res)=>{
         const {Deck_id} = req.params;
         const {data, error} = await supabase.from("Cards").select().eq("Deck_id", [Deck_id]);
         if(error) throw error;
-        res.json(data[0]);
+        res.json(data);
     }catch(err){
         console.log(err.message);
         res.status(502).json({error: `Failed to fetch deck ${req.params.Deck_id}`});
@@ -91,7 +91,6 @@ app.put("/Cards/:Card_id", async(req, res)=>{
         res.status(502).json({error: `Failed to update card ${req.params.Card_id}`});
     }
 })
-
 
 /**
  * @description delete card by card id
