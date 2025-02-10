@@ -11,11 +11,11 @@ const supabase = require('./supabase');
 const authRouter = require('./routes/authRouter')
 // const usersRouter = require('./routes/users');   ///This router was there originally. Not sure what for, so I'm keeping it commented. Shares the same name as the one I made.
 const usersRouter = require("./routes/usersRouter"); 
-const groupsRouter = require("./routes/groupsRouter")
+const groupsRouter = require("./routes/groupsRouter");
 const groupMembershipRouter = require("./routes/groupMembershipRouter"); 
 const gamesRouter = require("./routes/gamesRouter"); 
 const cardsRouter = require("./routes/cardsRouter"); 
-const decksRouter = require("./routes/gamesRouter"); 
+const decksRouter = require("./routes/decksRouter");
 
 
 
@@ -37,6 +37,7 @@ app.use('/api/cards', cardsRouter);
 app.use('/api/decks', decksRouter);
 app.use('/api/auth', authRouter);
 
+//Listen to local host port 
 app.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
 });
