@@ -11,7 +11,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 function App() {
   return (
     <BrowserRouter>
-        <div className="ALCOHOL">
+        <div className="application">
             <nav>
                 <Link to="/">Home</Link> | {' '}
                 <Link to="/signup">Signup</Link> | {' '}
