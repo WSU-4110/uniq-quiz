@@ -7,7 +7,7 @@ function Signup() {
     const [emailConfirm, setEmailConfirm] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [passwordConfirm, setPasswordConfirm] = React.useState('');
-    const [displayName, setDisplayName] = React.useState('');
+    const [display_name, setDisplayName] = React.useState('');
     const [error, setError] = React.useState('');
 
     const handleSubmit = async (e) => {
@@ -27,7 +27,7 @@ function Signup() {
         const payload = {
             email,
             password,
-            displayName,
+            display_name,
         };
 
         try {
@@ -61,7 +61,7 @@ function Signup() {
         const payload = {
             email,
             password,
-            displayName,
+            display_name,
         };
 
         try{
@@ -120,7 +120,7 @@ function Signup() {
                                    onChange={(e) => setPasswordConfirm(e.target.value)} required/><br/><br/>
 
                             <label htmlFor="displayname">Displayname </label><br/>
-                            <input type="text" id="displayname" name="displayname" placeholder="User001" value={displayName}
+                            <input type="text" id="displayname" name="displayname" placeholder="User001" value={display_name}
                                    onChange={(e) => setDisplayName(e.target.value)} required/><br/><br/>
                             <button type="submit">Submit</button>
                         </form>
