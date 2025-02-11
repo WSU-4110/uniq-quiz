@@ -35,7 +35,7 @@ export default function Navbar({isLoggedIn = false}){
                 <Link to="../pages/Decks.jsx"><StyledButton> Decks</StyledButton></Link>
                 <Link to="/"><StyledButton>Host Game</StyledButton></Link>
                 <Link to="/"><StyledButton>Join Game</StyledButton></Link>
-                <Link to="/"><StyledButton>{isLoggedIn ? 'Log Out' : 'Log In/Sign Up'}</StyledButton></Link>
+                <Link to="/signup"><StyledButton>{isLoggedIn ? 'Log Out' : 'Log In/Sign Up'}</StyledButton></Link>
             </navMenu>
         </topnav>
     );
