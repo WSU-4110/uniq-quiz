@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import ListItem from '../components/ListItem';
+import ListItem from '../../components/ListItem';
 
 export default function Cards(){
     const params = useParams();
@@ -38,6 +38,17 @@ export default function Cards(){
       }
     } 
 
+    const deleteCard = async () => {
+      try {
+          const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}`, {
+              method: "DELETE"
+          });
+          handleClose();
+      } catch (error) {
+          console.error(error.message);
+      }
+  }
+
     function handleSave(property, newProperty){
       setCard(prevCard => ({
         ...prevCard,
@@ -53,7 +64,6 @@ export default function Cards(){
     }, [params.card_id]);
 
     useEffect(()=>{
-      console.log("effect triggered");
       if (Object.keys(card).length > 0) {
         updateCard();
       } 
@@ -73,6 +83,7 @@ export default function Cards(){
           </div>
           <div className="buttonContainer">
             <button id="close" onClick={() => handleClose()}>Close</button>
+            <button id="delete" onClick={deleteCard} style={{"backgroundColor":"red", "color":"white"}}>Delete Card</button>
           </div>
         </>
       );

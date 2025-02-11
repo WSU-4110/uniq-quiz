@@ -1,7 +1,9 @@
 import {React, useState, useEffect} from 'react';
-import TabButton from './../global/TabButton.jsx';
+import TabButton from '../../global/TabButton.jsx';
 import { styled } from 'styled-components';
-import { Link} from 'react-router';
+import StyledButton from '../../global/StyledButton.jsx';
+import ListItem from '../../components/ListItem.jsx';
+import { Link, } from 'react-router';
 
 const StyledDecks = styled.td`
     width: 100vw;
@@ -19,6 +21,7 @@ export default function Decks({...props}){
     const [cards, setCards] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
     const [viewDeck, setViewDeck] = useState(false);
+    const [refresh, setRefresh] = useState(0);
 
     let tab='My Decks';
 
@@ -40,6 +43,46 @@ export default function Decks({...props}){
         }
     }
 
+    const createDeck = async() => {
+        try{
+            const body = {Title: "Untitled Deck", User_id: "5c230d10-4e3a-4ae1-a6b1-e3063299ced6"};
+            const response = await fetch("http://localhost:3000/api/decks/",{
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify(body)
+            });
+            const jsonData = await response.json();
+            if(!response.ok) {
+                throw new Error(`Failed to create deck: ${response.statusText}`);
+            }
+            setRefresh(prev => prev + 1);
+        } catch (error){
+            console.error(error.message);
+        }
+    }
+    
+    const updateDeck = async() =>{
+        try{
+            const body = selectedDeck;
+            if(!selectedDeck){
+                throw new Error(`No deck selected!`);
+            }
+            console.log(selectedDeck.Deck_id);
+            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+            }
+          );
+          if(!response.ok){
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const jsonData = response.json();
+        }catch(error){
+          console.error(error.message);
+        }
+    }
+
     const getCards = async () =>{
         if (!selectedDeck.Deck_id) {
             console.warn("No deck selected, skipping card fetch.");
@@ -58,27 +101,73 @@ export default function Decks({...props}){
         }
     }
 
-    const handleSelectDeck = (deck) =>{
+    const createCard = async() => {
+        try{
+            const body = {Deck_id: selectedDeck.Deck_id, Question: "", Answer: "", Incorrect1: "", Incorrect2: "", Incorrect3: ""};
+            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`,{
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify(body)
+            });
+            const jsonData = await response.json();
+            console.log(jsonData);
+            setRefresh(prev => prev + 1);
+        } catch (error){
+            console.error(error.message);
+        }
+    }
+
+    const deleteDeck = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
+                method: "DELETE"
+            });
+            setDecks(decks.filter(decks => decks.Deck_id !== selectedDeck.Deck_id));
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    function handleSelectDeck(deck){
         setSelectedDeck(deck);
         setViewDeck(true);
     }
 
+    function handleUpdateDeck(property, newProperty){
+        setSelectedDeck(prevDeck => ({
+          ...prevDeck,
+          [property]: newProperty
+        }));
+    }
+
+    function handleDelete(){
+        deleteDeck();
+        setViewDeck(false);
+    }
+
     useEffect(()=>{
         getDecks();
-    }, []);
+    }, [refresh, selectedDeck]);
 
     useEffect(() => {
         if (selectedDeck.Deck_id) {
             getCards();
         }
-    }, [selectedDeck]);
+    }, [refresh, selectedDeck]);
+
+    useEffect(()=>{
+        if (Object.keys(decks).length > 0) {
+          updateDeck();
+        } 
+    }, [selectedDeck])
     
 
     return(
         <div id="decksPage">
             <div className="searchBar" style={{width: '60vw', margin: 'auto',  textAlign: 'right', padding: '1rem'}}>
                 <label for="Search">
-                    <input placeholder={"Search " + tab}
+                    <input placeholder={"Search " + tab + " (not implemented)"}
                     style={{
                         backgroundColor: 'white',
                         backgroundImage: 'url(client/public/search-icon.png)',
@@ -91,10 +180,15 @@ export default function Decks({...props}){
             <div className="deckInterfaceContainer" style={{margin: 'auto', width: '60vw'}}>
                 <div className="deckTabs" style={{ height: '5vw', backgroundColor: '#ddd'}}>
                     <menu style={{display: 'flex', listStyleType: 'none', padding: '0.5 0 0.5 0', margin:'0',}}>
-                        <TabButton>My Decks</TabButton>
-                        <TabButton>Community Decks</TabButton>
-                        <TabButton>Group Decks</TabButton>
-                        <TabButton>Saved Decks</TabButton>
+                        <StyledButton onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</StyledButton>
+                        {!viewDeck && (
+                            <StyledButton onClick={createDeck}>Add Deck</StyledButton>
+
+                        )}
+                        {viewDeck && (<>
+                            <StyledButton onClick={createCard}>Add Card</StyledButton>
+                            <StyledButton onClick={handleDelete}>Delete This Deck</StyledButton>
+                        </>)}
                     </menu>
                 </div>
                 <div className="deckContainer" style={{overflowY:'auto', height:'70vh', backgroundColor: '#eee'}}>
@@ -105,18 +199,21 @@ export default function Decks({...props}){
                             {decks.map((deck) => (
                                 <TabButton onClick={()=>{handleSelectDeck(deck)}}>
                                     <StyledDecks className="deck_title">
-                                        {deck.Title ? deck.Title : "Untitled Deck"},
-                                        How Many Cards It Has, id: {deck.Deck_id}
+                                        {deck.Title ? deck.Title : "Untitled Deck"}
                                     </StyledDecks>
                                 </TabButton>
                             ))}
                         </div>
                         </>)}
                         {viewDeck && (<>
-                        <div className="cardHead">{selectedDeck ? `Viewing Deck ${selectedDeck.Title}` : "No Deck Selected"}</div>
+                        <div className="cardHead">
+                            {selectedDeck && (
+                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                            )}       
+                        </div>
                         <div className="cardBody">
                             {cards.map((card) => (
-                                <Link key={card.Card_id} to={`/pages/Cards/${card.Card_id}`}>
+                                <Link key={card.Card_id} to={`/pages/Decks/Cards/${card.Card_id}`}>
                                     <StyledDecks className="card_title">
                                         {card.Question ? card.Question : "Blank Card"},
                                         {card.Answer ? card.Answer : "No Answer"},

@@ -32,7 +32,7 @@ export default function Navbar({isLoggedIn = false}){
         <topnav variable={responseState}>
             <navMenu>
                 <Link to="/"><StyledButton>Home</StyledButton></Link>
-                <Link to="../pages/Decks.jsx"><StyledButton> Decks</StyledButton></Link>
+                <Link to="../pages/Decks/Decks.jsx"><StyledButton> Decks</StyledButton></Link>
                 <Link to="/"><StyledButton>Host Game</StyledButton></Link>
                 <Link to="/"><StyledButton>Join Game</StyledButton></Link>
                 <Link to="/signup"><StyledButton>{isLoggedIn ? 'Log Out' : 'Log In/Sign Up'}</StyledButton></Link>
