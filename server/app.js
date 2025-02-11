@@ -5,7 +5,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const supabase = require('./supabase');
-console.log(process.env);
 
 //Routers
 // const indexRouter = require('./routes/index');
@@ -22,7 +21,7 @@ const app = express();
 
 //allow api requests from front-end run on 3001
 app.use(cors({
-    origin: 'http://localhost:3002'
+    origin: 'http://localhost:3001'
 }));
 
 //middleware

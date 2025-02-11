@@ -17,8 +17,7 @@ export default function Decks({...props}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
     const [cards, setCards] = useState([]);
-    const [selectedDeck, setSelectedDeck] = useState({});
-    const [viewDeck, setViewDeck] = useState(false);
+    const [viewCards, setViewCards] = useState(false);
 
     let tab='My Decks';
 
@@ -33,7 +32,7 @@ export default function Decks({...props}){
      */
     const getDecks = async() =>{
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("http://localhost:3000/Decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
@@ -44,39 +43,9 @@ export default function Decks({...props}){
         }
     }
 
-    const getCards = async () =>{
-        if (!selectedDeck.Deck_id) {
-            console.warn("No deck selected, skipping card fetch.");
-            return;
-        }
-
-        try{
-            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`)
-            if (!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setCards(jsonData);
-        } catch (error){
-          console.error(error.message);  
-        }
-    }
-
-    const handleSelectDeck = (deck) =>{
-        setSelectedDeck(deck);
-        setViewDeck(true);
-    }
-
     useEffect(()=>{
         getDecks();
     }, []);
-
-    useEffect(() => {
-        if (selectedDeck.Deck_id) {
-            getCards();
-        }
-    }, [selectedDeck]);
-    
 
     return(
         <div id="decksPage">
@@ -103,36 +72,17 @@ export default function Decks({...props}){
                 </div>
                 <div className="deckContainer" style={{overflowY:'auto', height:'70vh', backgroundColor: '#eee'}}>
                     <table className="table">
-                        {!viewDeck && (<>
-                        <div className="deckHead">{decks ? "My Decks" : "No Decks"}</div>
-                        <div className="deckBody">
+                        <thead>{decks ? "My Decks" : "No Decks"}</thead>
+                        <tbody>
                             {decks.map((deck) => (
-                                <TabButton onClick={()=>{handleSelectDeck(deck)}}>
+                                <Link key={deck.Deck_id} to={`/pages/Cards/${deck.Deck_id}`}>
                                     <StyledDecks className="deck_title">
                                         {deck.Title ? deck.Title : "Untitled Deck"},
                                         How Many Cards It Has, id: {deck.Deck_id}
                                     </StyledDecks>
-                                </TabButton>
-                            ))}
-                        </div>
-                        </>)}
-                        {viewDeck && (<>
-                        <div className="cardHead">{selectedDeck ? `Viewing Deck ${selectedDeck.Title}` : "No Deck Selected"}</div>
-                        <div className="cardBody">
-                            {cards.map((card) => (
-                                <Link key={card.Card_id} to={`/pages/Cards/${card.Card_id}`}>
-                                    <StyledDecks className="card_title">
-                                        {card.Question ? card.Question : "Blank Card"},
-                                        {card.Answer ? card.Answer : "No Answer"},
-                                        {card.Incorrect1 ? card.Incorrect1 : "No Incorrect"},
-                                        {card.Incorrect2 ? card.Incorrect2 : ""},
-                                        {card.Incorrect3 ? card.Incorrect3 : ""},
-                                        id: {card.Card_id}
-                                    </StyledDecks>
                                 </Link>
-                                ))}
-                        </div>
-                        </>)}
+                            ))}
+                        </tbody>
                     </table>
                 </div>
             </div>
