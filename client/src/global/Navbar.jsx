@@ -38,6 +38,7 @@ export default function Navbar({isLoggedIn = false}){
                 <Link to="/settings"><StyledButton>Settings</StyledButton></Link>
                 <Link to="/login"><StyledButton>Login</StyledButton></Link>
                 <Link to="/signup"><StyledButton>Signup</StyledButton></Link>
+                <Link to="/api/auth/signout"><StyledButton>Logout</StyledButton></Link>
             </navMenu>
         </topnav>
     );
