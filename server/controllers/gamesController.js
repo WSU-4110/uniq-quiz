@@ -2,23 +2,14 @@ const express = require("express");
 const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server running on port 3000");
-})
-
-//connect to supabase
-const supabaseURL = process.env.DATABASE_URL;
-const supabaseKey = process.env.DATABASE_KEY;
-const supabase = require("@supabase/supabase-js").createClient(supabaseURL, supabaseKey);
+const supabase = require("../supabase"); //import supabase client
 
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
 
 //create game
-app.post("/Games", async (req, res) => {
+async function createGame(req,res){
     try {
         const {Game_id, Host_id, Player_id } = req.body;
         console.log(req.body);
@@ -37,10 +28,10 @@ app.post("/Games", async (req, res) => {
         console.error("Caught error:", err);  // Log other errors
         res.status(201).json(data);
     }
-});
+}
 
 //get all games
-app.get("/Games", async (req, res) => {
+async function getAllGames(req, res){
     try {
         const {data: AllGames, error} = await supabase.from("Games").select('*');
         console.log(AllGames);
@@ -49,10 +40,10 @@ app.get("/Games", async (req, res) => {
         console.log(err.message);
         res.status(201).json(AllGames);
     }
-});
+}
 
 //get a game
-app.get("/Games/:id", async (req, res) => {
+async function getGame(req, res){
     try {
         const {id} = req.params;
         const {data: aGame, error}  = await supabase.from("Games").select('*').eq('Game_id', id).single();
@@ -62,10 +53,10 @@ app.get("/Games/:id", async (req, res) => {
         console.log(err.message);
         res.status(201).json(aGame);
     }
-});
+}
 
 //update a game
-app.put("/Games/:id", async (req, res) => {
+async function updateGame(req, res){
     try {
         const {id} = req.params;
         const{Game_id, Host_id, Player_id} = req.body;
@@ -86,10 +77,10 @@ app.put("/Games/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
 //delete a game
-app.delete("/Games/:id", async (req, res) => {
+async function deleteGame(req, res){
     try {
         const {id} = req.params;
         const {data: deleteGame, error} = await supabase.from("Games").delete().eq('Game_id', id);
@@ -103,5 +94,12 @@ app.delete("/Games/:id", async (req, res) => {
     } catch (err) {
         console.log(err.message);
     }
-});
+}
 
+module.exports = {
+    createGame,
+    getAllGames,
+    getGame,
+    updateGame,
+    deleteGame
+};

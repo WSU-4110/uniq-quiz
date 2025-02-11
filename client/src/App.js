@@ -1,20 +1,30 @@
-import './App.css';
-import React from 'react';
-import { Route, Routes, Link } from "react-router";
-import Decks from './pages/Decks/Decks.jsx';
-import Home from './pages/Home/Home.jsx';
+
+import React from "react";
+import {BrowserRouter, Routes, Route, Link} from 'react-router-dom';
+import axios from 'axios';
+import Home from "./components/Home";
+import Signup from './pages/Auth/Signup';
+import Login from './pages/Auth/Login';
 import Navbar from './global/Navbar.jsx';
+import Decks from './pages/Decks/Decks.jsx';
+
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function App() {
   return (
-    <>
-    <Navbar/>
-    <Routes>
-      <Route path="/" element={<Home/>}></Route>
-      <Route path="/pages/Decks.jsx" element={<Decks />}></Route>
-      <Route path="*" element={<p>Path not resolved</p>} />
-    </Routes>
-    </>
+    <BrowserRouter>
+        <div className="application">
+            <Navbar/>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/pages/Decks.jsx" element={<Decks />}></Route>
+                <Route path="*" element={<p>Path not resolved</p>} />
+            </Routes>
+        </div>
+    </BrowserRouter>
   );
 }
 
