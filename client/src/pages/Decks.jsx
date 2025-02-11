@@ -27,10 +27,6 @@ export default function Decks({...props}){
     else if(tabChoice === 3){ tab = 'Group Decks' }
     else if(tabChoice === 4){ tab = 'Saved Decks' }
 
-    /**
-     * @todo Add to decks controller so that it can fetch all decks by user, or all decks by group, or all decks by user saves
-     * @todo For decks, add endpoint to fetch count(cards) in each deck. use rpc in supabase itself
-     */
     const getDecks = async() =>{
         try {
             const response = await fetch("http://localhost:3000/api/decks/");

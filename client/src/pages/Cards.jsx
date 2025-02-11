@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ListItem from '../components/ListItem';
-import { json } from 'stream/consumers';
 
 export default function Cards(){
     const params = useParams();
@@ -54,6 +53,7 @@ export default function Cards(){
     }, [params.card_id]);
 
     useEffect(()=>{
+      console.log("effect triggered");
       if (Object.keys(card).length > 0) {
         updateCard();
       } 
