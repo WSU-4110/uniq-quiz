@@ -1,37 +1,36 @@
-import React from 'react';
-
-function LoggedHeader(){
-    return(
-        <header>
-            <nav class = "navi">
-                <ul class = "navi_list">
-                    <li class = "navi_listItem"> Join/Host Games 
-                        <ul class = "navi_listDrop">
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Join Game </a></li>
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Host Game </a></li>
-                        </ul>
-                    </li>
-                        
-                    <li class = "navi_listItem"> View/Create Decks
-                        <ul class = "navi_listDrop">
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> View Decks </a></li>
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Create Decks </a></li>
-                        </ul>
-                    </li>
-                        
-                    <li class = "navi_listProfile">
-                        <div class = "box"> </div>
-                        <ul class = "navi_listDropProfile">
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Profile </a></li>
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Groups </a></li>
-                        <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Log Out </a></li>
-                        </ul>
-                    </li> 
-                </ul>
-            </nav>
-        </header>
+const LoggedHeader = ({ toggleHeader }) => {
+    return (
+      <header>
+        <nav className="navi">
+          <ul className="navi_list">
+            <li className="navi_listItem">
+              Join/Host Games
+              <ul className="navi_listDrop">
+                <li><button className="textButton" onClick={toggleHeader}>Join Game</button></li>
+                <li><button className="textButton" onClick={toggleHeader}>Host Game</button></li>
+              </ul>
+            </li>
+  
+            <li className="navi_listItem">
+              View/Create Decks
+              <ul className="navi_listDrop">
+                <li><button className="textButton" onClick={toggleHeader}>View Decks</button></li>
+                <li><button className="textButton" onClick={toggleHeader}>Create Decks</button></li>
+              </ul>
+            </li>
+  
+            <li className="navi_listProfile">
+              <div className="box"></div>
+              <ul className="navi_listDropProfile">
+                <li><button className="textButton" onClick={toggleHeader}>Profile</button></li>
+                <li><button className="textButton" onClick={toggleHeader}>Groups</button></li>
+                <li><button className="textButton" onClick={toggleHeader}>Log Out</button></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </header>
     );
-}
-
-
-export default LoggedHeader
+  };
+  
+  export default LoggedHeader;

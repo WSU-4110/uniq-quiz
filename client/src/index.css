@@ -20,6 +20,25 @@ code {
   padding: 0;
 }
 
+:root{
+  background-color: rgb(207, 207, 207);
+}
+
+.textButton {
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  padding: 0; /* Remove padding */
+  font: inherit; /* Use the same font as the parent */
+  color: inherit; /* Use the same text color as the parent */
+  cursor: pointer; /* Show pointer cursor on hover */
+  text-decoration: none; /* Add underline to mimic link styling */
+}
+
+.textButton:hover {
+  color: rgb(106, 0, 130); /* Change color on hover (optional) */
+  text-decoration: none; /* Remove underline on hover (optional) */
+}
+
 .box {
   width: 7.5rem;
   height: 7.5rem;
@@ -33,7 +52,7 @@ code {
   position:fixed;
   width:100vw;
   margin:0;
-  border-block: solid;
+  border-block: solid black;
   border-block-width:0.5rem;
   left:0;
   top:0;
@@ -43,7 +62,7 @@ code {
     background-color:rgb(106, 0, 130);
     justify-content:flex-end;
     align-items:center;
-    gap:7.5rem;
+    gap:3rem;
     margin: 0 0;
   }
   .navi_listItem{
@@ -108,7 +127,7 @@ code {
     font-size:2rem;
     top:7.3rem;
     left:-1.5rem;
-    border: 0.5rem solid;
+    border: 0.5rem solid black;
     background-color:white;
     border-radius:0.25rem;
     width:10rem;
@@ -139,8 +158,8 @@ t1{
   font-size:10rem;
   font-weight:bold;
   color:rgb(106, 0, 130);
-  top:15rem;
-  left:30%
+  top:40vh;
+  left:25vw;
 }
 
 footer{
@@ -155,6 +174,7 @@ footer{
   color:black;
   text-align:right;
 }
+
 
 @media (prefers-color-scheme: light) {
   navi_listDrop:hover{

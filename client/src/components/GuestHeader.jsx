@@ -1,32 +1,31 @@
-import React from 'react';
+const GuestHeader = ({ toggleHeader }) => {
+  return (
+    <header>
+      <nav className="navi">
+        <ul className="navi_list">
+          <li className="navi_listItem">
+            <button className="textButton" onClick={toggleHeader}>Join Game</button>
+          </li>
 
-function GuestHeader(){
-    return(
-      <header>
-        <nav class = "navi">
-          <ul class = "navi_list">
-            <li class = "navi_listItem">
-              <a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Join Game </a></li>
-              
-            <li class = "navi_listItem"> Sign Up/Log in
-              <ul class = "navi_listDrop">
-                <li><Link to="/signup"> Sign Up </Link></li>
-                <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Log In </a></li>
-              </ul>
-            </li>
-              
-            <li class = "navi_listProfile">
-              <div class = "box"> </div>
-              <ul class = "navi_listDropProfile">
-                <li><Link to="/signup"> Sign Up </Link></li>
-                <li><a href="https://www.reddit.com/r/halo/comments/in1zab/halo_3_rat_is_a_good_little_boi/" target="_blank"> Log In </a></li>
-              </ul>
-            </li>
-          </ul>
-        </nav>
-      </header>
-    );
-  }
-  
-  
-  export default GuestHeader
+          <li className="navi_listItem">
+            Sign Up/Log In
+            <ul className="navi_listDrop">
+              <li><button className="textButton" onClick={toggleHeader}>Sign Up</button></li>
+              <li><button className="textButton" onClick={toggleHeader}>Log In</button></li>
+            </ul>
+          </li>
+
+          <li className="navi_listProfile">
+            <div className="box"></div>
+            <ul className="navi_listDropProfile">
+              <li><button className="textButton" onClick={toggleHeader}>Sign Up</button></li>
+              <li><button className="textButton" onClick={toggleHeader}>Log In</button></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+};
+
+export default GuestHeader;
