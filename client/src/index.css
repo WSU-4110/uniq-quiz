@@ -40,8 +40,8 @@ code {
 }
 
 .box {
-  width: 7.5rem;
-  height: 7.5rem;
+  width: 6rem;
+  height: 6rem;
   background-color: rgba(255, 255, 255, 0);
   border: 0.5rem solid black;
   padding: 10px;
@@ -67,7 +67,7 @@ code {
   }
   .navi_listItem{
     list-style:none;
-    font-size:3rem;
+    font-size:2.5rem;
     font-weight:bold;
     position:relative;
     border: 0.5rem solid;
@@ -83,7 +83,7 @@ code {
   }
   .navi_listDrop{
     position:absolute;
-    font-size:2rem;
+    font-size:1.5rem;
     top:4.5rem;
     left:1rem;
     border: 0.5rem solid;
@@ -111,7 +111,7 @@ code {
   }
   .navi_listProfile{
     list-style:none;
-    font-size:3rem;
+    font-size:2.5rem;
     font-weight:bold;
     position:relative;
     right:-0.5rem;
@@ -124,8 +124,8 @@ code {
   }
   .navi_listDropProfile{
     position:absolute;
-    font-size:2rem;
-    top:7.3rem;
+    font-size:1.5rem;
+    top:5.9rem;
     left:-1.5rem;
     border: 0.5rem solid black;
     background-color:white;
@@ -166,7 +166,7 @@ footer{
   border-block:solid;
   border-block-width:0.5rem;
   background-color:rgb(106, 0, 130);
-  font-size:3rem;
+  font-size:2rem;
   font-weight:bold;
   position:fixed;
   bottom:0rem;

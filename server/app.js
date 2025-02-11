@@ -5,6 +5,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const supabase = require('./supabase');
+console.log(process.env);
 
 //Routers
 // const indexRouter = require('./routes/index');
@@ -15,11 +16,15 @@ const groupsRouter = require("./routes/groupsRouter");
 const groupMembershipRouter = require("./routes/groupMembershipRouter"); 
 const gamesRouter = require("./routes/gamesRouter"); 
 const cardsRouter = require("./routes/cardsRouter"); 
-const decksRouter = require("./routes/decksRouter");
-
-
+const decksRouter = require("./routes/decksRouter"); 
 
 const app = express();
+
+//allow api requests from front-end run on 3001
+// app.use(cors({
+//     origin: 'http://localhost:3002'
+// }));
+app.use(cors()); //full permissions granted with cors- DEBUG.
 
 //middleware
 app.use(logger('dev'));

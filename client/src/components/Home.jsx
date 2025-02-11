@@ -1,14 +1,11 @@
 import LoggedHeader from "./LoggedHeader";
 import GuestHeader from "./GuestHeader";
 import React, { useState,useEffect } from 'react';
+import '../App.css.old';
+import Navbar from "../global/Navbar";
 
 function App() {
-  const [showHeader1, setShowHeader1] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  const toggleHeader = () => {
-    setShowHeader1(!showHeader1);
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -38,7 +35,6 @@ function App() {
     <div>
       <t1>
         Uniq-Quiz
-        {showHeader1 ? <LoggedHeader toggleHeader={toggleHeader} /> : <GuestHeader toggleHeader={toggleHeader} />}
       </t1>
 
       <footer>{formatDate(currentTime)}</footer>
