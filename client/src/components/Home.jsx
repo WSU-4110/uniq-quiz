@@ -12,9 +12,7 @@ function Home() {
                 const token = localStorage.getItem('sessionToken'); // Adjust based on how you store it
                 if (!token) return; // No token means user is not logged in
 
-                const response = await axios.get('/api/auth/', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const response = await axios.get('/api/auth/getdisplayname');
 
                 setUser(response.data);
             } catch (err) {
@@ -30,7 +28,7 @@ function Home() {
     return (
         <div className="App">
             <h1>Home</h1>
-            {user ? <h2>Welcome back, {user.name}!</h2> : <h2>Welcome</h2>}
+            {user ? <h2>Welcome back, {user}!</h2> : <h2>Welcome</h2>}
             {error && <p style={{ color: "red" }}>Error: {error}</p>}
         </div>
     );
