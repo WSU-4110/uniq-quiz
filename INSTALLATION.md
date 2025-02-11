@@ -7,3 +7,4 @@ npm install @supabase/supabase-js\
 npm install dotenv\
 npm install --save react-router-dom\
 npm install styled-components\
+npm install axios\
