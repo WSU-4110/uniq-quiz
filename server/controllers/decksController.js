@@ -54,13 +54,13 @@ async function getAllDecks(req, res){
  */
 async function getDeck(req, res){
     try{
-        const {Deck_id} = req.params;
-        const {data, error} = await supabase.from("Decks").select().eq("Deck_id", [Deck_id]);
+        const {id} = req.params;
+        const {data, error} = await supabase.from("Decks").select().eq("Deck_id", [id]);
         if(error) throw error;
         res.json(data[0]);
     }catch(err){
         console.log(err.message);
-        res.status(502).json({error: `Failed to fetch deck ${req.params.Deck_id}`});
+        res.status(502).json({error: `Failed to fetch deck ${req.params.id}`});
     }
 }
 
@@ -74,13 +74,13 @@ async function getDeck(req, res){
  */
 async function updateDeck(req, res) {
     try{
-        const {Deck_id} = req.params;
+        const {id} = req.params;
         const {Title = "Default"} = req.body;
-        const { data, error } = await supabase.from("Decks").update({ Title: Title }).eq("Deck_id", [Deck_id]).select();
+        const { data, error } = await supabase.from("Decks").update({ Title: Title }).eq("Deck_id", [id]).select();
         res.json(data);
     }catch(error){
         console.log(error.message);
-        res.status(502).json({error: `Failed to update deck ${req.params.Deck_id}`});
+        res.status(502).json({error: `Failed to update deck ${req.params.id}`});
     }
 }
 
@@ -93,12 +93,12 @@ async function updateDeck(req, res) {
  */
 async function deleteDeck(req, res){
     try{
-        const {Deck_id} = req.params;
-        const {data, error} = await supabase.from("Decks").delete().eq("Deck_id", [Deck_id]).select();
+        const {id} = req.params;
+        const {data, error} = await supabase.from("Decks").delete().eq("Deck_id", [id]).select();
         res.json(data);
     }catch(error){
         console.log(error.message);
-        res.status(502).json({error: `Failed to delete deck ${req.params.Deck_id}`});
+        res.status(502).json({error: `Failed to delete deck ${req.params.id}`});
     }
 }
 
