@@ -3,6 +3,7 @@ const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
+const supabaseAdmin = require("../supabaseAdmin"); //Import admin supabase client
 
 //middleware
 app.use(cors());
@@ -97,9 +98,66 @@ async function signUp(req, res){
     }
   }
 
+  //Delete an account
+  async function deleteAccount(req, res){
+    //Get session token to check if user is logged in
+    const token = req.cookies['session_token'];
+    if(!token){
+      return res.status(401).json({error: "No token provided. Please log in first."});
+    }
+
+    //Actual deletion logic
+    try {
+      //Get user data
+      const {data: user, error: userError} = await supabase.auth.getUser(token);
+      if(userError || !user){
+        return res.status(401).json({error: "Invalid or expired token. Please log in again."})
+      }
+      const userId = user.user.id;
+      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteUser(userId);
+      if(deleteError){
+        return res.status(500).json({error: deleteError.message});
+      }
+      
+      res.clearCookie('session_token');
+      res.status(200).json({message: "Account deleted successfully"});
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
+  //Get displayname
+  async function getDisplayName(req, res){
+    //Get session token
+    const token = req.cookies['session_token'];
+    if(!token){
+      return res.status(401).json({error: "No token provided. Please log in first."});
+    }
+
+    try {
+      //Get user data
+      const {data: user, error: userError} = await supabase.auth.getUser(token);
+      if(userError || !user){
+        return res.status(401).json({error: "Invalid or expired token. Please log in again."})
+      }
+
+      const displayName = user.user.user_metadata?.display_name || "No display name set";
+      if(!displayName){
+        return res.status(401).json({error: "User or display name not found"});
+      }
+
+      return res.status(200).json({display_name: displayName});
+
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   //
   module.exports = {
     signUp,
     logIn,
-    signOut
+    signOut,
+    deleteAccount,
+    getDisplayName
   }
