@@ -51,6 +51,10 @@ async function signUp(req, res){
             email: email,
             password: password,
         })
+        if(error){
+          console.log("Login error: ", error.message);
+          return res.status(400)/json({error: error.message});
+        }
 
         //Store token as HTTP cookie
         res.cookie("session_token", data.session.access_token, {
@@ -65,8 +69,37 @@ async function signUp(req, res){
     }
   }
 
+  //Signout function
+  async function signOut(req, res){
+    //Check to make sure user is signed in before signing out
+    const token = req.cookies['session_token'];
+    if(!token){
+      return res.status(401).json({error: "No token provided. Please log in first."});
+    }
+
+    //Actual sign out logic
+    try {
+      const {data: session, error: sessionError} = await supabase.auth.getSession();
+      if(sessionError || !session){
+        return res.status(401).json({error: "Invalid or expired token. Please log in again."})
+      }
+
+      const {error: signOutError} = await supabase.auth.signOut();
+      if(signOutError){
+        return res.status(500).json({error: "Failed to sign out."});
+      }
+      res.clearCookie("session_token");
+
+      return res.status(200).json({ message: 'Signed out successfully' });
+
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
   //
   module.exports = {
     signUp,
-    logIn
+    logIn,
+    signOut
   }

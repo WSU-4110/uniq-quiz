@@ -102,10 +102,46 @@ async function deleteDeck(req, res){
     }
 }
 
+async function getCardCount(req, res) {
+    try {
+        const { id } = req.params; 
+
+        const { data: deckData, error: deckError } = await supabase
+            .from('Decks')
+            .select('Deck_id, Title')
+            .eq('Deck_id', id); 
+        
+        if (deckError) throw deckError;  // Handle errors for deck fetching
+        if (deckData.length === 0) {
+            return res.status(404).json({ error: 'Deck not found' });
+        }
+        
+        const { count: cardCount, error: cardError } = await supabase
+            .from('Cards')
+            .select('Card_id', { count: 'exact' })  
+            .eq('Deck_id', id); 
+        
+        if (cardError) throw cardError;  // Handle errors for counting cards
+
+        // Send back the result
+        res.json({
+            Deck_id: deckData[0].Deck_id,
+            Title: deckData[0].Title,
+            card_count: cardCount || 0  // If no cards found, return 0
+        });
+
+    } catch (err) {
+        console.log(err.message);
+        res.status(502).json({ error: 'Failed to fetch card counts for the deck.' });
+    }
+}
+
+
 module.exports = {
     createDeck,
     getAllDecks,
     getDeck,
     updateDeck,
-    deleteDeck
+    deleteDeck,
+    getCardCount
 }
