@@ -9,16 +9,12 @@ function Home() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = localStorage.getItem('sessionToken'); // Adjust based on how you store it
-                if (!token) return; // No token means user is not logged in
-
-                const response = await axios.get('/api/auth/getdisplayname');
-
+                const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
                 setUser(response.data.display_name);
+                console.log(response.data);
             } catch (err) {
                 console.error("Error fetching user:", err);
                 setError(err.message);
-                setUser("TestUser001");
             }
         };
 

@@ -1,30 +1,19 @@
 import React from 'react';
+import axios from 'axios';
 
 function handleDelete() {
-    fetch('/api/auth/deleteaccount', {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
+    axios.delete('/api/auth/deleteaccount', { withCredentials: true })
         .then(response => {
-            if (response.ok) {
-                alert('Your account has been deleted.');
-                window.location.href = '/';
-            } else {
-                return response.json().then(data => {
-                    alert(`Error: ${data.message || 'Failed to delete account'}`);
-                });
-            }
+            alert('Your account has been deleted.');
+            window.location.href = '/'; // Redirect to home or login page
         })
         .catch(error => {
             console.error('Error deleting account:', error);
-            alert('An error occurred while deleting your account.');
+            alert(`Error: ${error.response?.data?.message || 'Failed to delete account'}`);
         });
 }
 
-function UserSettings() {
+function DeleteUserButton() {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
             <button
@@ -45,4 +34,4 @@ function UserSettings() {
     );
 }
 
-export default UserSettings;
+export default DeleteUserButton;
