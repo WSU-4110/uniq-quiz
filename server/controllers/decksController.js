@@ -18,10 +18,11 @@ app.use(express.json()); //req.body
  */
 async function createDeck(req, res){
     try{    
-        const {Title = "Default"} = req.body;
-        const User_id = "5c230d10-4e3a-4ae1-a6b1-e3063299ced6";
+        const {Title, User_id} = req.body;
         const {data, error} = await supabase.from("Decks").insert([{User_id: User_id, Title: Title}]);
+        //if(error) res.status(401).json({error: error.message});
         res.json(data);
+        console.log(data);
     }catch(err){
         console.log(err.message);
         res.status(501).json({error: "Failed to create deck."});
@@ -63,6 +64,10 @@ async function getDeck(req, res){
         res.status(502).json({error: `Failed to fetch deck ${req.params.id}`});
     }
 }
+
+/**@todo get decks by user id
+ * 
+ */
 
 /**
  * @description update deck

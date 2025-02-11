@@ -7,6 +7,7 @@ import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
 import Navbar from './global/Navbar.jsx';
 import Decks from './pages/Decks/Decks.jsx';
+import Cards from './pages/Decks/Cards.jsx';
 import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
 import UserSettings from './pages/Auth/UserSettings';
@@ -23,6 +24,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/decks" element={<Decks />}></Route>
+                <Route path="/cards" element={<Cards />}></Route>
+                <Route path="/cards/:card_id" element={<Cards />}></Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/join" element={<Join />} />
                 <Route path="/host" element={<Host />} />
