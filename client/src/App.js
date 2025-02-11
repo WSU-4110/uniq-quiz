@@ -20,7 +20,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/pages/Decks.jsx" element={<Decks />}></Route>
               <Route path="/pages/Cards.jsx" element={<Cards />}></Route>
-              <Route path="/pages/Cards/:deck_id" element={<Cards />}></Route>
+              <Route path="/pages/Cards/:card_id" element={<Cards />}></Route>
               <Route path="*" element={<p>Path not resolved</p>} />
           </Routes>
       </div>
