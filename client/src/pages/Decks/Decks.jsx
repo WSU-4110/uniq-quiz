@@ -1,5 +1,5 @@
 import {React, useState, useEffect} from 'react';
-import TabButton from './../global/TabButton.jsx';
+import TabButton from '../../global/TabButton.jsx';
 import { styled } from 'styled-components';
 import { Link} from 'react-router';
 
