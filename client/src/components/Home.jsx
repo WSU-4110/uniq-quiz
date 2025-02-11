@@ -14,7 +14,7 @@ function Home() {
 
                 const response = await axios.get('/api/auth/getdisplayname');
 
-                setUser(response.data);
+                setUser(response.data.display_name);
             } catch (err) {
                 console.error("Error fetching user:", err);
                 setError(err.message);
