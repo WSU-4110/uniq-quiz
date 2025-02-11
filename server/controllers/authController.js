@@ -33,7 +33,7 @@ async function signUp(req, res){
         //Store token as HTTP cookie
         res.cookie("session_token", data.session.access_token, {
             httpOnly: true,      // Prevents JavaScript access (XSS protection)
-            secure: true,        // Ensures cookie is only sent over HTTPS
+            secure: false,        // Ensures cookie is only sent over HTTPS
             sameSite: "Strict",  // Prevents CSRF attacks
             maxAge: 60 * 60 * 1000 * 168 // 1 week expiry
         });
@@ -60,7 +60,7 @@ async function signUp(req, res){
         //Store token as HTTP cookie
         res.cookie("session_token", data.session.access_token, {
             httpOnly: true,      // Prevents JavaScript access (XSS protection)
-            secure: true,        // Ensures cookie is only sent over HTTPS
+            secure: false,        // Ensures cookie is only sent over HTTPS
             sameSite: "Strict",  // Prevents CSRF attacks
             maxAge: 60 * 60 * 1000 * 168 // 1 week expiry
         });

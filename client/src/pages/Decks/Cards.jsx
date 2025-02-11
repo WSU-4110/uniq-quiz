@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import ListItem from '../components/ListItem';
+import ListItem from '../../components/ListItem';
 
 export default function Cards(){
     const params = useParams();
