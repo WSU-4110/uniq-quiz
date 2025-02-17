@@ -8,3 +8,4 @@ npm install dotenv\
 npm install --save react-router-dom\
 npm install styled-components\
 npm install axios\
+npm install -D tailwindcss@3 postcss autoprefixer\

@@ -1,9 +1,11 @@
 import {React, useState, useEffect} from 'react';
-import TabButton from '../../global/TabButton.jsx';
-import { styled } from 'styled-components';
-import StyledButton from '../../global/StyledButton.jsx';
+import TabButton from '../../components/TabButton.jsx';
 import ListItem from '../../components/ListItem.jsx';
-import { Link, } from 'react-router';
+import { Link, } from 'react-router'
+import styles from "../../Stylesheets/Decks/Decks.module.css";
+
+import { styled } from 'styled-components';
+import StyledButton from '../../global/StyledButton.jsx';;
 
 const StyledDecks = styled.td`
     width: 100vw;
@@ -213,7 +215,7 @@ export default function Decks({...props}){
                         </div>
                         <div className="cardBody">
                             {cards.map((card) => (
-                                <Link key={card.Card_id} to={`/pages/Decks/Cards/${card.Card_id}`}>
+                                <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
                                     <StyledDecks className="card_title">
                                         {card.Question ? card.Question : "Blank Card"},
                                         {card.Answer ? card.Answer : "No Answer"},

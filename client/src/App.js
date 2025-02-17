@@ -2,7 +2,7 @@
 import React from "react";
 import {BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import axios from 'axios';
-import Home from "./components/Home";
+import Home from "./components/Home.jsx";
 import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
 import Navbar from './global/Navbar.jsx';
