@@ -1,0 +1,58 @@
+.decksPage{
+    background-color: var(--darkest);
+}
+
+.searchBarContainer{
+    margin: auto;
+    text-align: right;
+    padding: 1rem;
+}
+
+.searchBar{
+    background-color: var(--lightest);
+    color: var(--medium);
+    box-sizing: border-box;
+    border: 2px solid var(--medium);
+    border-radius: 4px;
+    background-image: 'url(client/public/search-icon.png)';
+    background-position: '10px 10px';
+    background-repeat: 'no-repeat';
+}
+
+.deckInterfaceContainer{
+    margin: auto;
+    background-color: var(--dark);
+}
+
+.deckTabs{
+    height: 5vw;
+    background-color: var(--medium);
+}
+
+.deckMenu{
+    display: flex;
+    list-style-type: none;
+    padding: 0.5 0 0.5 0;
+    margin: 0;
+    height: 5vw;
+}
+
+.menuButton{
+    background-color: darkblue;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover {
+      background-color: blue;
+    }
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  
+    @media screen and (max-width: 600px) {
+      display: flex;
+      width: 100%;
+    }
+}

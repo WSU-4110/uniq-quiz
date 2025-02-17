@@ -16,22 +16,26 @@ axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function App() {
+  const [sidebar, setSidebar] = React.useState(false);
+
   return (
         <div className="application">
-            <Navbar/>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/decks" element={<Decks />}></Route>
-                <Route path="/cards" element={<Cards />}></Route>
-                <Route path="/cards/:card_id" element={<Cards />}></Route>
-                <Route path="/login" element={<Login />} />
-                <Route path="/join" element={<Join />} />
-                <Route path="/host" element={<Host />} />
-                <Route path="/settings" element={<UserSettings />} />
-                <Route path="*" element={<p>Path not resolved</p>} />
-            </Routes>
+            <Navbar sidebar={sidebar} setSidebar={setSidebar}/>
+            <div className={sidebar ? "body" : "bodyNX"}>
+              <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/decks" element={<Decks />}></Route>
+                  <Route path="/cards" element={<Cards />}></Route>
+                  <Route path="/cards/:card_id" element={<Cards />}></Route>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/join" element={<Join />} />
+                  <Route path="/host" element={<Host />} />
+                  <Route path="/settings" element={<UserSettings />} />
+                  <Route path="*" element={<p>Path not resolved</p>} />
+              </Routes>
+            </div>
         </div>
   );
 }

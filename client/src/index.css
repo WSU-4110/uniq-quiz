@@ -21,3 +21,20 @@ code {
   --dark: #1c2541;
   --darkest: #0b132b;
 }
+
+.application{
+  background-color: #fff;
+  height: 95vh;
+}
+
+.body{
+  margin-left: 25vw;
+  width: 70vw;
+  transition: .4s;
+}
+
+.bodyNX{
+  margin-left: 10vw;
+  width: 85vw;
+  transition: .4s;
+}

@@ -166,30 +166,26 @@ export default function Decks({...props}){
     
 
     return(
-        <div id="decksPage">
-            <div className="searchBar" style={{width: '60vw', margin: 'auto',  textAlign: 'right', padding: '1rem'}}>
+        <div id={styles.decksPage}>
+            <div className={styles.searchBarContainer}>
                 <label for="Search">
-                    <input placeholder={"Search " + tab + " (not implemented)"}
-                    style={{
-                        backgroundColor: 'white',
-                        backgroundImage: 'url(client/public/search-icon.png)',
-                        backgroundPosition: '10px 10px',
-                        backgroundRepeat: 'no-repeat',
-                        paddingLeft: '40px',
-                    }}></input>
+                    <input 
+                        placeholder={"Search " + tab + " (not implemented)"}
+                        className={styles.searchBar}
+                    ></input>
                 </label>
             </div>
-            <div className="deckInterfaceContainer" style={{margin: 'auto', width: '60vw'}}>
-                <div className="deckTabs" style={{ height: '5vw', backgroundColor: '#ddd'}}>
-                    <menu style={{display: 'flex', listStyleType: 'none', padding: '0.5 0 0.5 0', margin:'0',}}>
-                        <StyledButton onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</StyledButton>
+            <div className={styles.deckInterfaceContainer}>
+                <div className={styles.deckTabs}>
+                    <menu className={styles.deckMenu}>
+                        <button className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</button>
                         {!viewDeck && (
-                            <StyledButton onClick={createDeck}>Add Deck</StyledButton>
+                            <button className={styles.menuButton} onClick={createDeck}>Add Deck</button>
 
                         )}
                         {viewDeck && (<>
-                            <StyledButton onClick={createCard}>Add Card</StyledButton>
-                            <StyledButton onClick={handleDelete}>Delete This Deck</StyledButton>
+                            <button className={styles.menuButton} onClick={createCard}>Add Card</button>
+                            <button className={styles.menuButton} onClick={handleDelete}>Delete This Deck</button>
                         </>)}
                     </menu>
                 </div>
