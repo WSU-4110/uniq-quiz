@@ -3,11 +3,9 @@ const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
-
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
-
 /**
  * create deck
  * @param {express.Request} req     request
@@ -18,16 +16,16 @@ app.use(express.json()); //req.body
  */
 async function createDeck(req, res){
     try{    
-        const {Title = "Default"} = req.body;
-        const User_id = "5c230d10-4e3a-4ae1-a6b1-e3063299ced6";
+        const {Title, User_id} = req.body;
         const {data, error} = await supabase.from("Decks").insert([{User_id: User_id, Title: Title}]);
+        //if(error) res.status(401).json({error: error.message});
         res.json(data);
+        console.log(data);
     }catch(err){
         console.log(err.message);
         res.status(501).json({error: "Failed to create deck."});
     }
 }
-
 /**
  * @description read all decks
  * @param {express.Request} req     request
@@ -44,7 +42,6 @@ async function getAllDecks(req, res){
         res.status(502).json({ error: "Failed to fetch decks." });
     }
 }
-
 /**
  * @description read one deck by id
  * @param {express.Request} req     request
@@ -63,6 +60,10 @@ async function getDeck(req, res){
         res.status(502).json({error: `Failed to fetch deck ${req.params.id}`});
     }
 }
+
+/**@todo get decks by user id
+ * 
+ */
 
 /**
  * @description update deck
@@ -83,7 +84,6 @@ async function updateDeck(req, res) {
         res.status(502).json({error: `Failed to update deck ${req.params.id}`});
     }
 }
-
 /**
  * @description delete deck
  * @param {express.Request} req     request
@@ -101,11 +101,9 @@ async function deleteDeck(req, res){
         res.status(502).json({error: `Failed to delete deck ${req.params.id}`});
     }
 }
-
 async function getCardCount(req, res) {
     try {
         const { id } = req.params; 
-
         const { data: deckData, error: deckError } = await supabase
             .from('Decks')
             .select('Deck_id, Title')
@@ -122,21 +120,17 @@ async function getCardCount(req, res) {
             .eq('Deck_id', id); 
         
         if (cardError) throw cardError;  // Handle errors for counting cards
-
         // Send back the result
         res.json({
             Deck_id: deckData[0].Deck_id,
             Title: deckData[0].Title,
             card_count: cardCount || 0  // If no cards found, return 0
         });
-
     } catch (err) {
         console.log(err.message);
         res.status(502).json({ error: 'Failed to fetch card counts for the deck.' });
     }
 }
-
-
 module.exports = {
     createDeck,
     getAllDecks,
