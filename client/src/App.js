@@ -11,6 +11,7 @@ import Cards from './pages/Decks/Cards.jsx';
 import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
 import UserSettings from './pages/Auth/UserSettings';
+import Profile from './pages/Profile.jsx'
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/host" element={<Host />} />
                 <Route path="/settings" element={<UserSettings />} />
                 <Route path="*" element={<p>Path not resolved</p>} />
+                <Route path="/profile" element={<Profile/>} />
             </Routes>
         </div>
   );
