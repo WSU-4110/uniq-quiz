@@ -1,4 +1,6 @@
 import {useState} from 'react';
+import styles from './../Stylesheets/Components/ListItem.module.css';
+
 export default function ListItem({content, contentType, onChangeData, isActive = true}){
     const [edit, setEdit] = useState(false);
     const [thisContent, setContent] = useState(content);

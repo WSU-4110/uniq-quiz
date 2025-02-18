@@ -1,26 +1,9 @@
-.decksPage{
-    background-color: var(--darkest);
-}
-
-.searchBarContainer{
-    margin: auto;
-    text-align: right;
-    padding: 1rem;
-}
-
-.searchBar{
-    background-color: var(--lightest);
-    color: var(--medium);
-    box-sizing: border-box;
-    border: 2px solid var(--medium);
-    border-radius: 4px;
-    background-image: 'url(client/public/search-icon.png)';
-    background-position: '10px 10px';
-    background-repeat: 'no-repeat';
+.page{
+    padding: 2vh;
+    font-size: 0;
 }
 
 .deckInterfaceContainer{
-    margin: auto;
     background-color: var(--dark);
 }
 
@@ -33,19 +16,24 @@
     display: flex;
     list-style-type: none;
     padding: 0.5 0 0.5 0;
-    margin: 0;
     height: 5vw;
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid var(--darkest);
 }
 
 .menuButton{
-    background-color: darkblue;
-    color: white;
+    background-color: var(--darkest);
+    color: var(--lightest);
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
+    height: 60%;
+    margin: 8px;
+
     cursor: pointer;
     &:hover {
-      background-color: blue;
+      background-color: var(--feature);
     }
     align-items: center;
     justify-content: center;
@@ -55,4 +43,69 @@
       display: flex;
       width: 100%;
     }
+}
+
+.leftButtons{
+    display: flex;
+}
+.rightButtons{
+    display: flex;
+}
+
+.deckContainer{
+    overflow-y: auto;
+    height: 70vh;
+    background-color: var(--medium);
+    border: 2px solid var(--darkest);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.emptyDecks p{
+    font-size: 15px;
+    width: 100%;
+    padding: 20vh 20vw;
+    color: var(--light);
+}
+
+.deckItem{
+    background-color: var(--feature);
+    border: 2px solid var(--lightest);
+    max-width: 50vw;
+    max-height: 50vw;
+    margin: 15px;
+    width: 200px;
+    height: 200px;
+    background-color: var(--darkest);
+    border-color: var(--lightest);
+    border-radius: 1px;
+    color: var(--lightest);
+
+    text-align: center;
+}
+
+.deckItem h1{
+    padding: 20px;
+    font-size: 15px;
+}
+.deckItem h2{
+    padding: 20px;
+    padding-bottom: 10px;
+    font-size: 15px;
+}
+.deckItem p{
+    padding: 0;
+    font-size: 10px;
+}
+
+.deckItem:hover{
+    background-color: var(--feature);
+    border: 2px solid var(--feature-light);
+}
+
+.cardHead{
+    width: 100%;
 }

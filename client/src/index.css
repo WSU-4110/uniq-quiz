@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box; 
+  background-color: var(--darkest);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -20,10 +21,13 @@ code {
   --medium: #3a506b;
   --dark: #1c2541;
   --darkest: #0b132b;
+  --feature-light: #ffe5ca;
+  --feature: #fa753c;
+  --feature-dark: #6e2211;
+  --off-white: #08031c;
 }
 
 .application{
-  background-color: #fff;
   height: 95vh;
 }
 

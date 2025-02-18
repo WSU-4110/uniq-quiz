@@ -1,20 +1,9 @@
 import {React, useState, useEffect} from 'react';
 import TabButton from '../../components/TabButton.jsx';
 import ListItem from '../../components/ListItem.jsx';
+import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
 import styles from "../../Stylesheets/Decks/Decks.module.css";
-
-import { styled } from 'styled-components';
-import StyledButton from '../../global/StyledButton.jsx';;
-
-const StyledDecks = styled.td`
-    width: 100vw;
-    background-color: #ededed;
-    border-color: #ababab;
-    border-radius: 1px;
-    height: 5vw;
-    &:hover{ background-color: #ff7722; }
-`
 
 
 export default function Decks({...props}){
@@ -166,65 +155,58 @@ export default function Decks({...props}){
     
 
     return(
-        <div id={styles.decksPage}>
-            <div className={styles.searchBarContainer}>
-                <label for="Search">
-                    <input 
-                        placeholder={"Search " + tab + " (not implemented)"}
-                        className={styles.searchBar}
-                    ></input>
-                </label>
-            </div>
+        <div class={styles.page}>
+            <ProfileBanner/>
             <div className={styles.deckInterfaceContainer}>
                 <div className={styles.deckTabs}>
                     <menu className={styles.deckMenu}>
-                        <button className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</button>
-                        {!viewDeck && (
-                            <button className={styles.menuButton} onClick={createDeck}>Add Deck</button>
+                        <div className={styles.leftButtons}>
+                            {!viewDeck && (
+                                <TabButton className={styles.menuButton} onClick={createDeck}>Add Deck</TabButton>
 
-                        )}
-                        {viewDeck && (<>
-                            <button className={styles.menuButton} onClick={createCard}>Add Card</button>
-                            <button className={styles.menuButton} onClick={handleDelete}>Delete This Deck</button>
-                        </>)}
+                            )}
+                            {viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
+                                <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
+                            </>)}
+                        </div>
+                        <div className={styles.rightButtons}>
+                            <TabButton className={styles.menuButton}>Filter</TabButton>
+                            <TabButton className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</TabButton>
+                            <TabButton className={styles.menuButton}>Find Decks</TabButton>
+                        </div>
                     </menu>
                 </div>
-                <div className="deckContainer" style={{overflowY:'auto', height:'70vh', backgroundColor: '#eee'}}>
-                    <table className="table">
-                        {!viewDeck && (<>
-                        <div className="deckHead">{decks ? "My Decks" : "No Decks"}</div>
-                        <div className="deckBody">
-                            {decks.map((deck) => (
-                                <TabButton onClick={()=>{handleSelectDeck(deck)}}>
-                                    <StyledDecks className="deck_title">
-                                        {deck.Title ? deck.Title : "Untitled Deck"}
-                                    </StyledDecks>
-                                </TabButton>
+                <div className={styles.deckContainer}>
+                    {!viewDeck && (<>
+                        <div className={styles.emptyDecks}>{decks ? null : <p>No Decks</p>}</div>
+                        {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                        .map((deck) => (
+                            <TabButton onClick={()=>{handleSelectDeck(deck)}}>
+                                <div className={styles.deckItem}>
+                                    <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
+                                    <p></p>
+                                </div>
+                            </TabButton>
+                        ))}
+                    </>)}
+                    {viewDeck && (<>
+                    <div className={styles.cardHead}>
+                        {selectedDeck && (
+                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                        )}       
+                    </div>
+                        {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
+                        .map((card) => (
+                            <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
+                                <div className={styles.deckItem}>
+                                    <h2>{card.Question ? card.Question : "Blank Card"}</h2>
+                                    <p>{card.Answer ? card.Answer : "No Answer"}</p>
+                                    id: {card.Card_id}
+                                </div>
+                            </Link>
                             ))}
-                        </div>
-                        </>)}
-                        {viewDeck && (<>
-                        <div className="cardHead">
-                            {selectedDeck && (
-                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
-                            )}       
-                        </div>
-                        <div className="cardBody">
-                            {cards.map((card) => (
-                                <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
-                                    <StyledDecks className="card_title">
-                                        {card.Question ? card.Question : "Blank Card"},
-                                        {card.Answer ? card.Answer : "No Answer"},
-                                        {card.Incorrect1 ? card.Incorrect1 : "No Incorrect"},
-                                        {card.Incorrect2 ? card.Incorrect2 : ""},
-                                        {card.Incorrect3 ? card.Incorrect3 : ""},
-                                        id: {card.Card_id}
-                                    </StyledDecks>
-                                </Link>
-                                ))}
-                        </div>
-                        </>)}
-                    </table>
+                    </>)}
                 </div>
             </div>
         </div>

@@ -5,7 +5,7 @@ import axios from 'axios';
 import Home from "./components/Home.jsx";
 import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
-import Navbar from './global/Navbar.jsx';
+import Navbar from './components/Navbar.jsx';
 import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
 import Join from './pages/Game/Join.jsx';
