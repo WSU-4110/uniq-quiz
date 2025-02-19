@@ -1,3 +1,47 @@
-li{
+.li{
+    font-size: 15px;
+    color: var(--lightest);
+    border: 2px solid var(--lightest);
+    border-radius: 5px;
+    padding: 5px;
+    list-style-type: none;
+}
 
+.button{
+    color: var(--dark);
+    background-color: var(--light);
+    padding: 5px 10px;
+    border: 2px solid var(--dark);
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: .4s;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.button:hover{
+    background-color: var(--feature-light);
+}
+
+.item{
+    padding: 5px 10px;
+    margin: 10px;
+    transition: .4s;
+}
+
+.content{
+    width: 80%;
+}
+
+.input{
+    background-color: var(--lightest);
+    color: var(--dark);
+    border: none;
+    border-radius: 5px;
+    width: 80%;
+}
+
+.input:focus{
+    outline: none;
 }

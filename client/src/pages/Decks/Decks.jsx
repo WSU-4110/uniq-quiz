@@ -161,11 +161,12 @@ export default function Decks({...props}){
                 <div className={styles.deckTabs}>
                     <menu className={styles.deckMenu}>
                         <div className={styles.leftButtons}>
-                            {!viewDeck && (
+                            {!viewDeck && (<>
                                 <TabButton className={styles.menuButton} onClick={createDeck}>Add Deck</TabButton>
 
-                            )}
+                            </>)}
                             {viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={()=>{setViewDeck(!viewDeck)}}>Back</TabButton>
                                 <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
                                 <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
                             </>)}
@@ -177,9 +178,16 @@ export default function Decks({...props}){
                         </div>
                     </menu>
                 </div>
+                {viewDeck && (
+                    <div className={styles.cardHead}>
+                        {selectedDeck && (
+                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                        )}       
+                    </div>
+                )}
                 <div className={styles.deckContainer}>
                     {!viewDeck && (<>
-                        <div className={styles.emptyDecks}>{decks ? null : <p>No Decks</p>}</div>
+                        <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                         {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
                         .map((deck) => (
                             <TabButton onClick={()=>{handleSelectDeck(deck)}}>
@@ -191,17 +199,12 @@ export default function Decks({...props}){
                         ))}
                     </>)}
                     {viewDeck && (<>
-                    <div className={styles.cardHead}>
-                        {selectedDeck && (
-                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
-                        )}       
-                    </div>
                         {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
                         .map((card) => (
                             <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
                                 <div className={styles.deckItem}>
                                     <h2>{card.Question ? card.Question : "Blank Card"}</h2>
-                                    <p>{card.Answer ? card.Answer : "No Answer"}</p>
+                                    <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
                                     id: {card.Card_id}
                                 </div>
                             </Link>

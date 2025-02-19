@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import styles from './../Stylesheets/Components/ListItem.module.css';
 
-export default function ListItem({content, contentType, onChangeData, isActive = true}){
+export default function ListItem({content, contentType, onChangeData, isActive = true, header=null}){
     const [edit, setEdit] = useState(false);
     const [thisContent, setContent] = useState(content);
 
@@ -17,12 +17,13 @@ export default function ListItem({content, contentType, onChangeData, isActive =
   }
 
     return(<>
-        <li className={isActive ? 'active' : undefined}>
-          <span className="item">
-            {!edit && (<span className="itemContent">{thisContent}</span>)}
-            {edit && (<input type="text" required value={thisContent} onChange={handleChange}></input>)}
+        <li className={isActive ? `${styles.active} ${styles.li}` : styles.li}>
+          <span className={styles.item}>
+            {header && (<h2>{header}</h2>)}
+            {!edit && (<span className={styles.content}>{thisContent}</span>)}
+            {edit && (<input className={styles.input} type="text" required value={thisContent} onChange={handleChange}></input>)}
           </span>
-            <button onClick={handleEdit}>{!edit && "Edit"}{edit && "Save"}</button>
+            <button className={styles.button} onClick={handleEdit}>{!edit && "Edit"}{edit && "Save"}</button>
         </li>
     </>);
 }
