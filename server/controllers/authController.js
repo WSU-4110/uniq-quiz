@@ -13,8 +13,9 @@ app.use(express.json()); //req.body
 //Signup functions
 async function signUp(req, res){
     try {
+        //Create user in Auth table
         const {email, password, display_name} = req.body;
-        console.log(`Email: ${email}, Password: ${password}, displayName: ${display_name}`);
+        console.log(`Email: ${email}, Password: ${password}, display_name: ${display_name}`);
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
@@ -30,6 +31,16 @@ async function signUp(req, res){
           return res.status(400).json({ error: error.message });
         }
 
+        //Extract user ID from data for use in Users table
+        const userId = data.user?.id
+
+        //Insert new user into Users table
+        console.log("User_id:", userId, "Email:", email)
+        const {error: insertError} = await supabase.from("Users").insert({User_id: userId, Username: email, Profile_Pic: "NullForNow"});
+        if(insertError){
+          console.log("Insert error: ", insertError);
+        }
+
         //Store token as HTTP cookie
         res.cookie("session_token", data.session.access_token, {
             httpOnly: true,      // Prevents JavaScript access (XSS protection)
@@ -37,7 +48,7 @@ async function signUp(req, res){
             sameSite: "Strict",  // Prevents CSRF attacks
             maxAge: 60 * 60 * 1000 * 168 // 1 week expiry
         });
-        res.json({data, error});
+        res.json({message: "Signup successful", data, error});
         }catch(err){
             console.log(err.message);
         }
