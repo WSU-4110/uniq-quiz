@@ -64,6 +64,19 @@
     justify-content: flex-start;
 }
 
+.deckContainerSmall{
+    overflow-y: auto;
+    height: 35vh;
+    background-color: var(--medium);
+    border: 2px solid var(--darkest);
+    border-top: 2px solid var(--lightest);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
 .emptyDecks p{
     font-size: 15px;
     width: 100%;

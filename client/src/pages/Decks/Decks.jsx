@@ -6,7 +6,7 @@ import { Link, } from 'react-router'
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
-export default function Decks({...props}){
+export default function Decks({asInset = false}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
     const [cards, setCards] = useState([]);
@@ -185,7 +185,7 @@ export default function Decks({...props}){
                         )}       
                     </div>
                 )}
-                <div className={styles.deckContainer}>
+                <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
                     {!viewDeck && (<>
                         <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                         {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
