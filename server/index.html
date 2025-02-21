@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button id="sendButton">Send Message</button>
+
+    <div id="messages"></div>
+
+    <script>
+        // Connect to WebSocket server
+        const socket = new WebSocket('ws://localhost:3000'); // Change to your port if needed
+
+        // Open connection
+        socket.onopen = () => {
+            console.log('Connected to WebSocket server');
+            displayMessage('Connected to WebSocket server');
+        };
+
+        // Receive messages
+        socket.onmessage = (event) => {
+            console.log('Received:', event.data);
+            displayMessage('Received: ' + event.data);
+        };
+
+        // Handle connection close
+        socket.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+            displayMessage('Disconnected from WebSocket server');
+        };
+
+        // Handle error
+        socket.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+            displayMessage('WebSocket Error: ' + error.message);
+        };
+
+        // Send message button click handler
+        document.getElementById('sendButton').onclick = () => {
+            const message = document.getElementById('messageInput').value;
+            if (message) {
+                socket.send(message); // Send message to server
+                displayMessage('Sent: ' + message);
+            }
+        };
+
+        // Function to display messages in the #messages div
+        function displayMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const newMessage = document.createElement('div');
+            newMessage.textContent = message;
+            messagesDiv.appendChild(newMessage);
+        }
+    </script>
+</body>
+</html>
