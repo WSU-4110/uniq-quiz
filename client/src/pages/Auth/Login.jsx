@@ -1,11 +1,15 @@
 import React from 'react';
 import axios from 'axios';
+import {useAuth} from '../../context/AuthContext';
+import {useNavigate} from 'react-router-dom';
 import '../../Stylesheets/Auth/Auth.css'
 
 function Login() {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
+    const login = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,6 +27,9 @@ function Login() {
 
             if (data.error) {
                 setError(data.error || 'Something went wrong with the network.');
+            }else{
+                login();
+                navigate('/');
             }
         } catch (error) {
             console.log("Login() error: ", error);
@@ -64,7 +71,7 @@ function Login() {
     return (
 
         <div className="Login">
-            <div className="OutterAuth">
+            <div className="OuterAuth">
                 <div className="AuthBlock">
                     <div className="InnerAuth">
                         <h2>Login</h2>

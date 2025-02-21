@@ -1,0 +1,23 @@
+.profileBanner{
+    background-color: var(--dark);
+}
+.userInfo{
+    display: flex;
+    justify-content: space-between;
+    padding: 1vh 2vw;
+}
+
+.p{
+    font-size: 15px;
+    float: right;
+    color: var(--lightest);
+    border: 2px solid var(--lightest);
+    border-radius: 5px;
+    padding: 5px 20px;
+}
+
+@media screen and (max-width: 600px) {
+    img{
+        display: none;
+    }
+}

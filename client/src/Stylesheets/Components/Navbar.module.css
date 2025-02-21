@@ -104,9 +104,9 @@ button:hover span {
 }
 
 .menuItem a{
-  margin: auto;
+  	margin: auto;
 	color: var(--lightest);
-  text-decoration: none;
+  	text-decoration: none;
 }
 
 .menuItemNX {
@@ -116,6 +116,7 @@ button:hover span {
 .menuItem:hover {
 	background-color: var(--medium);
 }
+
 .menuItem img {
 	width: 30px;
 	padding: 0 20px;

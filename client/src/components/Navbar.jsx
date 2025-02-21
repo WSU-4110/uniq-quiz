@@ -1,6 +1,6 @@
 import {Link} from 'react-router';
 import {React, useState} from 'react';
-import styles from "../Stylesheets/Global/Navbar.module.css";
+import styles from "../Stylesheets/Components/Navbar.module.css";
 
 export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
     const [loginState, setLogin] = useState(isLoggedIn);
