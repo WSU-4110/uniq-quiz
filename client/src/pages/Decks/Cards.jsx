@@ -10,7 +10,7 @@ export default function Cards(){
     
     const getCard = async () =>{
       try{
-        const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}/card`);
+        const response = await fetch(`/api/cards/${params.card_id}/card`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
@@ -24,7 +24,7 @@ export default function Cards(){
     const updateCard = async() =>{
       try{
           const body = card;
-          const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}`, {
+          const response = await fetch(`/api/cards/${params.card_id}`, {
           method: "PUT",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify(body)
@@ -41,7 +41,7 @@ export default function Cards(){
 
     const deleteCard = async () => {
       try {
-          const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}`, {
+          const response = await fetch(`/api/cards/${params.card_id}`, {
               method: "DELETE"
           });
           handleClose();

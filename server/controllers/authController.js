@@ -54,7 +54,7 @@ async function signUp(req, res){
         })
         if(error){
           console.log("Login error: ", error.message);
-          return res.status(400)/json({error: error.message});
+          return res.status(400).json({error: error.message});
         }
 
         //Store token as HTTP cookie

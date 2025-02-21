@@ -8,7 +8,7 @@ function Login() {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
-    const login = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -21,9 +21,9 @@ function Login() {
         }
 
         try{
-            const respone = await axios.post('/api/auth/login', payload);
+            const response = await axios.post('/api/auth/login', payload);
 
-            const data = respone.data;
+            const data = response.data;
 
             if (data.error) {
                 setError(data.error || 'Something went wrong with the network.');

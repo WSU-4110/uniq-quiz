@@ -13,9 +13,11 @@ import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
+import Game from "./pages/Game/Game";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
+//axios.defaults.baseURL = 'http://localhost:3001/';
 
 function ProtectedRoute({ children }) {
   const {isAuthenticated} = useAuth();
