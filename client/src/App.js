@@ -11,6 +11,7 @@ import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
 import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
+import Profile from './pages/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 
@@ -34,6 +35,7 @@ function RootLayout() {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/join" element={<Join />} />
+
                   <Route path="/" element={<Landing/>} />
               
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
@@ -43,6 +45,9 @@ function RootLayout() {
                   <Route path="/host" element={<ProtectedRoute><Host /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
                   <Route path="*" element={<Navigate to="/login" />} />
+
+                  <Route path="/profile" element={<Profile />} />
+
               </Routes>
           </div>
         </div>
