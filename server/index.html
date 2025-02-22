@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Test</title>
+    <title>Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,45 +20,39 @@
     </style>
 </head>
 <body>
-    <h1>WebSocket Client</h1>
+    <h1>Socket.io Client</h1>
     <input type="text" id="messageInput" placeholder="Type a message..." />
     <button id="sendButton">Send Message</button>
 
     <div id="messages"></div>
 
     <script>
-        // Connect to WebSocket server
-        const socket = new WebSocket('ws://localhost:3000'); // Change to your port if needed
+        // Connect to the Socket.io server
+        const socket = io('http://localhost:3000'); // Use your backend server URL
 
         // Open connection
-        socket.onopen = () => {
-            console.log('Connected to WebSocket server');
-            displayMessage('Connected to WebSocket server');
-        };
+        socket.on('connect', () => {
+            console.log('Connected to Socket.io server');
+            displayMessage('Connected to Socket.io server');
+        });
 
         // Receive messages
-        socket.onmessage = (event) => {
-            console.log('Received:', event.data);
-            displayMessage('Received: ' + event.data);
-        };
+        socket.on('message', (message) => {
+            console.log('Received:', message);
+            displayMessage('Received: ' + message);
+        });
 
         // Handle connection close
-        socket.onclose = () => {
-            console.log('Disconnected from WebSocket server');
-            displayMessage('Disconnected from WebSocket server');
-        };
-
-        // Handle error
-        socket.onerror = (error) => {
-            console.error('WebSocket Error:', error);
-            displayMessage('WebSocket Error: ' + error.message);
-        };
+        socket.on('disconnect', () => {
+            console.log('Disconnected from Socket.io server');
+            displayMessage('Disconnected from Socket.io server');
+        });
 
         // Send message button click handler
         document.getElementById('sendButton').onclick = () => {
             const message = document.getElementById('messageInput').value;
             if (message) {
-                socket.send(message); // Send message to server
+                socket.emit('message', message); // Send message using Socket.io
                 displayMessage('Sent: ' + message);
             }
         };
