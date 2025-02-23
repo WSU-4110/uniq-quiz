@@ -13,14 +13,16 @@ import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
-import Game from "./pages/Game/Game";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
-//axios.defaults.baseURL = 'http://localhost:3001/';
+axios.defaults.baseURL = 'http://localhost:3000/';
 
 function ProtectedRoute({ children }) {
-  const {isAuthenticated} = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+      return <p>Loading...</p>;
+  }
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
@@ -44,7 +46,7 @@ function RootLayout() {
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/host" element={<ProtectedRoute><Host /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
-                  <Route path="*" element={<Navigate to="/login" />} />
+                  <Route path="*" element={<Navigate to="/" />} />
               </Routes>
           </div>
         </div>

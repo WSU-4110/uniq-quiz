@@ -10,7 +10,7 @@ function Signup() {
     const [password, setPassword] = React.useState('');
     const [passwordConfirm, setPasswordConfirm] = React.useState('');
     const [display_name, setDisplayName] = React.useState('');
-    const login = useAuth();
+    const {login} = useAuth();
     const navigate = useNavigate();
     const [error, setError] = React.useState('');
 
@@ -42,8 +42,12 @@ function Signup() {
             if (data.error) {
                 setError(data.error || 'Something went wrong with the network.');
             }else{
-                login();
-                navigate('/');
+                const { success, error } = await login(email, password);
+                if (error) {
+                    setError(error);
+                } else if (success) {
+                    navigate("/dashboard");
+                }
             }
         } catch (error) {
             setError("Something went wrong with the network, the developers are crying fixing it.");

@@ -29,7 +29,7 @@ export default function ProfileBanner(){
                 <div className={styles.profilePicture}>
                     {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
                 </div>
-                <p className={styles.p}>{user ? {user} : 'Welcome'}</p>
+                <p className={styles.p}>{user ? user : 'Welcome'}</p>
             </div>
         </div>
     );

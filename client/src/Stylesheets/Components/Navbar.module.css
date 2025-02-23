@@ -103,6 +103,14 @@ button:hover span {
   	outline-offset: -5px;
 }
 
+.menuItem button{
+	margin: auto;
+	color: var(--lightest);
+  	text-decoration: none;
+	text-transform: uppercase;
+	font-size: 15px;
+}
+
 .menuItem a{
   	margin: auto;
 	color: var(--lightest);

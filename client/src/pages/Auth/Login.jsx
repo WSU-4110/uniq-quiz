@@ -15,6 +15,18 @@ function Login() {
         e.preventDefault();
         setError(null);
 
+        const { success, error } = await login(email, password);
+        if (error) {
+            setError(error);
+        } else if (success) {
+            navigate("/dashboard");
+        }
+    };
+
+    const handleSubmit_OLD2 = async (e) => {
+        e.preventDefault();
+        setError(null);
+
         const payload = {
             email,
             password,
@@ -29,7 +41,7 @@ function Login() {
                 setError(data.error || 'Something went wrong with the network.');
             }else{
                 login();
-                navigate('/');
+                navigate('/dashboard');
             }
         } catch (error) {
             console.log("Login() error: ", error);

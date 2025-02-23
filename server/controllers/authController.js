@@ -153,11 +153,31 @@ async function signUp(req, res){
     }
   }
 
+  async function checkSession(req, res) {
+    try {
+        const token = req.cookies.session_token;
+        if (!token) {
+            return res.json({ authenticated: false });
+        }
+
+        const { data, error } = await supabase.auth.getUser(token);
+        if (error || !data.user) {
+            return res.json({ authenticated: false });
+        }
+
+        return res.json({ authenticated: true, user: data.user });
+    } catch (error) {
+        console.error("Session check error:", error);
+        return res.json({ authenticated: false });
+    }
+}
+
   //
   module.exports = {
     signUp,
     logIn,
     signOut,
     deleteAccount,
-    getDisplayName
+    getDisplayName,
+    checkSession
   }

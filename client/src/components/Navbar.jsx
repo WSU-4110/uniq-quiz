@@ -1,18 +1,28 @@
-import {Link} from 'react-router';
-import {React, useState} from 'react';
+import {Link, useNavigate} from 'react-router';
+import React from 'react';
+import { useAuth } from "../context/AuthContext";
 import styles from "../Stylesheets/Components/Navbar.module.css";
 
 export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
-    const [loginState, setLogin] = useState(isLoggedIn);
+    const { isAuthenticated, logout } = useAuth();
+    const navigate = useNavigate();
+
+    async function handleLogout() {
+        try {
+            await logout();
+            navigate("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    }
 
     const links = [
-        {text: "Dashboard", link:"/"},
+        {text: "Dashboard", link:"/dashboard"},
         {text: "Play Game", link:"/join"},
         {text: "Decks", link:"/decks"},
         {text: "Study", link:"/"},
         {text: "Profile", link: "/"},
         {text: "Settings", link: "/settings"},
-        {text: "Logout", link: "api/auth/signout"},
     ];
 
     function showSidebar(){ setSidebar(!sidebar); }
@@ -39,6 +49,11 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
                             <Link to={link}>{text}</Link>
                         </li>
                     ))}
+                    {isAuthenticated && (
+                        <li className={sidebar ? `${styles.menuItem}` : `${styles.menuItem} ${styles.menuItemNX}`}>
+                            <button onClick={handleLogout}>Logout</button>
+                        </li>
+                    )}
                 </div>
             </div>
             <div className={styles.navFoot}>
