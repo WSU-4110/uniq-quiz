@@ -1,0 +1,74 @@
+.card{
+    background-color: var(--medium);
+    width: 40vw;
+    height: 100vh;
+    margin: auto;
+    border-radius: 10px;
+    border: 2px solid var(--lightest);
+    overflow: auto;
+}
+
+.cardEditor{
+    margin: auto;
+    align-content: center;
+}
+
+.image{
+
+}
+
+.card h1{
+    color: var(--feature);
+}
+
+.gridContainer{
+    display: grid;
+    gap: 10px;
+}
+
+.gridRow{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 5px;
+}
+
+.gridRow:first-child{
+    grid-template-columns: 1fr;
+}
+
+.noDisplay{
+    display: none;
+}
+
+.buttonContainer{
+    margin: auto;
+}
+
+.button{
+    margin: auto;
+    color: var(--light);
+    background-color: var(--dark);
+    padding: 5px 10px;
+    border: 2px solid var(--dark);
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: .4s;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.button:hover{
+    background-color: var(--medium);
+    color: var(--lightest);
+}
+
+.delete{
+    background-color: var(--feature);
+    color: var(--feature-dark);
+}
+
+.delete:hover{
+    background-color: var(--feature-light);
+    color: var(--feature-dark);
+}
