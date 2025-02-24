@@ -1,5 +1,6 @@
 const {Server} = require('socket.io');
 
+//Singleton design pattern. Creates single websocket server, exports to app.js to be used by every client.
 module.exports = (server) => {
     const io = new Server(server, {
         cors: {
