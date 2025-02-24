@@ -8,17 +8,28 @@ const supabase = require("../supabase"); //import supabase client
 app.use(cors());
 app.use(express.json()); //req.body
 
+function generateJoinCode(){
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
 //create game
 async function createGame(req,res){
     try {
-        const {Game_id, Host_id, Player_id } = req.body;
+        const {Host_id} = req.params;
         console.log(req.body);
 
         // Log incoming data from Postman
-        console.log("Received data:", { Game_id, Host_id, Player_id});
+        console.log("Received data:", { Host_id});
+        const Join_Code = generateJoinCode();
+        console.log("Generated code: ", Join_Code);
 
-        const { data, error } = await supabase.from("Games").insert([{ Game_id: Game_id, Host_id: Host_id, Player_id: Player_id}]);
-        res.json(data);
+        const { data, error } = await supabase.from("Games").insert([{Host_id: Host_id, Join_Code: Join_Code}]);
+        res.status(201).json({message: "Game created successfully", data});
         
         // Log the database response
         if (error) {
