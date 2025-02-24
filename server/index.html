@@ -64,8 +64,8 @@
         // Connect to the Socket.io server
         const socket = io('http://localhost:3000');
 
-        let gameId;
-        let userId = Math.random().toString(36).substring(2, 9);  // Temporary random user ID for testing
+        let joinCode;
+        let userId = 'e4c0539e-709c-4189-bd49-9e0639950911';  // Temporary random user ID for testing
         let isHost = false;
 
         // Open connection
@@ -94,11 +94,10 @@
 
         // Button to create a new game (host)
         document.getElementById('createGameButton').onclick = () => {
-            gameId = Math.random().toString(36).substring(2, 9);  // Random Game ID for testing
-            const joinCode = gameId;  // Simplified join code for testing
+            joinCode = Math.random().toString(36).substring(2, 9);  // Random Game ID for testing
 
             // Send game creation info to server
-            socket.emit('join_lobby', { Game_id: gameId, User_id: userId });
+            socket.emit('join_lobby', { Join_Code: joinCode, User_id: userId });
 
             isHost = true;
             document.getElementById('hostMessage').textContent = `Game created! Join code: ${joinCode}`;
@@ -110,10 +109,9 @@
             const joinCode = document.getElementById('joinCodeInput').value;
 
             if (joinCode) {
-                gameId = joinCode;  // Use the join code as game ID
 
                 // Send join request to server
-                socket.emit('join_lobby', { Game_id: gameId, User_id: userId });
+                socket.emit('join_lobby', { Join_Code: joinCode, User_id: userId });
                 document.getElementById('joinMessage').textContent = `Joined game with code: ${joinCode}`;
                 document.getElementById('joinMessage').classList.remove('hidden');
             }
@@ -121,7 +119,7 @@
 
         // Button for host to start the game
         document.getElementById('startGameButton').onclick = () => {
-            socket.emit('start_game', { Game_id: gameId });
+            socket.emit('start_game', { Join_Code: joinCode });
             document.getElementById('startGameButton').classList.add('hidden');
         };
 
