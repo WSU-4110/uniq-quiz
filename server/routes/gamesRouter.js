@@ -5,7 +5,7 @@ const router = express.Router();
 const {createGame, getAllGames, getGame, updateGame, deleteGame} = require("../controllers/gamesController");
 
 //Create a new user
-router.post("/", createGame);
+router.post("/:id", createGame);
 
 //Get all users
 router.get("/", getAllGames);
