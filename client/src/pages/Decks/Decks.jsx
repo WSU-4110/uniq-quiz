@@ -1,21 +1,12 @@
 import {React, useState, useEffect} from 'react';
-import TabButton from '../../global/TabButton.jsx';
-import { styled } from 'styled-components';
-import StyledButton from '../../global/StyledButton.jsx';
+import TabButton from '../../components/TabButton.jsx';
 import ListItem from '../../components/ListItem.jsx';
-import { Link, } from 'react-router';
-
-const StyledDecks = styled.td`
-    width: 100vw;
-    background-color: #ededed;
-    border-color: #ababab;
-    border-radius: 1px;
-    height: 5vw;
-    &:hover{ background-color: #ff7722; }
-`
+import ProfileBanner from '../../components/ProfileBanner.jsx';
+import { Link, } from 'react-router'
+import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
-export default function Decks({...props}){
+export default function Decks({asInset = false}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
     const [cards, setCards] = useState([]);
@@ -164,69 +155,61 @@ export default function Decks({...props}){
     
 
     return(
-        <div id="decksPage">
-            <div className="searchBar" style={{width: '60vw', margin: 'auto',  textAlign: 'right', padding: '1rem'}}>
-                <label for="Search">
-                    <input placeholder={"Search " + tab + " (not implemented)"}
-                    style={{
-                        backgroundColor: 'white',
-                        backgroundImage: 'url(client/public/search-icon.png)',
-                        backgroundPosition: '10px 10px',
-                        backgroundRepeat: 'no-repeat',
-                        paddingLeft: '40px',
-                    }}></input>
-                </label>
-            </div>
-            <div className="deckInterfaceContainer" style={{margin: 'auto', width: '60vw'}}>
-                <div className="deckTabs" style={{ height: '5vw', backgroundColor: '#ddd'}}>
-                    <menu style={{display: 'flex', listStyleType: 'none', padding: '0.5 0 0.5 0', margin:'0',}}>
-                        <StyledButton onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</StyledButton>
-                        {!viewDeck && (
-                            <StyledButton onClick={createDeck}>Add Deck</StyledButton>
+        <div class={styles.page}>
+            <ProfileBanner/>
+            <div className={styles.deckInterfaceContainer}>
+                <div className={styles.deckTabs}>
+                    <menu className={styles.deckMenu}>
+                        <div className={styles.leftButtons}>
+                            {!viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={createDeck}>Add Deck</TabButton>
 
-                        )}
-                        {viewDeck && (<>
-                            <StyledButton onClick={createCard}>Add Card</StyledButton>
-                            <StyledButton onClick={handleDelete}>Delete This Deck</StyledButton>
-                        </>)}
+                            </>)}
+                            {viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={()=>{setViewDeck(!viewDeck)}}>Back</TabButton>
+                                <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
+                                <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
+                            </>)}
+                        </div>
+                        <div className={styles.rightButtons}>
+                            <TabButton className={styles.menuButton}>Filter</TabButton>
+                            <TabButton className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</TabButton>
+                            <TabButton className={styles.menuButton}>Find Decks</TabButton>
+                        </div>
                     </menu>
                 </div>
-                <div className="deckContainer" style={{overflowY:'auto', height:'70vh', backgroundColor: '#eee'}}>
-                    <table className="table">
-                        {!viewDeck && (<>
-                        <div className="deckHead">{decks ? "My Decks" : "No Decks"}</div>
-                        <div className="deckBody">
-                            {decks.map((deck) => (
-                                <TabButton onClick={()=>{handleSelectDeck(deck)}}>
-                                    <StyledDecks className="deck_title">
-                                        {deck.Title ? deck.Title : "Untitled Deck"}
-                                    </StyledDecks>
-                                </TabButton>
+                {viewDeck && (
+                    <div className={styles.cardHead}>
+                        {selectedDeck && (
+                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                        )}       
+                    </div>
+                )}
+                <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
+                    {!viewDeck && (<>
+                        <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
+                        {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                        .map((deck) => (
+                            <TabButton onClick={()=>{handleSelectDeck(deck)}}>
+                                <div className={styles.deckItem}>
+                                    <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
+                                    <p></p>
+                                </div>
+                            </TabButton>
+                        ))}
+                    </>)}
+                    {viewDeck && (<>
+                        {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
+                        .map((card) => (
+                            <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
+                                <div className={styles.deckItem}>
+                                    <h2>{card.Question ? card.Question : "Blank Card"}</h2>
+                                    <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
+                                    id: {card.Card_id}
+                                </div>
+                            </Link>
                             ))}
-                        </div>
-                        </>)}
-                        {viewDeck && (<>
-                        <div className="cardHead">
-                            {selectedDeck && (
-                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
-                            )}       
-                        </div>
-                        <div className="cardBody">
-                            {cards.map((card) => (
-                                <Link key={card.Card_id} to={`/pages/Decks/Cards/${card.Card_id}`}>
-                                    <StyledDecks className="card_title">
-                                        {card.Question ? card.Question : "Blank Card"},
-                                        {card.Answer ? card.Answer : "No Answer"},
-                                        {card.Incorrect1 ? card.Incorrect1 : "No Incorrect"},
-                                        {card.Incorrect2 ? card.Incorrect2 : ""},
-                                        {card.Incorrect3 ? card.Incorrect3 : ""},
-                                        id: {card.Card_id}
-                                    </StyledDecks>
-                                </Link>
-                                ))}
-                        </div>
-                        </>)}
-                    </table>
+                    </>)}
                 </div>
             </div>
         </div>

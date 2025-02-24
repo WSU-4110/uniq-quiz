@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {signUp, logIn, signOut, deleteAccount, getDisplayName} = require('../controllers/authController');
+const {signUp, logIn, signOut, deleteAccount, getDisplayName, checkSession} = require('../controllers/authController');
 
 //Allows a user to sign up for an account
 router.post("/signup", signUp);
@@ -17,5 +17,8 @@ router.delete("/deleteaccount", deleteAccount);
 
 //Retrieves user display name
 router.get("/getdisplayname", getDisplayName);
+
+//Gets if user is in a valid session
+router.get("/session", checkSession);
 
 module.exports = router;

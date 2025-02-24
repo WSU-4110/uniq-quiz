@@ -25,10 +25,12 @@ const app = express();
 const server = http.createServer(app);
 
 //allow api requests from front-end run on 3001
-// app.use(cors({
-//     origin: 'http://localhost:3002'
-// }));
-app.use(cors()); //full permissions granted with cors- DEBUG.
+
+ app.use(cors({
+     origin: 'http://localhost:3001',
+     credentials: true
+ }));
+//app.use(cors()); //full permissions granted with cors- DEBUG.
 
 //middleware
 app.use(logger('dev'));

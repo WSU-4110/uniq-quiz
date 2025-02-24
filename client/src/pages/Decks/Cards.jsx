@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ListItem from '../../components/ListItem';
+import styles from '../../Stylesheets/Decks/Cards.module.css';
 
 export default function Cards(){
     const params = useParams();
@@ -9,7 +10,7 @@ export default function Cards(){
     
     const getCard = async () =>{
       try{
-        const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}/card`);
+        const response = await fetch(`/api/cards/${params.card_id}/card`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
@@ -23,7 +24,7 @@ export default function Cards(){
     const updateCard = async() =>{
       try{
           const body = card;
-          const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}`, {
+          const response = await fetch(`/api/cards/${params.card_id}`, {
           method: "PUT",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify(body)
@@ -40,7 +41,7 @@ export default function Cards(){
 
     const deleteCard = async () => {
       try {
-          const response = await fetch(`http://localhost:3000/api/cards/${params.card_id}`, {
+          const response = await fetch(`/api/cards/${params.card_id}`, {
               method: "DELETE"
           });
           handleClose();
@@ -68,23 +69,31 @@ export default function Cards(){
         updateCard();
       } 
     }, [card])
+    console.log(params);
 
-    return (
-        <>
-          <h1>Editing Card ID: {params.card_id}</h1>
-          <p>{card.Question ? card.Question : "No Data"}</p>
-          <div className="cardEditor" key={card.Question}>
-              <img src={card.image ? card.image : null} alt="Placeholder"/>
-              <ListItem content={card.Question} contentType="Question" onChangeData={handleSave}/>
-              <ListItem content={card.Answer} contentType="Answer" onChangeData={handleSave}/>
-              <ListItem content={card.Incorrect1} contentType="Incorrect1" onChangeData={handleSave}/>
-              <ListItem content={card.Incorrect2} contentType="Incorrect2" onChangeData={handleSave}/>
-              <ListItem content={card.Incorrect3} contentType="Incorrect3" onChangeData={handleSave}/>
+    return (<>
+        <div className={styles.card}>
+          <h1>Editing Card</h1>
+            <div className={styles.cardEditor} key={card.Question}>
+              <img className={card.image ? styles.image : styles.noDisplay} src={card.image ? card.image : null} alt="Placeholder"/>
+              <div className={styles.gridContainer}>
+                <div className={styles.gridRow}>
+                  <ListItem content={card.Question} header="Question" contentType="Question" onChangeData={handleSave}/>
+                </div>
+                <div className={styles.gridRow}>
+                  <ListItem content={card.Answer} header="Answer" contentType="Answer" onChangeData={handleSave}/>
+                  <ListItem content={card.Incorrect1} header="Incorrect 1" contentType="Incorrect1" onChangeData={handleSave}/>
+                </div>
+                <div className={styles.gridRow}>
+                  <ListItem content={card.Incorrect2} header="Incorrect 2" contentType="Incorrect2" onChangeData={handleSave}/>
+                  <ListItem content={card.Incorrect3} header="Incorrect 3" contentType="Incorrect3" onChangeData={handleSave}/>
+                </div>
+              </div>
+            </div>
+          <div className={styles.buttonContainer}>
+            <button class={styles.button} onClick={() => handleClose()}>Close</button>
+            <button class={`${styles.button} ${styles.delete}`} onClick={deleteCard}>Delete Card</button>
           </div>
-          <div className="buttonContainer">
-            <button id="close" onClick={() => handleClose()}>Close</button>
-            <button id="delete" onClick={deleteCard} style={{"backgroundColor":"red", "color":"white"}}>Delete Card</button>
-          </div>
-        </>
-      );
+        </div>
+      </>);
 }

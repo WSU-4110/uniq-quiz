@@ -1,13 +1,29 @@
 import React from 'react';
 import axios from 'axios';
+import {useAuth} from '../../context/AuthContext';
+import {useNavigate} from 'react-router-dom';
 import '../../Stylesheets/Auth/Auth.css'
 
 function Login() {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+
+        const { success, error } = await login(email, password);
+        if (error) {
+            setError(error);
+        } else if (success) {
+            navigate("/dashboard");
+        }
+    };
+
+    const handleSubmit_OLD2 = async (e) => {
         e.preventDefault();
         setError(null);
 
@@ -17,12 +33,15 @@ function Login() {
         }
 
         try{
-            const respone = await axios.post('/api/auth/login', payload);
+            const response = await axios.post('/api/auth/login', payload);
 
-            const data = respone.data;
+            const data = response.data;
 
             if (data.error) {
                 setError(data.error || 'Something went wrong with the network.');
+            }else{
+                login();
+                navigate('/dashboard');
             }
         } catch (error) {
             console.log("Login() error: ", error);
@@ -64,7 +83,7 @@ function Login() {
     return (
 
         <div className="Login">
-            <div className="OutterAuth">
+            <div className="OuterAuth">
                 <div className="AuthBlock">
                     <div className="InnerAuth">
                         <h2>Login</h2>
