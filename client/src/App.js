@@ -13,7 +13,6 @@ import Join from './pages/Game/Join.jsx';
 import  Host from './pages/Game/Host.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
-//import Players from './pages/Game/Players.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
 
 axios.defaults.withCredentials = true;
