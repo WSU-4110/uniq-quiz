@@ -1,0 +1,13 @@
+.menuButton{
+	height: 10vh;
+	text-decoration: none;
+	text-transform: uppercase;
+  	align-items: center;
+  	width: 100%;
+  	max-width: 10vw;
+	border-radius: 10px;
+  	outline: 2px solid var(--lightest);
+  	outline-offset: -5px;
+    color: var(--lightest);
+    font-size: 15px;
+}

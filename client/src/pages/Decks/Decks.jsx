@@ -189,9 +189,9 @@ export default function Decks({asInset = false}){
                     {!viewDeck && (<>
                         <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                         {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
-                        .map((deck) => (
+                        .map((deck, index) => (
                             <TabButton onClick={()=>{handleSelectDeck(deck)}}>
-                                <div className={styles.deckItem}>
+                                <div key={index} className={styles.deckItem}>
                                     <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
                                     <p></p>
                                 </div>

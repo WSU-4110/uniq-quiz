@@ -8,8 +8,7 @@ import Login from './pages/Auth/Login';
 import Navbar from './components/Navbar.jsx';
 import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
-import Join from './pages/Game/Join.jsx';
-import  Host from './pages/Game/Host.jsx';
+import Lobby from './pages/Game/Lobby.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 
@@ -36,14 +35,13 @@ function RootLayout() {
               <Routes>
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/join" element={<Join />} />
+                  <Route path="/lobby" element={<Lobby />} />
                   <Route path="/" element={<Landing/>} />
               
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
-                  <Route path="/host" element={<ProtectedRoute><Host /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
                   <Route path="*" element={<Navigate to="/" />} />
               </Routes>
