@@ -156,7 +156,6 @@ export default function Decks({asInset = false}){
 
     return(
         <div class={styles.page}>
-            <ProfileBanner/>
             <div className={styles.deckInterfaceContainer}>
                 <div className={styles.deckTabs}>
                     <menu className={styles.deckMenu}>
