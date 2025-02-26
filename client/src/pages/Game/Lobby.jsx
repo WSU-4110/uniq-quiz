@@ -4,52 +4,57 @@ import io  from 'socket.io-client';
 import styles from '../../Stylesheets/Game/Lobby.module.css';
 import Join from './Join.jsx';
 import Host from './Host.jsx';
+import LobbyState from './LobbyState.js';
 
 const socket = io("http://localhost:3000");
 
 export default function Lobby() {
-    const navigate = useNavigate();
-    
-    //Subject Class: stored in useStates for best React practice
-    const [joinCode, setJoinCode] = useState("");
-    const [isHost, setIsHost] = useState(false);
-    const [canStart, setCanStart] = useState(false);
-    const [lobbyMessage, setLobbyMessage] = useState(null);
-    const [messages, setMessages] = useState([]); 
-    const [players, setPlayers] = useState([]);
+    //const navigate = useNavigate();
 
-    //Observers: stored in useEffect hook
+    //State is used to update subject
+    const [lobbyState] = useState(new LobbyState());
+    const [state, setState] = useState(lobbyState.state);
+
+    function update(newState){
+        setState(newState);
+    }
+
+    //Manage observers and react to socket updates
     useEffect(()=>{
+        lobbyState.addObserver({update});
+
         socket.on('connect', ()=>{
             console.log('Connected to Socket.IO Server');
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                'Connected to Socket.IO Server'
-            ]);
+            lobbyState.setState({
+                messages: [...state.messages, 'Connected to Socket.IO Server']
+            });
         })
 
         socket.on('player_joined', (data)=>{
-            setPlayers((prevPlayers) => [
-                ...prevPlayers,
-                { name: data.Username }
-            ]); 
-            setIsHost(data.isHost);
+            lobbyState.setState(prevState => ({
+                ...prevState,
+                players: Array.isArray(prevState.players) ? [...prevState.players, { name: data.Username }] : [{ name: data.Username }],
+                isHost: data.isHost
+            }));
+            
             updateLobbyInfo();
             console.log(`Player ${data.Username} joined lobby (Host: ${data.isHost})`);
         })        
 
         socket.on('host_permissions', (data)=>{
             if (data.canStartGame) {
-                setCanStart(true);
+                lobbyState.setState({
+                    canStart: true
+                });
             }
         })
 
         socket.on('game_started', (data)=>{
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                'The game has started!'
-            ]);
-            console.log('Game has started!');
+            lobbyState.setState(prevState => ({
+                ...prevState,
+                messages: Array.isArray(prevState.messages) ? [...prevState.messages, 'The game has started!'] : ['The game has started!']
+            }));
+            
         })
 
         return () => {
@@ -57,43 +62,45 @@ export default function Lobby() {
             socket.off('player_joined');
             socket.off('host_permissions');
             socket.off('game_started');
+            lobbyState.removeObserver({update});
         };
 
     }, []);
 
-    //Controller function for Lobby
     function updateLobbyInfo(){
-        setLobbyMessage( isHost ? 'You are the host. Waiting for players to join...' : 'Waiting for the host to start the game...');
+        if (lobbyState.isHost)
+            lobbyState.setState({
+                lobbyMessage: 'You are the host. Waiting for players to join...'
+            })
+        else
+            lobbyState.setState({
+                lobbyMessage: 'Waiting for the host to start the game...'
+            })
     }
 
     return (
         <div className={styles.lobbyPage}>
             <div className={styles.header}>
-                <button className={styles.menuButton} onClick={()=>{navigate(-1)}}>Go Back</button>
-                <button className={styles.menuButton} onClick={()=>{setIsHost(!isHost)}}>
-                    {isHost ? 'Join' : 'Host'}
+                <button className={styles.menuButton} onClick={()=>{console.log('navigate(-1)')}}>Go Back</button>
+                <button className={styles.menuButton} onClick={()=>{lobbyState.setState({isHost: !state.isHost})}}>
+                    {state.isHost ? 'Join' : 'Host'}
                 </button>
             </div>
             <div className={styles.logo}>
                 <img src="/TitleLogo.svg" alt="Uniq-Quiz Logo" />
             </div>
             <div className={styles.joinMenu}>
-                {!isHost && (<>
-                    <Join socket={socket} joinCode={joinCode} setJoinCode={setJoinCode}/>
+                {!state.isHost && (<>
+                    <Join socket={socket} lobbyState={lobbyState}/>
                 </>)}
-                {isHost && (<>
-                    <Host socket={socket} joinCode={joinCode} setJoinCode={setJoinCode} setLobbyMessage={setLobbyMessage} />
+                {state.isHost && (<>
+                    <Host socket={socket} lobbyState={lobbyState} />
                 </>)} 
-                {lobbyMessage && <p>{lobbyMessage}</p>}
             </div>
             <div className={styles.lobby}>
-                <p>{lobbyMessage}</p>
-                {players.map((player, index) => (
-                    <h1 key={index}>{player.name ? player.name : "Unknown Player"}</h1>
-                ))}
-                {messages.map((msg, index) => (
-                    <div key={index}>{msg}</div>
-                ))} 
+                {state.lobbyMessage && <p>{state.lobbyMessage}</p>}
+                {state.players?.map((player, index) => <h1 key={index}>{player.name || "Unknown Player"}</h1>)}
+                {state.messages?.map((msg, index) => <div key={index}>{msg}</div>)}
             </div>
 
             <div className={styles.browseGamesContainer}>
