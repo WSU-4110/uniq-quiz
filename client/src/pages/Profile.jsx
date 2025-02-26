@@ -4,6 +4,7 @@ import axios from 'axios'; // Ensure axios is installed
 import Decks from '../pages/Decks/Decks.jsx';
 import styles from '../Stylesheets/Components/ProfileBanner.module.css';
 
+//Component Based Design Pattern. Uses different components to display different statistics for users to see.
 function Profile(){
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
