@@ -1,6 +1,7 @@
 import React from "react";
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
+import {SocketProvider} from './context/SocketContext.jsx';
 import axios from 'axios';
 import Home from "./pages/Home/Home.jsx";
 import Signup from './pages/Auth/Signup';
@@ -8,7 +9,7 @@ import Login from './pages/Auth/Login';
 import Navbar from './components/Navbar.jsx';
 import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
-import Lobby from './pages/Game/Lobby.jsx';
+import Lobby from './pages/Game/GameLobby.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 
@@ -53,9 +54,11 @@ function RootLayout() {
 function App() {
   return (
     <AuthProvider>
+    <SocketProvider>
       <Router>
         <RootLayout />
       </Router>
+    </SocketProvider>
     </AuthProvider>
   );
 }

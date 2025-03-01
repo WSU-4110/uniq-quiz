@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {Navigate, useLocation} from 'react-router';
-import axios from 'axios'; // Ensure axios is installed
 import {useAuth} from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
 
