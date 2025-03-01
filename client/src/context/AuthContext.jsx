@@ -31,17 +31,19 @@ export function AuthProvider({ children }) {
     }, []);
 
     useEffect(() => {
-        const fetchUserName = async () => {
-            try {
-                const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
-                setUserName(response.data.display_name);
-                console.log(response.data);
-            } catch (err) {
-                console.error("Error fetching user:", err);
-            }
-        };
-        fetchUserName();
-    }, []);
+        if(isAuthenticated){
+            const fetchUserName = async () => {
+                try {
+                    const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
+                    setUserName(response.data.display_name);
+                    console.log(response.data);
+                } catch (err) {
+                    console.error("Error fetching user:", err);
+                }
+            };
+            fetchUserName();
+        }
+    }, [isAuthenticated]);
 
     const login = async (email, password) => {
         try {

@@ -15,7 +15,7 @@ module.exports = (server) => {
     io.on("connection", (socket) => {
         console.log("A new client connected");
 
-        socket.on("join_lobby", async ({Join_Code, User_id}) => {
+        socket.on("join_lobby", async ({Join_Code, User_id, Username}) => {
             socket.join(Join_Code);
 
             // Check if the player is the host
@@ -45,7 +45,8 @@ module.exports = (server) => {
             console.log(`Player ${User_id} joined lobby ${Join_Code} (Host: ${isHost})`);
 
             //Notify all players in lobby that someone has joined
-            io.to(Join_Code).emit("player_joined", {User_id, isHost});
+            console.log(`Player_joined emit statement: ${Username}`);
+            io.to(Join_Code).emit("player_joined", {User_id, Username, isHost});
 
             //If host, gives special permissions
             if(isHost){

@@ -16,7 +16,6 @@ export default function GameLobby() {
     const [messages, setMessages] = useState([]); 
     const [players, setPlayers] = useState([]);
 
-    //Observers: stored in useEffect hook
     useEffect(()=>{
         socket.on('connect', ()=>{
             console.log('Connected to Socket.IO Server');
@@ -82,7 +81,6 @@ export default function GameLobby() {
                 {isHost && (<>
                     <Host socket={socket} joinCode={joinCode} setJoinCode={setJoinCode} setLobbyMessage={setLobbyMessage} />
                 </>)} 
-                {lobbyMessage && <p>{lobbyMessage}</p>}
             </div>
             <div className={styles.lobby}>
                 <p>{lobbyMessage}</p>

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
 
@@ -10,9 +10,7 @@ export default function Host({socket, joinCode, setJoinCode, setLobbyMessage}){
         const newJoinCode = Math.random().toString(36).substring(2, 9);
         setJoinCode(newJoinCode);
         setLobbyMessage(`Game created! Join code: ${newJoinCode}`);
-        console.log(user);
-        socket.emit('join_lobby', { Join_Code: newJoinCode, User_id: user, Username: userName });
-        
+
         socket.on("host_permissions", (data) => {
             if (data.canStartGame) setCanStart(true);
         });
@@ -23,6 +21,11 @@ export default function Host({socket, joinCode, setJoinCode, setLobbyMessage}){
         setCanStart(false);
     }
 
+    useEffect(() => {
+        if (userName && user && joinCode) {
+            socket.emit('join_lobby', { Join_Code: joinCode, User_id: user, Username: userName });
+        }
+    }, [userName, user, joinCode]);
 
     return(
         <>
