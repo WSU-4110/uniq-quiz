@@ -10,7 +10,7 @@ function InfoBar(input) {
                     <h2>{input.displayName} : {input.score}</h2>
                 </div>
                 <div className={styles.buttonContainer}>
-                    {input.isHost ? <button className={styles.hostButton} onClick={input.onAdvance}><h2 className={styles.hostButtonText}>Next</h2></button> : null}
+                    {input.isHost ? <button className={styles.hostButton} onClick={() => input.onAdvance(input.isHost, false)}><h2 className={styles.hostButtonText}>Next</h2></button> : null}
                 </div>
             </div>
     )

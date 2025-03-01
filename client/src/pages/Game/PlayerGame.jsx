@@ -7,6 +7,8 @@ import LeaderboardPage from './GameComponents/LeaderboardPage';
 import PostGamePage from './GameComponents/PostGamePage';
 import InfoBar from './GameComponents/InfoBar';
 
+
+//HW4: State Machine Design Pattern
 const QuizPages = {
     START: "start",
     QUESTION: "question",
@@ -19,22 +21,33 @@ const QuizPages = {
 
 function PlayerGame() {
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
-    const nextState = () => {
+    const nextState = (isHost, isGameOver, progressNextQuestion) => {
         console.log("In nextState, current page " + currentPage);
         switch (currentPage) {
             case QuizPages.START:
-                setCurrentPage(QuizPages.QUESTION);
+                setCurrentPage(QuizPages.LOADING);
+                break;
             case QuizPages.QUESTION:
-                setCurrentPage(QuizPages.POSTQUESTION);
+                if (isHost && progressNextQuestion) {
+                setCurrentPage(QuizPages.LEADERBOARD);
+                } else {
+                    setCurrentPage(QuizPages.POSTQUESTION);
+                }
                 break;
             case QuizPages.POSTQUESTION:
-                setCurrentPage(QuizPages.LEADERBOARD);
+                if (isHost && progressNextQuestion) {
+                    setCurrentPage(QuizPages.LEADERBOARD);
+                }
                 break;
             case QuizPages.LOADING:
                 setCurrentPage(QuizPages.QUESTION);
                 break;
             case QuizPages.LEADERBOARD:
+                if (isGameOver) {
+                    setCurrentPage(QuizPages.POSTGAME);
+                } else {
                 setCurrentPage(QuizPages.QUESTION);
+                }
                 break;
             case QuizPages.POSTGAME:
                 setCurrentPage(QuizPages.POSTGAME);
@@ -84,9 +97,6 @@ function PlayerGame() {
                 />
             </header>
             <div>
-                <button onClick={() => {
-                    console.log("Current Page set to " + currentPage);
-                }} style={{color: 'white'}}>DEBUG PRINT</button>
                 {renderPage()}
             </div>
         </div>
