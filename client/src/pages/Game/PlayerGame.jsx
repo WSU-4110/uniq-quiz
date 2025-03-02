@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import StartPage from './GameComponents/StartPage';
 import QuestionPage from './GameComponents/QuestionPage';
 import PostQuestionPage from './GameComponents/PostQuestionPage';
@@ -21,6 +21,25 @@ const QuizPages = {
 
 function PlayerGame() {
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
+
+    //This useEffect arrow function exists to allow the game to
+    //change states via the console, e.g. setCurrentPage("loading")
+    useEffect(() => {
+        window.changeQuizState = (newState) => {
+            if (Object.values(QuizPages).includes(newState)) {
+                setCurrentPage(newState);
+                console.log(`State changed to ${newState}`);
+            } else {
+                console.error(`Invalid state: ${newState}`);
+            }
+        };
+
+        return () => {
+            delete window.changeQuizState;
+        };
+    }, []);
+
+    //This is the logic for the host to change between different states
     const nextState = (isHost, isGameOver, progressNextQuestion) => {
         console.log("In nextState, current page " + currentPage);
         switch (currentPage) {
@@ -85,14 +104,15 @@ function PlayerGame() {
     }
 
     return (
-        <div>
+        <div style={{ overflowY: 'hidden' }}>
+
             <header>
                 <InfoBar
                     gameCode={"J8B3"}
                     deckName={"What The Fucking Shit"}
                     displayName={"PaulM"}
                     score={45300}
-                    isHost={true}
+                    isHost={false}
                     onAdvance={nextState}
                 />
             </header>
@@ -107,7 +127,13 @@ function PlayerGame() {
                 /> }
                 { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage onAdvance={nextState} /> }
                 { currentPage === QuizPages.LOADING && <LoadingPage /> }
-                { currentPage === QuizPages.LEADERBOARD && <LeaderboardPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
+                    first={"First Place"}
+                    second={"Second Place"}
+                    third={"Third Place"}
+                    fourth={"Fourth Place"}
+                    fifth={"Fifth Place"}
+                /> }
                 { currentPage === QuizPages.POSTGAME && <PostGamePage onAdvance={nextState} /> }
                 {currentPage === QuizPages.ERROR && <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1> }
             </div>
