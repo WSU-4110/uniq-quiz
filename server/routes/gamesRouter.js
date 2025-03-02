@@ -5,7 +5,7 @@ const router = express.Router();
 const {createGame, getAllGames, getGame, updateGame, deleteGame} = require("../controllers/gamesController");
 
 //Create a new game by Host_id
-router.post("/:id", createGame);
+router.post("/:Host_id", createGame);
 
 //Get all games
 router.get("/", getAllGames);
