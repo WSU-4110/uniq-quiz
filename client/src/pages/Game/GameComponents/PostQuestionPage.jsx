@@ -1,10 +1,15 @@
 import React from 'react';
+import styles from '../../../Stylesheets/Game/Components/PostQuestionPage.module.css'
+import Throbber from "./Throbber";
 
 function PostQuestionPage({ onAdvance }) {
     return (
-        <div>
-            <h1>PostQuestionPage</h1>
-            <button onClick={onAdvance}>Next State</button>
+        <div className={styles.pageContainer}>
+            <h1>Answer Submitted</h1>
+            <h2>Please wait for the others!</h2>
+            <div className={styles.throbberContainer}>
+                { <Throbber /> }
+            </div>
         </div>
     )
 }

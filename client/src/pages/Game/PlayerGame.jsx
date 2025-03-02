@@ -28,14 +28,14 @@ function PlayerGame() {
                 setCurrentPage(QuizPages.LOADING);
                 break;
             case QuizPages.QUESTION:
-                if (isHost && progressNextQuestion) {
+                if (false) {
                 setCurrentPage(QuizPages.LEADERBOARD);
                 } else {
                     setCurrentPage(QuizPages.POSTQUESTION);
                 }
                 break;
             case QuizPages.POSTQUESTION:
-                if (isHost && progressNextQuestion) {
+                if (isHost) {
                     setCurrentPage(QuizPages.LEADERBOARD);
                 }
                 break;
@@ -59,7 +59,7 @@ function PlayerGame() {
                 setCurrentPage(QuizPages.ERROR);
                 break;
         }
-        }
+    }
 
     const renderPage = () => {
         switch (currentPage) {
@@ -97,7 +97,19 @@ function PlayerGame() {
                 />
             </header>
             <div>
-                {renderPage()}
+                { currentPage === QuizPages.START && <StartPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.QUESTION && <QuestionPage
+                    Question={'What is the output to the python function "print(0.1 + 0.2)"?'}
+                    Answer1={"3"}
+                    Answer2={"0.3"}
+                    Answer3={"3.3"}
+                    Answer4={"3.000000000004"}
+                /> }
+                { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.LOADING && <LoadingPage /> }
+                { currentPage === QuizPages.LEADERBOARD && <LeaderboardPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.POSTGAME && <PostGamePage onAdvance={nextState} /> }
+                {currentPage === QuizPages.ERROR && <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1> }
             </div>
         </div>
     );

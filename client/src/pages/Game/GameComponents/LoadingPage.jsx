@@ -1,10 +1,13 @@
 import React from 'react';
+import styles from '../../../Stylesheets/Game/Components/LoadingPage.module.css';
+import Throbber from "./Throbber";
 
 function LoadingPage({ onAdvance }) {
     return (
-        <div>
-            <h1>LoadingPage</h1>
-            <button onClick={onAdvance}>Next State</button>
+        <div className={styles.pageContainer}>
+            <h1>Loading</h1>
+            <h2>Please wait</h2>
+            {<Throbber/>}
         </div>
     )
 }
