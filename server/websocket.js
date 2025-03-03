@@ -27,8 +27,8 @@ module.exports = (server) => {
             // Check if the player is the host
             const { data, error } = await supabase
             .from("Games")
-            .select("Host_id", "Game_id")
-            .eq("Join_Code", Join_Code)
+            .select("Host_id")
+            .eq("Game_id", Game_id)
             .single();
 
             if(error){

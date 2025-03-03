@@ -69,10 +69,9 @@ async function getGameByGameId(req, res){
 //get a game by join code
 async function getGameByJoinCode(req, res){
     try{
-        console.log("here");
         const {Join_Code} = req.params;
         console.log(Join_Code);
-        const {data: aGame, error} = await supabase.from("Games").select('*').eq('Join_Code', Join_Code);
+        const {data: aGame, error} = await supabase.from("Games").select('*').eq('Join_Code', Join_Code).single();
         console.log(aGame);
         res.json(aGame);
     } catch(err) {

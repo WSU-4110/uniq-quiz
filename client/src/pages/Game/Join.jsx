@@ -6,7 +6,7 @@ import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
 
 export default function Join(){
-    const {user, userName} = useAuth();
+    const {user, userName, loading} = useAuth();
     const socket = useSocket();
 
     const [joinCode, setJoinCode] = useState("");
@@ -25,6 +25,7 @@ export default function Join(){
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const jsonData = await response.json();
+                console.log(jsonData);
                 setGame(jsonData);
                 socket.emit('join_lobby', { Game_id: jsonData.Game_id, User_id: user, Username: userName });
                 setLobbyMessage('Waiting for the host to start the game...');
