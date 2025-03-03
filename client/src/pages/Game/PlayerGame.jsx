@@ -40,14 +40,14 @@ function PlayerGame() {
     }, []);
 
     //This is the logic for the host to change between different states
-    const nextState = (isHost, isGameOver, progressNextQuestion) => {
+    const nextState = (isHost, isGameOver) => {
         console.log("In nextState, current page " + currentPage);
         switch (currentPage) {
             case QuizPages.START:
                 setCurrentPage(QuizPages.LOADING);
                 break;
             case QuizPages.QUESTION:
-                if (false) {
+                if (isHost) {
                 setCurrentPage(QuizPages.LEADERBOARD);
                 } else {
                     setCurrentPage(QuizPages.POSTQUESTION);
@@ -80,36 +80,13 @@ function PlayerGame() {
         }
     }
 
-    const renderPage = () => {
-        switch (currentPage) {
-            case QuizPages.START:
-                return <StartPage onAdvance={nextState} />;
-            case QuizPages.QUESTION:
-                return <QuestionPage onAdvance={nextState} />;
-            case QuizPages.POSTQUESTION:
-                return <PostQuestionPage onAdvance={nextState} />
-            case QuizPages.LOADING:
-                return <LoadingPage onAdvance={nextState} />
-            case QuizPages.LEADERBOARD:
-                return <LeaderboardPage onAdvance={nextState} />
-            case QuizPages.POSTGAME:
-                return <PostGamePage />
-            case QuizPages.ERROR:
-                console.error(currentPage + "Error PlayerGame.jsx");
-                return(<h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1>)
-            default:
-                console.error("PlayerGame.jsx line 22, game failed to swap to valid state.")
-                break;
-        }
-    }
-
     return (
         <div style={{ overflowY: 'hidden' }}>
 
             <header>
                 <InfoBar
-                    gameCode={"J8B3"}
-                    deckName={"What The Fucking Shit"}
+                    gameCode={"B00B"}
+                    deckName={"What The Sigma"}
                     displayName={"PaulM"}
                     score={45300}
                     isHost={false}
@@ -117,15 +94,16 @@ function PlayerGame() {
                 />
             </header>
             <div>
-                { currentPage === QuizPages.START && <StartPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.START && <StartPage /> }
                 { currentPage === QuizPages.QUESTION && <QuestionPage
                     Question={'What is the output to the python function "print(0.1 + 0.2)"?'}
                     Answer1={"3"}
                     Answer2={"0.3"}
                     Answer3={"3.3"}
                     Answer4={"3.000000000004"}
+                    onAdvance={nextState}
                 /> }
-                { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage onAdvance={nextState} /> }
+                { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage /> }
                 { currentPage === QuizPages.LOADING && <LoadingPage /> }
                 { currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     first={"First Place"}
@@ -134,7 +112,12 @@ function PlayerGame() {
                     fourth={"Fourth Place"}
                     fifth={"Fifth Place"}
                 /> }
-                { currentPage === QuizPages.POSTGAME && <PostGamePage onAdvance={nextState} /> }
+                { currentPage === QuizPages.POSTGAME && <PostGamePage
+                    first={"First Place Name"}
+                    second={"Second Place Name"}
+                    third={"Third Place Name"}
+                    others={["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"]}
+                /> }
                 {currentPage === QuizPages.ERROR && <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1> }
             </div>
         </div>
