@@ -29,7 +29,6 @@ async function createGame(req,res){
         console.log("Generated code: ", Join_Code);
 
         const { data, error } = await supabase.from("Games").insert([{Host_id: Host_id, Join_Code: Join_Code}]).select();
-
         res.status(201).json({message: "Game created successfully", data});
         
         // Log the database response
