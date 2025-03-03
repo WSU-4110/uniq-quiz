@@ -4,11 +4,10 @@ import {useAuth} from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
 
 function Home() {
-    const {userName} = useAuth();
+    const {user, userName} = useAuth();
     const [error, setError] = useState(null);
     const location = useLocation();
 
-    //set true to user for conditional redirect
     return true ? (
         <div className="App">
             <Decks asInset={true}/>

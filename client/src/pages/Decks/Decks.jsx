@@ -201,8 +201,8 @@ export default function Decks({asInset = false}){
                     {viewDeck && (<>
                         {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
                         .map((card) => (
-                            <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
-                                <div className={styles.deckItem}>
+                            <Link to={`/cards/${card.Card_id}`}>
+                                <div key={card.Card_id} className={styles.deckItem}>
                                     <h2>{card.Question ? card.Question : "Blank Card"}</h2>
                                     <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
                                     id: {card.Card_id}

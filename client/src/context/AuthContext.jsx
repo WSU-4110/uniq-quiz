@@ -54,6 +54,7 @@ export function AuthProvider({ children }) {
             }
 
             setIsAuthenticated(true);
+            setUser(response.data.data.user.id);
             return { success: true };
         } catch (error) {
             console.error("Login error:", error);

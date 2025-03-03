@@ -21,7 +21,7 @@ module.exports = (server) => {
             // Check if the player is the host
             let { data, error } = await supabase
             .from("Games")
-            .select("Host_id")
+            .select("Host_id", "Game_id")
             .eq("Join_Code", Join_Code)
             .single();
 
@@ -29,28 +29,29 @@ module.exports = (server) => {
                 // If no game exists, create a new one with the current player as the host
                 const { data: newGame, error: insertError } = await supabase
                     .from("Games")
-                    .insert([{ Join_Code: Join_Code, Host_id: User_id }]);
+                    .insert([{ Join_Code: Join_Code, Host_id: User_id }])
+                    .select("Game_id")
+                    .single();
         
                 if (insertError) {
                     console.log("Error creating game: ", insertError.message);
                     return;
                 }
-
-                console.log(data);
         
-                data = { Host_id: User_id }; // Treat this player as the host
+                data = newGame;
             }
 
             const isHost = data.Host_id === User_id;
+            const Game_id = data.Game_id;
             console.log(`Player ${User_id} joined lobby ${Join_Code} (Host: ${isHost})`);
 
             //Notify all players in lobby that someone has joined
             console.log(`Player_joined emit statement: ${Username}`);
-            io.to(Join_Code).emit("player_joined", {User_id, Username, isHost});
+            io.to(Join_Code).emit("player_joined", {Game_id, User_id, Username, isHost});
 
             //If host, gives special permissions
             if(isHost){
-                io.to(socket.id).emit("host_permissions", {canStartGame: true});
+                io.to(socket.id).emit("host_permissions", {Game_id: Game_id, canStartGame: true});
             }
         })
         // Host starts the game
@@ -58,6 +59,20 @@ module.exports = (server) => {
             console.log(`Game ${Join_Code} started by the host`);
             io.to(Join_Code).emit("game_started");
         });
+
+        socket.on("end_game", async ({Game_id}) => {
+            const deleteDeck = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/games/${Game_id}`, {
+                        method: "DELETE"
+                    });
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+            console.log(`Game ${Game_id} ended`);
+            io.to(Join_Code).emit("game_ended");
+        })
 
         socket.on("disconnect", () =>{
             console.log("Client disconnected");
