@@ -67,7 +67,7 @@ module.exports = (server) => {
                 console.log("Deck data: ", data);
 
                 //Retrieve card data
-                const {cards, cardError} = await supabase
+                const {data: cards, error: cardError} = await supabase
                     .from("Cards")
                     .select("*")
                     .eq("Deck_id", Deck_id);
@@ -130,7 +130,7 @@ module.exports = (server) => {
 
         //Host ends the game
         socket.on("end_game", async ({Game_id}) => {
-            if(socket.data.host){
+            if(socket.data.host){ //Make sure only host has access to this function
                 try{
                     //Get all clients connected to host
                     const clients = await io.in(Game_id).fetchSockets();
@@ -166,10 +166,12 @@ module.exports = (server) => {
             }
         });
 
+        //On client disconnect
         socket.on("disconnect", () =>{
             console.log("Client disconnected");
         });
     })
 
+    //Runs to let us know server is active
     console.log('Socket.io server is running.');
 };
