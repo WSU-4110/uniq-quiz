@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams } from 'react-router-dom';
+import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
 import StartPage from './GameComponents/StartPage';
@@ -24,16 +25,19 @@ const QuizPages = {
 
 function PlayerGame() {
     const params = useParams();
+    const socket = useSocket();
     const {user, userName, loading} = useAuth();
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
+    const [card, setCard] = useState({});
     const [isHost, setIsHost] = useState(params ? true : false);
     const [joinCode, setJoinCode] = useState("");
+    const [isGameOver, setIsGameOver] = useState(false);
 
     const getJoinCode = async() => {
         console.log(params);
-        if(params.game_id){
+        if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.game_id}/game`);
+                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -49,6 +53,28 @@ function PlayerGame() {
     const getLiveDeck = async() => {
 
     }
+
+    const getNextQuestion = async() => {
+        if(params){
+            console.log("sending game ID", params.Game_id);
+            socket.emit('send_next_card', {Game_id: params.Game_id});
+        }
+    }
+
+    //socket listener
+    useEffect(() => {
+        socket.on('card_for_client', (data) => {
+            setCard(data.Card);
+            if(!data.Card){
+                socket.emit('end_game', {Game_id: params.Game_id});
+                console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
+            }
+        })
+
+        socket.on('game_ended', (data)=>{
+            setIsGameOver(true);
+        });
+    }, []);
 
     //params listener
     useEffect(()=>{
@@ -74,7 +100,7 @@ function PlayerGame() {
     }, []);
 
     //This is the logic for the host to change between different states
-    const nextState = (isHost, isGameOver) => {
+    const nextState = (isHost) => {
         console.log("In nextState, current page " + currentPage);
         switch (currentPage) {
             case QuizPages.START:
@@ -94,11 +120,13 @@ function PlayerGame() {
                 break;
             case QuizPages.LOADING:
                 setCurrentPage(QuizPages.QUESTION);
+                getNextQuestion();
                 break;
             case QuizPages.LEADERBOARD:
                 if (isGameOver) {
                     setCurrentPage(QuizPages.POSTGAME);
-                } else {
+                } else { 
+                getNextQuestion();
                 setCurrentPage(QuizPages.QUESTION);
                 }
                 break;
@@ -130,12 +158,11 @@ function PlayerGame() {
             <div>
                 { currentPage === QuizPages.START && <StartPage /> }
                 { currentPage === QuizPages.QUESTION && <QuestionPage
-                    Question={'What is the output to the python function "print(0.1 + 0.2)"?'}
-                    Answer1={"3"}
-                    Answer2={"0.3"}
-                    Answer3={"3.3"}
-                    Answer4={"3.000000000004"}
-                    onAdvance={nextState}
+                    Question={card.Question ? card.Question : "No Question"}
+                    Answer1={card.Answer ? card.Answer : "No Answer"}
+                    Answer2={card.Incorrect1 ? card.Incorrect1 : "No Option"}
+                    Answer3={card.Incorrect2 ? card.Incorrect2 : "No Option"}
+                    Answer4={card.Incorrect3 ? card.Incorrect3 : "No Option"}
                 /> }
                 { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage /> }
                 { currentPage === QuizPages.LOADING && <LoadingPage /> }
