@@ -93,6 +93,28 @@ module.exports = (server) => {
             }
         });
 
+        //Socket to retrieve deck title upon page loading
+        socket.on("get_deck_title", async ({Game_id}) =>{
+            //Get current ID from activeGames
+            const deckId = activeGames[Game_id].Deck_id;
+
+            //Retrieve deck title from database
+            const {data: deckTitle, error: titleError} = await supabase
+                .from("Decks")
+                .select("Title")
+                .eq("Deck_id", DeckId)
+                .single();
+
+            if(titleError){
+                console.log("Error retrieving title: ", titleError.message);
+            }
+
+            //Emit title as event to all clients connected to Game_id
+            io.to(Game_id).emit("deck_title", deckTitle);
+        })
+        
+
+
         // Host starts the game
         socket.on("start_game", ({ Game_id }) => {
             if(activeGames[Game_id]){
