@@ -102,7 +102,7 @@ module.exports = (server) => {
             const {data: deckTitle, error: titleError} = await supabase
                 .from("Decks")
                 .select("Title")
-                .eq("Deck_id", deckId)
+                .eq("Deck_id", DeckId)
                 .single();
 
             if(titleError){
@@ -110,7 +110,7 @@ module.exports = (server) => {
             }
 
             //Emit title as event to all clients connected to Game_id
-            io.to(Game_id).emit("deck_title", {Deck_Title: deckTitle} );
+            io.to(Game_id).emit("deck_title", deckTitle);
         })
         
 
