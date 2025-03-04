@@ -141,11 +141,35 @@ async function getCardCount(req, res) {
     }
 }
 
+async function getUserDecks (req, res) {
+    try{
+        const {User_id} = req.params;
+        const {count: deckCount, error:countError} = await supabase
+            .from("Decks")
+            .select("Deck_id", {count: 'exact'})
+            .eq("User_id", User_id)
+
+        if(countError){
+            console.log("Error retrieving count: ", countError.message);
+            res.status(502).json(countError);
+        }
+
+        res.json({
+            deck_count: deckCount
+        })
+    }
+    catch(error){
+        if(error){
+            console.log("Error: ", error.message);
+        }
+    }
+}
 
 module.exports = {
     createDeck,
     getAllDecks,
     getDeck,
+    getUserDecks,
     updateDeck,
     deleteDeck,
     getCardCount

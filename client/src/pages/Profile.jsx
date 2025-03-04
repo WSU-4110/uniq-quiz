@@ -1,29 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
-import axios from 'axios'; // Ensure axios is installed
+import { useAuth } from '../context/AuthContext.jsx';
 import Decks from '../pages/Decks/Decks.jsx';
 import styles from '../Stylesheets/Profile.module.css';
 
 function Profile(){
-    const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
+    const [userData, setUserData] = useState({});
+    const [deckData, setDeckNumber] = useState({});
+    const {user, userName} = useAuth();
     const location = useLocation();
     const [profilePicture, setProfilePicture] = useState(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
-                setUser(response.data.display_name);
-                console.log(response.data);
-            } catch (err) {
-                console.error("Error fetching user:", err);
-                setError(err.message);
-            }
-        };
+    const getUser = async() =>{
+        try {
+            const response = await fetch(`http://localhost:3000/api/users/${user}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+            const jsonData = await response.json();
+            setUserData(jsonData);
+            console.log(jsonData);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+    useEffect(()=>{
+            getUser();
+        }, [])
 
-        fetchUser();
-    }, []);
+    const getDecks = async() =>{
+        try {
+            const response = await fetch(`http://localhost:3000/api/decks/`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+            const jsonData = await response.json();
+            setDeckNumber(jsonData);
+            console.log(jsonData);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+    useEffect(()=>{
+            getDecks();
+        }, [])
 
     return (
         <div className={styles.profileBanner}>
@@ -31,15 +52,16 @@ function Profile(){
                 <div className={styles.profilePicture}>
                     {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
                 </div>
-                <p className={styles.p}>{user ? user : 'Welcome'}</p>
+                <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
             </div>
             <div className="App">
                 <h1><ul>Stats: </ul></h1>
                 <ul style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-                    <li><h2 style={{ display: 'inline' }}>Top Wins: 0</h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Total Points: 0</h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Best Deck: 0; 0</h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Decks Made: 0</h2></li>
+                    <li><h2 style={{ display: 'inline' }}>Top Wins: {userData.Wins}</h2></li>
+                    <li><h2 style={{ display: 'inline' }}>Total Points: {userData.Total_Score}</h2></li>
+                    <li><h2 style={{ display: 'inline' }}>Best Deck: {userData.Highest_Score_id ? userData.Highest_Score_id : "None"}
+                         ; {userData.Highest_Score} </h2></li>
+                    <li><h2 style={{ display: 'inline' }}>Decks Made: {deckData.length}</h2></li>
                 </ul>
             </div>
             <div className="App">
