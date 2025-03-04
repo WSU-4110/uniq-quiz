@@ -1,29 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
+import {useAuth} from '../context/AuthContext.jsx';
 import axios from 'axios'; // Ensure axios is installed
 import Decks from '../pages/Decks/Decks.jsx';
 import styles from '../Stylesheets/Profile.module.css';
 
 function Profile(){
-    const [user, setUser] = useState(null);
-    const [error, setError] = useState(null);
+    const {user, userName} = useAuth();
     const location = useLocation();
     const [profilePicture, setProfilePicture] = useState(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
-                setUser(response.data.display_name);
-                console.log(response.data);
-            } catch (err) {
-                console.error("Error fetching user:", err);
-                setError(err.message);
-            }
-        };
-
-        fetchUser();
-    }, []);
 
     return (
         <div className={styles.profileBanner}>
@@ -31,7 +16,7 @@ function Profile(){
                 <div className={styles.profilePicture}>
                     {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
                 </div>
-                <p className={styles.p}>{user ? user : 'Welcome'}</p>
+                <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
             </div>
             <div className="App">
                 <h1><ul>Stats: </ul></h1>

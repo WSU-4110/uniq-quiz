@@ -70,8 +70,20 @@ async function getGameByGameId(req, res){
 async function getGameByJoinCode(req, res){
     try{
         const {Join_Code} = req.params;
-        console.log(Join_Code);
         const {data: aGame, error} = await supabase.from("Games").select('*').eq('Join_Code', Join_Code).single();
+        console.log(aGame);
+        res.json(aGame);
+    } catch(err) {
+        console.log(err.message);
+        res.status(201).json(aGame);
+    }
+}
+
+//get a game by host id
+async function getGameByHostId(req, res){
+    try{
+        const {Host_id} = req.params;
+        const {data: aGame, error} = await supabase.from("Games").select('*').eq('Host_id', Host_id).single();
         console.log(aGame);
         res.json(aGame);
     } catch(err) {
@@ -126,6 +138,7 @@ module.exports = {
     getAllGames,
     getGameByGameId,
     getGameByJoinCode,
+    getGameByHostId,
     updateGame,
     deleteGame
 };

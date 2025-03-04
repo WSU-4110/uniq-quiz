@@ -24,11 +24,41 @@ const QuizPages = {
 
 function PlayerGame() {
     const params = useParams();
+    const {user, userName, loading} = useAuth();
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
+    const [isHost, setIsHost] = useState(params ? true : false);
+    const [joinCode, setJoinCode] = useState("");
 
-    //This useEffect arrow function exists to allow the game to
-    //change states via the console, e.g. setCurrentPage("loading")
+    const getJoinCode = async() => {
+        console.log(params);
+        if(params.game_id){
+            try {
+                const response = await fetch(`http://localhost:3000/api/games/${params.game_id}/game`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const jsonData = await response.json();
+                console.log(jsonData);
+                setJoinCode(jsonData.Join_Code);
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+    }
+
+    const getLiveDeck = async() => {
+
+    }
+
+    //params listener
+    useEffect(()=>{
+        getJoinCode();
+    }, [params]);
+
+    //component mount listener
     useEffect(() => {
+        //Allow the game to change states via the console,
+        //e.g. setCurrentPage("loading")
         window.changeQuizState = (newState) => {
             if (Object.values(QuizPages).includes(newState)) {
                 setCurrentPage(newState);
@@ -89,11 +119,11 @@ function PlayerGame() {
 
             <header>
                 <InfoBar
-                    gameCode={"B00B"}
-                    deckName={"What The Sigma"}
-                    displayName={"PaulM"}
+                    gameCode={joinCode}
+                    deckName={"Unknown Deck Title"}
+                    displayName={userName}
                     score={45300}
-                    isHost={false}
+                    isHost={isHost}
                     onAdvance={nextState}
                 />
             </header>
