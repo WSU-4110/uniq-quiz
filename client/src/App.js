@@ -32,6 +32,7 @@ function RootLayout() {
   const {isAuthenticated} = useAuth();
   const location = useLocation();
   const [sidebar, setSidebar] = React.useState(true);
+  const [isGame, setIsGame] = React.useState(false);
 
 
   React.useEffect(() => {
@@ -39,17 +40,17 @@ function RootLayout() {
           location.pathname.startsWith("/join") ||
           location.pathname.startsWith("/host")
       ) {
-          setSidebar(false);
+          setIsGame(true);
       } else {
-          setSidebar(true);
+          setIsGame(false);
       }
   }, [location.pathname])
 
 
   return (
         <div className="application">
-          {isAuthenticated && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
-          <div className={isAuthenticated ? (sidebar ? "body" : "bodyNX") : "bodyFull"}>
+          {isAuthenticated && !isGame && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
+          <div className={isAuthenticated && !isGame ? (sidebar ? "body" : "bodyNX") : "bodyFull"}>
               <Routes>
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
