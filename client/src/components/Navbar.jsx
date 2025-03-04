@@ -18,7 +18,7 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
 
     const links = [
         {text: "Dashboard", link:"/dashboard"},
-        {text: "Play Game", link:"/join"},
+        {text: "Play PlayerGame", link:"/join"},
         {text: "Decks", link:"/decks"},
         {text: "Study", link:"/"},
         {text: "Profile", link: "/"},
