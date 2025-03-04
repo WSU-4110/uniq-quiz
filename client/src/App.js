@@ -11,8 +11,10 @@ import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
 import Host from './pages/Game/Host.jsx';
 import Join from './pages/Game/Join.jsx';
+import Profile from './pages/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
+import PlayerGame from "./pages/Game/PlayerGame";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -38,11 +40,13 @@ function RootLayout() {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/" element={<Landing/>} />
+                  <Route path="/game" element={<PlayerGame />} />
               
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />

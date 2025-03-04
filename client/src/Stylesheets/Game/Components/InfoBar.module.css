@@ -1,0 +1,53 @@
+.gamenavContainerHost {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+    color: #000000;
+}
+
+.gamenavInnerHost {
+    display: flex;
+    align-items: center;
+    gap: 33pc;
+    padding-left: 2pc;
+}
+
+
+.gamenavContainer {
+    background: #FFFFFF;
+    color: #000000;
+}
+
+.gamenavInner {
+    display: flex;
+    justify-content: space-around;
+}
+
+.hostButton {
+    background: var(--light);
+    margin: 5px;
+    padding: 3px;
+    border: 3px solid var(--darkest);
+    border-radius: 5px;
+}
+
+.hostButton:hover {
+    background: var(--medium);
+}
+
+.hostButton:active {
+    background: var(--dark);
+}
+
+.hostButtonText {
+    color: black;
+    padding: 4px;
+    margin: 0;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: right;
+}
+
