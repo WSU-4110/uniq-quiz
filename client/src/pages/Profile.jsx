@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {Navigate, useLocation} from 'react-router';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios'; // Ensure axios is installed
 import Decks from '../pages/Decks/Decks.jsx';
-import styles from '../Stylesheets/Components/ProfileBanner.module.css';
+import styles from '../Stylesheets/Profile.module.css';
 
-//Component Based Design Pattern. Uses different components to display different statistics for users to see.
 function Profile(){
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
@@ -44,8 +43,8 @@ function Profile(){
                 </ul>
             </div>
             <div className="App">
-                <h1><ul>Decks: </ul></h1>
-                <Decks asInset={true}/>
+                <h1><ul><Link to="/decks" className={styles.links}>Decks: </Link></ul></h1>
+                <Decks asInset={true} showOnlyDecks={true}/>
             </div>
             <div className="App">
                 <h1><ul>Groups: </ul></h1>
