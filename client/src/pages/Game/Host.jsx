@@ -15,7 +15,23 @@ export default function Host(){
     const [messages, setMessages] = useState([]); 
     const [players, setPlayers] = useState([]);
     const [started, setStarted] = useState(false);
+    const [decks, setDecks] = useState([]);
+    const [selectedDeck, setSelectedDeck] = useState({});
     const [lobbyMessage, setLobbyMessage] = useState(null);
+
+    /**@todo convert this to a separate hook for reuse with decks */
+    const getDecks = async() =>{
+        try {
+            const response = await fetch("http://localhost:3000/api/decks/");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+            const jsonData = await response.json();
+            setDecks(jsonData.filter(deck => deck.User_id == user));
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
 
     const createGame = async() => {
         if (loading) {
@@ -64,6 +80,10 @@ export default function Host(){
         console.log(`Destroying game ${game.Game_id ? game.Game_id : 'no game'}`);
     }
 
+    const selectDeck = (deck) =>{
+        setSelectedDeck(deck);
+    }
+
     //socket listener
     useEffect(()=>{
         socket.on('connect', ()=>{
@@ -96,6 +116,7 @@ export default function Host(){
         })
 
         socket.on('game_ended', (data)=>{
+            console.log("message:", data.message);
             setCanStart(false);
             setGame("");
             setMessages([]);
@@ -113,19 +134,44 @@ export default function Host(){
         
     }, [socket]);
 
+    //game update listener
     useEffect(()=>{
         setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
         socket.emit('join_lobby', { Game_id: game.Game_id, User_id: user, Username: userName });
 
     }, [game]);
 
+    //deck select listener
+    useEffect(()=>{
+        socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+    }, [selectedDeck])
+
+    //component mount listener
+    useEffect(()=>{
+        getDecks();
+    }, []);
+
     return(
         <Lobby>
             <Link to={'/join'} className={styles.menuButton}>Join</Link>
             <p>{joinMessage}</p>
+            <button className={styles.menuButton} onClick={()=>{setCanStart(true)}}>debug</button>
             <button className={styles.menuButton} onClick={createGame}>Create Game</button>
             {canStart && <button className={styles.menuButton} onClick={startGame}>Start Game</button>}
             <button className={styles.menuButton} onClick={destroyGame}>End Game</button>
+
+            <div>
+                <label for="decks">Choose a deck:</label>
+                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex])}>
+                    {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                    .map((deck, index) => (
+                        <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>
+                            {deck.Title ? deck.Title : "Untitled Deck"}
+                        </option>
+                    ))}
+                </select>
+                <p>{selectedDeck.Title ? selectedDeck.Title : "no deck selected"}</p>
+            </div>
 
             <div className={styles.lobby}>
                 <p>{lobbyMessage}</p>
@@ -133,7 +179,7 @@ export default function Host(){
                         <div key={index}>{msg}</div>
                     ))} 
                 {players.map((player, index) => (
-                        <h1 key={index}>{player.name ? player.name : "Unknown Player"}</h1>
+                        <h1 key={index}>{player.Username ? player.Username : "Unknown Player"}</h1>
                 ))}
             </div>
         </Lobby>

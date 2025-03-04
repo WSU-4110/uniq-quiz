@@ -3,6 +3,7 @@ import TabButton from '../../components/TabButton.jsx';
 import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
+import {useAuth} from '../../context/AuthContext.jsx';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
@@ -13,6 +14,7 @@ export default function Decks({asInset = false}){
     const [selectedDeck, setSelectedDeck] = useState({});
     const [viewDeck, setViewDeck] = useState(false);
     const [refresh, setRefresh] = useState(0);
+    const {user, userName, loading} = useAuth();
 
     let tab='My Decks';
 
@@ -36,7 +38,7 @@ export default function Decks({asInset = false}){
 
     const createDeck = async() => {
         try{
-            const body = {Title: "Untitled Deck", User_id: "5c230d10-4e3a-4ae1-a6b1-e3063299ced6"};
+            const body = {Title: "Untitled Deck", User_id: user};
             const response = await fetch("http://localhost:3000/api/decks/",{
                 method: "POST",
                 headers: { "Content-Type": "application/json"},

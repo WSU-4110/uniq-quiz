@@ -5,7 +5,7 @@ const router = express.Router();
 const {createDeck, getAllDecks, getDeck, updateDeck, deleteDeck, getCardCount} = require("../controllers/decksController");
 
 //Create a new deck via user_id
-router.post("/:id", createDeck);
+router.post("/", createDeck);
 
 //Get all decks
 router.get("/", getAllDecks);

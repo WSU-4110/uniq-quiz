@@ -53,11 +53,12 @@ module.exports = (server) => {
         socket.on("deck_selected", async ({Game_id, Deck_id}) => {
             if(socket.data.host){
                 //Verify that host has access to this deck
+                console.log("Using ID: ", socket.data.User_id);
                 const {data, error} = await supabase
                     .from("Decks")
                     .select("Deck_id")
                     .eq("Deck_id", Deck_id)
-                    .eq("User_id", socket.data.User_id)
+                    .eq("User_id", socket.data.User_id) 
                     .single();
                 
                 if(error){
@@ -132,6 +133,9 @@ module.exports = (server) => {
         socket.on("end_game", async ({Game_id}) => {
             if(socket.data.host){ //Make sure only host has access to this function
                 try{
+                    //send game end message to clients before disconnecting
+                    io.to(Game_id).emit("game_ended", {message: "Game has ended"});
+
                     //Get all clients connected to host
                     const clients = await io.in(Game_id).fetchSockets();
                     
@@ -154,8 +158,6 @@ module.exports = (server) => {
                     else{
                         console.log(`Game ${Game_id} has ended and been removed from database.`);
                     }
-
-                    io.to(Game_id).emit("game_ended", {message: "Game has ended"});
                 }
                 catch(error){
                     console.log("Error ending game: ", error.message);
