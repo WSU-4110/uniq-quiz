@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
 import axios from 'axios';
@@ -30,7 +30,21 @@ function ProtectedRoute({ children }) {
 
 function RootLayout() {
   const {isAuthenticated} = useAuth();
+  const location = useLocation();
   const [sidebar, setSidebar] = React.useState(true);
+
+
+  React.useEffect(() => {
+      if (
+          location.pathname.startsWith("/join") ||
+          location.pathname.startsWith("/host")
+      ) {
+          setSidebar(false);
+      } else {
+          setSidebar(true);
+      }
+  }, [location.pathname])
+
 
   return (
         <div className="application">
