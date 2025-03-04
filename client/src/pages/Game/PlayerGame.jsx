@@ -22,6 +22,16 @@ const QuizPages = {
     ERROR: "error"
 };
 
+function CalcPlyaerScore(isQuestionCorrect, position, totalPos){
+    const positionReversed = totalPos - position;
+    var normalizedPosition = positionReversed / totalPos;
+    normalizedPosition = Math.abs(normalizedPosition);
+
+    var correctScore = (1000 * normalizedPosition) + 1000;
+    var positionScore = normalizedPosition * 100;
+    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
+}
+
 function PlayerGame() {
     const params = useParams();
     const {user, userName, loading} = useAuth();
