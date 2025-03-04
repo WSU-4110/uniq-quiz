@@ -5,6 +5,8 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userName, setUserName] = useState(null);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -13,6 +15,7 @@ export function AuthProvider({ children }) {
                 const response = await axios.get("/api/auth/session", { withCredentials: true });
                 if (response.data.authenticated) {
                     setIsAuthenticated(true);
+                    setUser(response.data.user.id);
                 } else {
                     setIsAuthenticated(false);
                 }
@@ -27,6 +30,21 @@ export function AuthProvider({ children }) {
         checkAuth();
     }, []);
 
+    useEffect(() => {
+        if(isAuthenticated){
+            const fetchUserName = async () => {
+                try {
+                    const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
+                    setUserName(response.data.display_name);
+                    console.log(response.data);
+                } catch (err) {
+                    console.error("Error fetching user:", err);
+                }
+            };
+            fetchUserName();
+        }
+    }, [isAuthenticated]);
+
     const login = async (email, password) => {
         try {
             const response = await axios.post("/api/auth/login", { email, password }, { withCredentials: true });
@@ -36,6 +54,7 @@ export function AuthProvider({ children }) {
             }
 
             setIsAuthenticated(true);
+            setUser(response.data.data.user.id);
             return { success: true };
         } catch (error) {
             console.error("Login error:", error);
@@ -53,7 +72,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, user, userName, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

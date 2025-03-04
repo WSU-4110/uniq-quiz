@@ -28,7 +28,7 @@ async function createGame(req,res){
         const Join_Code = generateJoinCode();
         console.log("Generated code: ", Join_Code);
 
-        const { data, error } = await supabase.from("Games").insert([{Host_id: Host_id, Join_Code: Join_Code}]);
+        const { data, error } = await supabase.from("Games").insert([{Host_id: Host_id, Join_Code: Join_Code}]).select();
         res.status(201).json({message: "Game created successfully", data});
         
         // Log the database response
@@ -53,14 +53,40 @@ async function getAllGames(req, res){
     }
 }
 
-//get a game
-async function getGame(req, res){
+//get a game by game id
+async function getGameByGameId(req, res){
     try {
         const {id} = req.params;
         const {data: aGame, error}  = await supabase.from("Games").select('*').eq('Game_id', id).single();
         console.log(aGame);
         res.json(aGame);
     } catch (err) {
+        console.log(err.message);
+        res.status(201).json(aGame);
+    }
+}
+
+//get a game by join code
+async function getGameByJoinCode(req, res){
+    try{
+        const {Join_Code} = req.params;
+        const {data: aGame, error} = await supabase.from("Games").select('*').eq('Join_Code', Join_Code).single();
+        console.log(aGame);
+        res.json(aGame);
+    } catch(err) {
+        console.log(err.message);
+        res.status(201).json(aGame);
+    }
+}
+
+//get a game by host id
+async function getGameByHostId(req, res){
+    try{
+        const {Host_id} = req.params;
+        const {data: aGame, error} = await supabase.from("Games").select('*').eq('Host_id', Host_id).single();
+        console.log(aGame);
+        res.json(aGame);
+    } catch(err) {
         console.log(err.message);
         res.status(201).json(aGame);
     }
@@ -110,7 +136,9 @@ async function deleteGame(req, res){
 module.exports = {
     createGame,
     getAllGames,
-    getGame,
+    getGameByGameId,
+    getGameByJoinCode,
+    getGameByHostId,
     updateGame,
     deleteGame
 };

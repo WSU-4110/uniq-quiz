@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        #messages {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .status {
+            color: green;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Lobby</h1>
+    
+    <!-- Host Game Section -->
+    <div class="container">
+        <h2>Host a Game</h2>
+        <button id="createGameButton">Create Game</button>
+        <p id="hostMessage" class="hidden"></p>
+    </div>
+
+    <!-- Join Game Section -->
+    <div class="container">
+        <h2>Join a Game</h2>
+        <input type="text" id="joinCodeInput" placeholder="Enter join code" />
+        <button id="joinGameButton">Join Game</button>
+        <p id="joinMessage" class="hidden"></p>
+    </div>
+
+    <!-- Lobby Info Section -->
+    <div class="container">
+        <h3>Lobby</h3>
+        <div id="lobbyInfo"></div>
+        <button id="startGameButton" class="hidden">Start Game</button>
+    </div>
+
+    <!-- Messages Section -->
+    <div id="messages"></div>
+
+    <script>
+        // Connect to the Socket.io server
+        const socket = io('http://localhost:3000');
+
+        let joinCode;
+        let userId = 'e4c0539e-709c-4189-bd49-9e0639950911';  // Temporary random user ID for testing
+        let isHost = false;
+
+        // Open connection
+        socket.on('connect', () => {
+            console.log('Connected to Socket.io server');
+            displayMessage('Connected to Socket.io server');
+        });
+
+        // Handle join_lobby response
+        socket.on('player_joined', (data) => {
+            console.log(`Player ${data.User_id} joined lobby (Host: ${data.isHost})`);
+            updateLobbyInfo();
+        });
+
+        // Handle host_permissions event
+        socket.on('host_permissions', (data) => {
+            if (data.canStartGame) {
+                document.getElementById('startGameButton').classList.remove('hidden');
+            }
+        });
+
+        // Handle game started event
+        socket.on('game_started', () => {
+            displayMessage('The game has started!');
+        });
+
+        // Button to create a new game (host)
+        document.getElementById('createGameButton').onclick = () => {
+            joinCode = Math.random().toString(36).substring(2, 9);  // Random Game ID for testing
+
+            // Send game creation info to server
+            socket.emit('join_lobby', { Join_Code: joinCode, User_id: userId });
+
+            isHost = true;
+            document.getElementById('hostMessage').textContent = `Game created! Join code: ${joinCode}`;
+            document.getElementById('hostMessage').classList.remove('hidden');
+        };
+
+        // Button for player to join a game
+        document.getElementById('joinGameButton').onclick = () => {
+            const joinCode = document.getElementById('joinCodeInput').value;
+
+            if (joinCode) {
+
+                // Send join request to server
+                socket.emit('join_lobby', { Join_Code: joinCode, User_id: userId });
+                document.getElementById('joinMessage').textContent = `Joined game with code: ${joinCode}`;
+                document.getElementById('joinMessage').classList.remove('hidden');
+            }
+        };
+
+        // Button for host to start the game
+        document.getElementById('startGameButton').onclick = () => {
+            socket.emit('start_game', { Join_Code: joinCode });
+            document.getElementById('startGameButton').classList.add('hidden');
+        };
+
+        // Function to update the lobby info
+        function updateLobbyInfo() {
+            const lobbyInfoDiv = document.getElementById('lobbyInfo');
+            if (isHost) {
+                lobbyInfoDiv.textContent = 'You are the host. Waiting for players to join...';
+            } else {
+                lobbyInfoDiv.textContent = 'Waiting for the host to start the game...';
+            }
+        }
+
+        // Function to display messages in the #messages div
+        function displayMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const newMessage = document.createElement('div');
+            newMessage.textContent = message;
+            messagesDiv.appendChild(newMessage);
+        }
+    </script>
+</body>
+</html>

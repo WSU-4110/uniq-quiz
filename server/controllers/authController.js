@@ -176,7 +176,7 @@ async function signUp(req, res){
             return res.json({ authenticated: false });
         }
 
-        return res.json({ authenticated: true, user: data.user });
+        return res.json({ authenticated: true, user: {id: data.user.id} });
     } catch (error) {
         console.error("Session check error:", error);
         return res.json({ authenticated: false });

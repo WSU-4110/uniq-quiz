@@ -18,8 +18,9 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
 
     const links = [
         {text: "Dashboard", link:"/dashboard"},
-        {text: "Play PlayerGame", link:"/join"},
+        {text: "Play", link:"/join"},
         {text: "Decks", link:"/decks"},
+        {text: "Groups", link:"/groups"},
         {text: "Study", link:"/"},
         {text: "Profile", link: "/profile"},
         {text: "Settings", link: "/settings"},
@@ -45,7 +46,7 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
                 </div>
                 <div className={styles.navMenu}>
                     {links.map(({text, link}) => (
-                        <li className={sidebar ? `${styles.menuItem}` : `${styles.menuItem} ${styles.menuItemNX}`}>
+                        <li key={text} className={sidebar ? `${styles.menuItem}` : `${styles.menuItem} ${styles.menuItemNX}`}>
                             <Link to={link}>{text}</Link>
                         </li>
                     ))}

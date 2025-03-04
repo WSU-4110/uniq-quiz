@@ -1,4 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import {useAuth} from '../../context/AuthContext.jsx';
+import { useParams } from 'react-router-dom';
+import {useSocket} from '../../context/SocketContext.jsx';
+
+//pages
 import StartPage from './GameComponents/StartPage';
 import QuestionPage from './GameComponents/QuestionPage';
 import PostQuestionPage from './GameComponents/PostQuestionPage';
@@ -8,7 +13,6 @@ import PostGamePage from './GameComponents/PostGamePage';
 import InfoBar from './GameComponents/InfoBar';
 
 
-//HW4: State Machine Design Pattern
 const QuizPages = {
     START: "start",
     QUESTION: "question",
@@ -19,12 +23,78 @@ const QuizPages = {
     ERROR: "error"
 };
 
-function PlayerGame() {
-    const [currentPage, setCurrentPage] = useState(QuizPages.START);
+function CalcPlyaerScore(isQuestionCorrect, position, totalPos){
+    const positionReversed = totalPos - position;
+    var normalizedPosition = positionReversed / totalPos;
+    normalizedPosition = Math.abs(normalizedPosition);
 
-    //This useEffect arrow function exists to allow the game to
-    //change states via the console, e.g. setCurrentPage("loading")
+    var correctScore = (1000 * normalizedPosition) + 1000;
+    var positionScore = normalizedPosition * 100;
+    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
+}
+
+function PlayerGame() {
+    const params = useParams();
+    const socket = useSocket();
+    const {user, userName, loading} = useAuth();
+    const [currentPage, setCurrentPage] = useState(QuizPages.START);
+    const [card, setCard] = useState({});
+    const [isHost, setIsHost] = useState(params ? true : false);
+    const [joinCode, setJoinCode] = useState("");
+    const [isGameOver, setIsGameOver] = useState(false);
+
+    const getJoinCode = async() => {
+        console.log(params);
+        if(params.Game_id){
+            try {
+                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const jsonData = await response.json();
+                console.log(jsonData);
+                setJoinCode(jsonData.Join_Code);
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+    }
+
+    const getLiveDeck = async() => {
+
+    }
+
+    const getNextQuestion = async() => {
+        if(params){
+            console.log("sending game ID", params.Game_id);
+            socket.emit('send_next_card', {Game_id: params.Game_id});
+        }
+    }
+
+    //socket listener
     useEffect(() => {
+        socket.on('card_for_client', (data) => {
+            setCard(data.Card);
+            if(!data.Card){
+                socket.emit('end_game', {Game_id: params.Game_id});
+                console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
+            }
+        })
+
+        socket.on('game_ended', (data)=>{
+            setIsGameOver(true);
+        });
+    }, []);
+
+    //params listener
+    useEffect(()=>{
+        getJoinCode();
+    }, [params]);
+
+    //component mount listener
+    useEffect(() => {
+        //Allow the game to change states via the console,
+        //e.g. setCurrentPage("loading")
         window.changeQuizState = (newState) => {
             if (Object.values(QuizPages).includes(newState)) {
                 setCurrentPage(newState);
@@ -40,7 +110,7 @@ function PlayerGame() {
     }, []);
 
     //This is the logic for the host to change between different states
-    const nextState = (isHost, isGameOver) => {
+    const nextState = (isHost) => {
         console.log("In nextState, current page " + currentPage);
         switch (currentPage) {
             case QuizPages.START:
@@ -60,11 +130,13 @@ function PlayerGame() {
                 break;
             case QuizPages.LOADING:
                 setCurrentPage(QuizPages.QUESTION);
+                getNextQuestion();
                 break;
             case QuizPages.LEADERBOARD:
                 if (isGameOver) {
                     setCurrentPage(QuizPages.POSTGAME);
-                } else {
+                } else { 
+                getNextQuestion();
                 setCurrentPage(QuizPages.QUESTION);
                 }
                 break;
@@ -85,23 +157,22 @@ function PlayerGame() {
 
             <header>
                 <InfoBar
-                    gameCode={"B00B"}
-                    deckName={"What The Sigma"}
-                    displayName={"PaulM"}
+                    gameCode={joinCode}
+                    deckName={"Unknown Deck Title"}
+                    displayName={userName}
                     score={45300}
-                    isHost={false}
+                    isHost={isHost}
                     onAdvance={nextState}
                 />
             </header>
             <div>
                 { currentPage === QuizPages.START && <StartPage /> }
                 { currentPage === QuizPages.QUESTION && <QuestionPage
-                    Question={'What is the output to the python function "print(0.1 + 0.2)"?'}
-                    Answer1={"3"}
-                    Answer2={"0.3"}
-                    Answer3={"3.3"}
-                    Answer4={"3.000000000004"}
-                    onAdvance={nextState}
+                    Question={card.Question ? card.Question : "No Question"}
+                    Answer1={card.Answer ? card.Answer : "No Answer"}
+                    Answer2={card.Incorrect1 ? card.Incorrect1 : "No Option"}
+                    Answer3={card.Incorrect2 ? card.Incorrect2 : "No Option"}
+                    Answer4={card.Incorrect3 ? card.Incorrect3 : "No Option"}
                 /> }
                 { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage /> }
                 { currentPage === QuizPages.LOADING && <LoadingPage /> }

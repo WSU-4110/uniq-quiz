@@ -3,6 +3,7 @@ import TabButton from '../../components/TabButton.jsx';
 import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
+import {useAuth} from '../../context/AuthContext.jsx';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
@@ -13,6 +14,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const [selectedDeck, setSelectedDeck] = useState({});
     const [viewDeck, setViewDeck] = useState(false);
     const [refresh, setRefresh] = useState(0);
+    const {user, userName, loading} = useAuth();
 
     let tab='My Decks';
 
@@ -36,7 +38,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createDeck = async() => {
         try{
-            const body = {Title: "Untitled Deck", User_id: "5c230d10-4e3a-4ae1-a6b1-e3063299ced6"};
+            const body = {Title: "Untitled Deck", User_id: user};
             const response = await fetch("http://localhost:3000/api/decks/",{
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
@@ -191,9 +193,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 {!viewDeck && (<>
                     <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                     {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
-                    .map((deck) => (
+                    .map((deck, index) => (
                         <TabButton onClick={()=>{handleSelectDeck(deck)}}>
-                            <div className={styles.deckItem}>
+                            <div key={index} className={styles.deckItem}>
                                 <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
                                 <p></p>
                             </div>
@@ -203,14 +205,14 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 {viewDeck && (<>
                     {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
                     .map((card) => (
-                        <Link key={card.Card_id} to={`/cards/${card.Card_id}`}>
-                            <div className={styles.deckItem}>
+                        <Link to={`/cards/${card.Card_id}`}>
+                            <div key={card.Card_id} className={styles.deckItem}>
                                 <h2>{card.Question ? card.Question : "Blank Card"}</h2>
                                 <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
                                 id: {card.Card_id}
                             </div>
                         </Link>
-                    ))}
+                        ))}
                 </>)}
             </div>
         </div>
