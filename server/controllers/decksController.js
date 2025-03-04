@@ -59,7 +59,8 @@ async function getDeck(req, res){
         const {data, error} = await supabase.from("Decks").select().eq("Deck_id", [id]);
         if(error) throw error;
         res.json(data[0]);
-    }catch(err){
+    }
+    catch(err){
         console.log(err.message);
         res.status(502).json({error: `Failed to fetch deck ${req.params.id}`});
     }
