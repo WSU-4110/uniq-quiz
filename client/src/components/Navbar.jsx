@@ -20,6 +20,7 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
         {text: "Dashboard", link:"/dashboard"},
         {text: "Play", link:"/join"},
         {text: "Decks", link:"/decks"},
+        {text: "Groups", link:"/groups"},
         {text: "Study", link:"/"},
         {text: "Profile", link: "/profile"},
         {text: "Settings", link: "/settings"},

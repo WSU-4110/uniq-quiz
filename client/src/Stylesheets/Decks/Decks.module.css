@@ -9,7 +9,7 @@
 
 .deckTabs{
     height: 5vw;
-    background-color: var(--medium);
+    background-color: var(--light);
 }
 
 .deckMenu{
@@ -42,13 +42,6 @@
       display: flex;
       width: 100%;
     }
-}
-
-.leftButtons{
-    display: flex;
-}
-.rightButtons{
-    display: flex;
 }
 
 .deckContainer{
