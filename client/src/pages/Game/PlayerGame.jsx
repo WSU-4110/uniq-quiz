@@ -32,6 +32,7 @@ function PlayerGame() {
     const [isHost, setIsHost] = useState(params ? true : false);
     const [joinCode, setJoinCode] = useState("");
     const [isGameOver, setIsGameOver] = useState(false);
+    const [deckTitle, setDeckTitle] = useState("");
 
     const getJoinCode = async() => {
         console.log(params);
@@ -51,7 +52,7 @@ function PlayerGame() {
     }
 
     const getLiveDeck = async() => {
-
+        socket.emit('get_deck_title', {Game_id: params.Game_id});
     }
 
     const getNextQuestion = async() => {
@@ -69,6 +70,10 @@ function PlayerGame() {
                 socket.emit('end_game', {Game_id: params.Game_id});
                 console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
             }
+        })
+
+        socket.on('deck_title', (data) =>{  
+            setDeckTitle(data.Deck_Title.Title);
         })
 
         socket.on('game_ended', (data)=>{
@@ -93,6 +98,8 @@ function PlayerGame() {
                 console.error(`Invalid state: ${newState}`);
             }
         };
+
+        getLiveDeck();
 
         return () => {
             delete window.changeQuizState;
@@ -148,8 +155,8 @@ function PlayerGame() {
             <header>
                 <InfoBar
                     gameCode={joinCode}
-                    deckName={"Unknown Deck Title"}
-                    displayName={userName}
+                    deckName={deckTitle ? deckTitle : 'No deck title'}
+                    displayName={userName ? userName : 'No username'}
                     score={45300}
                     isHost={isHost}
                     onAdvance={nextState}
