@@ -13,10 +13,10 @@ const supabase = require("../supabase"); //import supabase client
 app.use(cors());
 app.use(express.json()); //req.body
 
-//create user - Should not be used outside testing. User creation happens through Auth Signup.
+//create user
 async function createUser(req, res) {
     try {
-        const { Username} = req.body;
+        const { Username, Password, Email } = req.body;
         console.log(req.body);
 
         // Log incoming data from Postman
