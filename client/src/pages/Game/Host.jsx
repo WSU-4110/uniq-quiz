@@ -27,7 +27,10 @@ export default function Host(){
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
             const jsonData = await response.json();
-            setDecks(jsonData.filter(deck => deck.User_id == user));
+            if(jsonData){
+                setDecks(jsonData.filter(deck => deck.User_id === user));
+                setSelectedDeck(jsonData.filter(deck => deck.User_id === user)[0]);
+            }
         } catch (error) {
             console.error(error.message);
         }
@@ -56,6 +59,7 @@ export default function Host(){
             }
             const jsonData = await response.json();
             setGame(jsonData.data[0]);
+            getDecks();
 
         } catch(err) {
             console.log(err.message);
@@ -70,6 +74,7 @@ export default function Host(){
 
     const startGame = () => {
         if(canStart){
+            console.log("game id", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
         }
@@ -117,6 +122,7 @@ export default function Host(){
 
         socket.on('game_ended', (data)=>{
             console.log("message:", data.message);
+            setJoinMessage("");
             setCanStart(false);
             setGame("");
             setMessages([]);
@@ -151,8 +157,9 @@ export default function Host(){
         getDecks();
     }, []);
 
-    return(
-        <Lobby>
+    return(<>
+        {started && <Navigate to={`/host/${game.Game_id}`} replace />}
+        <Lobby started={setStarted}>
             <Link to={'/join'} className={styles.menuButton}>Join</Link>
             <p>{joinMessage}</p>
             <button className={styles.menuButton} onClick={()=>{setCanStart(true)}}>debug</button>
@@ -184,5 +191,5 @@ export default function Host(){
             </div>
         </Lobby>
 
-    );
+    </>);
 }

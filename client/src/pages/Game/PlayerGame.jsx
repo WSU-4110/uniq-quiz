@@ -1,4 +1,8 @@
 import React, {useEffect, useState} from 'react';
+import {useAuth} from '../../context/AuthContext.jsx';
+import { useParams } from 'react-router-dom';
+
+//pages
 import StartPage from './GameComponents/StartPage';
 import QuestionPage from './GameComponents/QuestionPage';
 import PostQuestionPage from './GameComponents/PostQuestionPage';
@@ -8,7 +12,6 @@ import PostGamePage from './GameComponents/PostGamePage';
 import InfoBar from './GameComponents/InfoBar';
 
 
-//HW4: State Machine Design Pattern
 const QuizPages = {
     START: "start",
     QUESTION: "question",
@@ -20,6 +23,7 @@ const QuizPages = {
 };
 
 function PlayerGame() {
+    const params = useParams();
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
 
     //This useEffect arrow function exists to allow the game to

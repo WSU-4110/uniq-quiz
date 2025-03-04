@@ -15,7 +15,7 @@ export default function Lobby({children}) {
                 <img src="/TitleLogo.svg" alt="Uniq-Quiz Logo" />
             </div>
             <div className={styles.joinMenu}>
-                {children} 
+                {children}
             </div>
             <div className={styles.browseGamesContainer}>
                 <p>No Public Games</p>

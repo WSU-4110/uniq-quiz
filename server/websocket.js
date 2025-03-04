@@ -105,7 +105,7 @@ module.exports = (server) => {
                 io.to(Game_id).emit("game_started");
             }
             else{
-                console.log("Game not found");
+                console.log("Start game: Game not found");
             }
         });
         
