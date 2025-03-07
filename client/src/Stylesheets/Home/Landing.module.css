@@ -45,3 +45,7 @@
     font-size: 30px;
     color: var(--feature);
 }
+
+.link {
+    text-decoration: none;
+}

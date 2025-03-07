@@ -19,7 +19,7 @@ export default function Landing(){
             <div className={styles.landingMenu}>
                 {links.map(({text, link}) => (
                     <li key={text} className={styles.menuItem}>
-                        <Link to={link}><h1>{text}</h1></Link>
+                        <Link to={link} className={styles.link}><h1>{text}</h1></Link>
                     </li>
                 ))}
             </div>
