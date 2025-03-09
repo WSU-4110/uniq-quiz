@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../../../Stylesheets/Game/Components/Throbber.module.css";
+import styles from "../../../../Stylesheets/Game/Components/Throbber.module.css";
 
 function Throbber() {
     return (

@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
-import StartPage from './GameComponents/StartPage';
-import QuestionPage from './GameComponents/QuestionPage';
-import PostQuestionPage from './GameComponents/PostQuestionPage';
-import LoadingPage from './GameComponents/LoadingPage';
-import LeaderboardPage from './GameComponents/LeaderboardPage';
-import PostGamePage from './GameComponents/PostGamePage';
-import InfoBar from './GameComponents/InfoBar';
+import StartPage from './GameComponents/Pages/StartPage';
+import QuestionPage from './GameComponents/Pages/QuestionPage';
+import PostQuestionPage from './GameComponents/Pages/PostQuestionPage';
+import LoadingPage from './GameComponents/Pages/LoadingPage';
+import LeaderboardPage from './GameComponents/Pages/LeaderboardPage';
+import PostGamePage from './GameComponents/Pages/PostGamePage';
+import InfoBar from './GameComponents/Components/InfoBar';
 
 
 const QuizPages = {
@@ -42,6 +42,8 @@ function PlayerGame() {
     const [isHost, setIsHost] = useState(params ? true : false);
     const [joinCode, setJoinCode] = useState("");
     const [isGameOver, setIsGameOver] = useState(false);
+    const [answerID, setAnswerID] = useState(null);
+    const timerRef = useRef(null);
 
     const getJoinCode = async() => {
         console.log(params);
@@ -152,6 +154,18 @@ function PlayerGame() {
         }
     }
 
+    const onQuestionSubmit = async(AID) => {
+        setAnswerID(AID);
+        console.log("Answer: ", answerID);
+        setCurrentPage(QuizPages.POSTQUESTION);
+    }
+
+    const onTimerEnd = () => {
+        setAnswerID(null);
+        console.log("Timer End");
+        setCurrentPage(QuizPages.LEADERBOARD);
+    }
+
     return (
         <div style={{ overflowY: 'hidden' }}>
 
@@ -163,33 +177,37 @@ function PlayerGame() {
                     score={45300}
                     isHost={isHost}
                     onAdvance={nextState}
+                    onTimerEnd={onTimerEnd}
+                    timerRef={timerRef}
                 />
             </header>
             <div>
-                { currentPage === QuizPages.START && <StartPage /> }
-                { currentPage === QuizPages.QUESTION && <QuestionPage
+                {currentPage === QuizPages.START && <StartPage/>}
+                {currentPage === QuizPages.QUESTION && <QuestionPage
                     Question={card.Question ? card.Question : "No Question"}
                     Answer1={card.Answer ? card.Answer : "No Answer"}
                     Answer2={card.Incorrect1 ? card.Incorrect1 : "No Option"}
                     Answer3={card.Incorrect2 ? card.Incorrect2 : "No Option"}
                     Answer4={card.Incorrect3 ? card.Incorrect3 : "No Option"}
-                /> }
-                { currentPage === QuizPages.POSTQUESTION && <PostQuestionPage /> }
-                { currentPage === QuizPages.LOADING && <LoadingPage /> }
-                { currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
+                    onAnswer={onQuestionSubmit}
+                />}
+                {currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
+                {currentPage === QuizPages.LOADING && <LoadingPage/>}
+                {currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     first={"First Place"}
                     second={"Second Place"}
                     third={"Third Place"}
                     fourth={"Fourth Place"}
                     fifth={"Fifth Place"}
-                /> }
-                { currentPage === QuizPages.POSTGAME && <PostGamePage
+                />}
+                {currentPage === QuizPages.POSTGAME && <PostGamePage
                     first={"First Place Name"}
                     second={"Second Place Name"}
                     third={"Third Place Name"}
                     others={["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"]}
-                /> }
-                {currentPage === QuizPages.ERROR && <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1> }
+                />}
+                {currentPage === QuizPages.ERROR &&
+                    <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1>}
             </div>
         </div>
     );

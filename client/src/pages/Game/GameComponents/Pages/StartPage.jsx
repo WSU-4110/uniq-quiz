@@ -1,6 +1,6 @@
 import React from 'react';
-import styles from "../../../Stylesheets/Game/Components/StartPage.module.css";
-import Throbber from "./Throbber";
+import styles from "../../../../Stylesheets/Game/Components/StartPage.module.css";
+import Throbber from "../Components/Throbber";
 
 
 function StartPage({ onAdvance }) {

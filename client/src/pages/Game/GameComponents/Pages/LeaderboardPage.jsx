@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../../Stylesheets/Game/Components/LeaderboardPage.module.css';
+import styles from '../../../../Stylesheets/Game/Components/LeaderboardPage.module.css';
 
 function LeaderboardPage({ first, second, third, fourth, fifth }) {
     return (

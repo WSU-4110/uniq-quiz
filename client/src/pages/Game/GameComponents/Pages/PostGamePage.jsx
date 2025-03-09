@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../../Stylesheets/Game/Components/PostGamePage.module.css';
+import styles from '../../../../Stylesheets/Game/Components/PostGamePage.module.css';
 
 function PostGamePage({ first, second, third, others }) {
     return (
