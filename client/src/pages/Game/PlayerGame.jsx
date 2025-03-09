@@ -12,6 +12,9 @@ import LeaderboardPage from './GameComponents/Pages/LeaderboardPage';
 import PostGamePage from './GameComponents/Pages/PostGamePage';
 import InfoBar from './GameComponents/Components/InfoBar';
 
+//Game Logic
+import { Question } from './GameLogic';
+
 
 const QuizPages = {
     START: "start",
@@ -23,17 +26,16 @@ const QuizPages = {
     ERROR: "error"
 };
 
-function CalcPlyaerScore(isQuestionCorrect, position, totalPos){
-    const positionReversed = totalPos - position;
-    var normalizedPosition = positionReversed / totalPos;
-    normalizedPosition = Math.abs(normalizedPosition);
-
-    var correctScore = (1000 * normalizedPosition) + 1000;
-    var positionScore = normalizedPosition * 100;
-    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
-}
-
 function PlayerGame() {
+    const initQuestion = new Question(
+        "Default Question",
+        "Default Answer 1",
+        "Default Answer 2",
+        "Default Answer 3",
+        "Default Answer 4",
+        2
+    )
+
     const params = useParams();
     const socket = useSocket();
     const {user, userName, loading} = useAuth();
@@ -42,8 +44,9 @@ function PlayerGame() {
     const [isHost, setIsHost] = useState(params ? true : false);
     const [joinCode, setJoinCode] = useState("");
     const [isGameOver, setIsGameOver] = useState(false);
-    const [answerID, setAnswerID] = useState(null);
+    const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
     const timerRef = useRef(null);
+    let playerScore = 0
 
     const getJoinCode = async() => {
         console.log(params);
@@ -154,14 +157,16 @@ function PlayerGame() {
         }
     }
 
-    const onQuestionSubmit = async(AID) => {
-        setAnswerID(AID);
-        console.log("Answer: ", answerID);
+    const onQuestionSubmit = (AnswerID) => {
+        playerScore += currentQuestion.CheckAnswer(AnswerID, 1, 1);
+        console.log(currentQuestion.CheckAnswer(AnswerID, 1, 1));
+        console.log(playerScore);
+        console.log("Answer: ", AnswerID);
         setCurrentPage(QuizPages.POSTQUESTION);
     }
 
     const onTimerEnd = () => {
-        setAnswerID(null);
+        playerScore += currentQuestion.CheckAnswer(9, 1, 1);
         console.log("Timer End");
         setCurrentPage(QuizPages.LEADERBOARD);
     }
@@ -174,7 +179,7 @@ function PlayerGame() {
                     gameCode={joinCode}
                     deckName={"Unknown Deck Title"}
                     displayName={userName}
-                    score={45300}
+                    score={playerScore}
                     isHost={isHost}
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
@@ -184,11 +189,7 @@ function PlayerGame() {
             <div>
                 {currentPage === QuizPages.START && <StartPage/>}
                 {currentPage === QuizPages.QUESTION && <QuestionPage
-                    Question={card.Question ? card.Question : "No Question"}
-                    Answer1={card.Answer ? card.Answer : "No Answer"}
-                    Answer2={card.Incorrect1 ? card.Incorrect1 : "No Option"}
-                    Answer3={card.Incorrect2 ? card.Incorrect2 : "No Option"}
-                    Answer4={card.Incorrect3 ? card.Incorrect3 : "No Option"}
+                    Question={currentQuestion}
                     onAnswer={onQuestionSubmit}
                 />}
                 {currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
