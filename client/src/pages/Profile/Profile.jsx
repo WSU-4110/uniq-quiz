@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import Decks from '../pages/Decks/Decks.jsx';
-import styles from '../Stylesheets/Profile.module.css';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Decks from '../Decks/Decks.jsx';
+import styles from '../../Stylesheets/Profile.module.css';
 
 function Profile(){
     const [error, setError] = useState(null);
@@ -29,21 +29,21 @@ function Profile(){
             getUser();
         }, [])
 
-    const getDeckNumber = async() =>{
+    const getMyDecks = async() =>{
         try {
             const response = await fetch(`http://localhost:3000/api/decks/`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
             const jsonData = await response.json();
-            setDeckNumber(jsonData);
+            setDeckNumber(jsonData.filter(deck => deck.User_id === user));
             console.log(jsonData);
         } catch (error) {
             console.error(error.message);
         }
     }
     useEffect(()=>{
-            getDeckNumber();
+            getMyDecks();
         }, [])
 
     return (

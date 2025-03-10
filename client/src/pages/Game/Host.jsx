@@ -157,7 +157,8 @@ export default function Host(){
 
     //game update listener
     useEffect(()=>{
-        setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
+        if(game.Join_Code)
+            setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
         socket.emit('join_lobby', { Game_id: game.Game_id, User_id: user, Username: userName });
 
     }, [game]);

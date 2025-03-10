@@ -11,7 +11,7 @@ import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
 import Host from './pages/Game/Host.jsx';
 import Join from './pages/Game/Join.jsx';
-import Profile from './pages/Profile.jsx';
+import Profile from './pages/Profile/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
