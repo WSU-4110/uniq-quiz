@@ -13,16 +13,20 @@ export function AuthProvider({ children }) {
         const checkAuth = async () => {
             try {
                 const response = await axios.get("/api/auth/session", { withCredentials: true });
+                console.log("Response is:", response);
                 if (response.data.authenticated) {
+                    console.log(`AuthContext.jsx: response was ${response.data.authenticated}`);
                     setIsAuthenticated(true);
                     setUser(response.data.user.id);
                 } else {
+                    console.log(`AuthContext.jsx: response was null`);
                     setIsAuthenticated(false);
                 }
             } catch (error) {
                 console.error("Auth check failed:", error);
                 setIsAuthenticated(false);
             } finally {
+                console.log("AuthContext.jsx: finally block reached");
                 setLoading(false);
             }
         };

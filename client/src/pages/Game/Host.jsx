@@ -89,7 +89,7 @@ export default function Host(){
 
     const startGame = () => {
         if(canStart){
-            console.log("game id", game.Game_id);
+            console.log("Starting game:", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
         }

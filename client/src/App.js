@@ -1,4 +1,4 @@
-import React from "react";
+import {useState, useEffect} from "react";
 import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
@@ -23,6 +23,7 @@ axios.defaults.baseURL = 'http://localhost:3000/';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
+  console.log(`Checking protected route, authentication status ${isAuthenticated}`);
   if (loading) {
       return <p>Loading...</p>;
   }
@@ -32,11 +33,12 @@ function ProtectedRoute({ children }) {
 function RootLayout() {
   const {isAuthenticated} = useAuth();
   const location = useLocation();
-  const [sidebar, setSidebar] = React.useState(true);
-  const [isGame, setIsGame] = React.useState(false);
+  const [sidebar, setSidebar] = useState(true);
+  const [isGame, setIsGame] = useState(false);
 
 
-  React.useEffect(() => {
+  //path listener
+  useEffect(() => {
       if (
           location.pathname.startsWith("/join") ||
           location.pathname.startsWith("/host")
@@ -46,6 +48,11 @@ function RootLayout() {
           setIsGame(false);
       }
   }, [location.pathname])
+
+  //component mount listener
+  useEffect(()=>{
+    if(isAuthenticated);
+  })
 
 
   return (
