@@ -29,7 +29,6 @@ export default function Host(){
             const jsonData = await response.json();
             if(jsonData){
                 setDecks(jsonData.filter(deck => deck.User_id === user));
-                setSelectedDeck(jsonData.filter(deck => deck.User_id === user)[0]);
             }
         } catch (error) {
             console.error(error.message);
@@ -74,7 +73,6 @@ export default function Host(){
             }
             const jsonData = await response.json();
             setGame(jsonData.data[0]);
-            selectDeck(decks[0]);
 
         } catch(err) {
             console.log(err.message);
@@ -88,10 +86,12 @@ export default function Host(){
     }
 
     const startGame = () => {
-        if(canStart){
+        if(canStart && selectedDeck.Title){
             console.log("Starting game:", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
+        }else{
+            /**@TODO update UI to let user know to select a deck */
         }
     }
 
@@ -101,10 +101,13 @@ export default function Host(){
     }
 
     const selectDeck = (deck) =>{
-        setSelectedDeck(deck);
+        if(deck)
+            setSelectedDeck(deck);
+        else
+            setSelectedDeck({});
     }
 
-    //socket listener
+    //socket listener 
     useEffect(()=>{
         socket.on('connect', ()=>{
             console.log('Connected to Socket.IO Server');
@@ -189,7 +192,10 @@ export default function Host(){
 
             <div>
                 <label for="decks">Choose a deck:</label>
-                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex])}>
+                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex-1])}>
+                    <option key ={-1} value="">
+                        --No Deck Selected--
+                    </option>
                     {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
                     .map((deck, index) => (
                         <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>

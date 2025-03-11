@@ -69,7 +69,7 @@ function RootLayout() {
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />
                   <Route path="/join/lobby" element={<ProtectedRoute><Join /></ProtectedRoute>} />
-                  <Route path="/join/game" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
+                  <Route path="/join/:Game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
                   <Route path="/host/start" element={<ProtectedRoute><Host /></ProtectedRoute>} />
                   <Route path="/host/:Game_id" element={<ProtectedRoute><HostGame /></ProtectedRoute>} />
 

@@ -52,6 +52,7 @@ function PlayerGame() {
     const {user, userName, loading} = useAuth();
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
     const [card, setCard] = useState({});
+    const [deckTitle, setDeckTitle] = useState("No title selected");
     const [joinCode, setJoinCode] = useState("");
     const [isGameOver, setIsGameOver] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
@@ -76,10 +77,6 @@ function PlayerGame() {
         }
     }
 
-    const getLiveDeck = async() => {
-
-    }
-
     const getNextQuestion = async() => {
         if(params){
             console.log("sending game ID", params.Game_id);
@@ -102,10 +99,23 @@ function PlayerGame() {
                 data.Card.Incorrect3
             ));
 
+            setCurrentPage(QuizPages.QUESTION);
+
             if(!data.Card){
                 socket.emit('end_game', {Game_id: params.Game_id});
                 console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
             }
+        })
+
+        socket.on('question_ended', (data) => {
+            console.log(data);
+            setCurrentPage(QuizPages.LEADERBOARD);
+        })
+
+        socket.on('scores_sent', (data) => {
+            let newValue = 0;
+            setPlayerScore(playerScore + newValue);
+            //setPlayerScore(playerScore + currentQuestion.CheckAnswer(AnswerID));
         })
 
         socket.on('game_ended', (data)=>{
@@ -182,10 +192,10 @@ function PlayerGame() {
     }
 
     const onQuestionSubmit = (AnswerID) => {
-        setPlayerScore(playerScore + currentQuestion.CheckAnswer(AnswerID, 0, 1));
-        console.log(currentQuestion.CheckAnswer(AnswerID, 0, 1));
-        console.log(playerScore);
+        console.log("Check Answer", currentQuestion.CheckAnswer(AnswerID));
+        console.log("Player score", playerScore);
         console.log("Answer: ", AnswerID);
+        socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: currentQuestion.CheckAnswer(AnswerID)});
         setCurrentPage(QuizPages.POSTQUESTION);
     }
 
@@ -204,7 +214,7 @@ function PlayerGame() {
             <header>
                 <InfoBar
                     gameCode={joinCode}
-                    deckName={"Unknown Deck Title"}
+                    deckName={deckTitle}
                     displayName={userName}
                     score={playerScore}
                     isHost={isHost}

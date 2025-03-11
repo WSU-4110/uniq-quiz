@@ -2,13 +2,11 @@ export class Question {
     constructor(question, correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3) {
         console.log("Constructor Called Question Class");
         console.log(question);
-        // Validate inputs aren't blank to prevent errors
+        // Validate required inputs aren't blank to prevent errors
         if (
             question === null ||
             correctAnswer === null ||
-            incorrectAnswer1 === null ||
-            incorrectAnswer2 === null ||
-            incorrectAnswer3 === null
+            incorrectAnswer1 === null
         ) {
             throw new Error("Question or Answer is null");
         }
@@ -28,23 +26,13 @@ export class Question {
     }
 
 
-    CheckAnswer(AnswerID, pos, totalPos) {
+    CheckAnswer(AnswerID) {
         console.log(AnswerID === this.correctAnswerID);
         if(AnswerID === this.correctAnswerID) {
-            return this.CalcPlayerScore(true, pos, totalPos);
+            return true;
         } else {
-            return this.CalcPlayerScore(false, pos, totalPos);
+            return false;
         }
-    }
-
-    CalcPlayerScore(isQuestionCorrect, position, totalPos){
-        const positionReversed = totalPos - position;
-        var normalizedPosition = positionReversed / totalPos;
-        normalizedPosition = Math.abs(normalizedPosition);
-
-        var correctScore = (1000 * normalizedPosition) + 1000;
-        var positionScore = normalizedPosition * 100;
-        return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
     }
 }
 
@@ -80,5 +68,3 @@ export class Leaderboard {
         this.leaderboard.sort();
     }
 }
-
-

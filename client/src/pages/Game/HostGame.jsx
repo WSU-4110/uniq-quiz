@@ -105,7 +105,16 @@ function HostGame() {
         })
 
         socket.on('question_ended', (data) => {
-            console.log(data.message);
+            console.log("Question end", data);
+            //display it on leaderboard
+        })
+
+        socket.on('answer_submitted', (data) => {
+            if(data.AllSubmitted){
+                nextState(true);
+            }else{
+                /**@TODO have screen display how many players have answered */
+            }
         })
 
         socket.on('deck_title', (data) => {
@@ -193,10 +202,10 @@ function HostGame() {
     }
 
     const onQuestionSubmit = (AnswerID) => {
-        setPlayerScore(playerScore + currentQuestion.CheckAnswer(AnswerID, 0, 1));
         console.log(currentQuestion.CheckAnswer(AnswerID, 0, 1));
         console.log(playerScore);
         console.log("Answer: ", AnswerID);
+        socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: currentQuestion.CheckAnswer(AnswerID)});
         setCurrentPage(QuizPages.POSTQUESTION);
     }
 

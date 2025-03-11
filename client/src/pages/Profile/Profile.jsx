@@ -7,7 +7,7 @@ import styles from '../../Stylesheets/Profile.module.css';
 function Profile(){
     const [error, setError] = useState(null);
     const [userData, setUserData] = useState({});
-    const [deckData, setDeckNumber] = useState({});
+    const [deckData, setDeckData] = useState({});
     const {user, userName} = useAuth();
     const location = useLocation();
     const [profilePicture, setProfilePicture] = useState(null);
@@ -20,7 +20,6 @@ function Profile(){
               }
             const jsonData = await response.json();
             setUserData(jsonData);
-            console.log(jsonData);
         } catch (error) {
             console.error(error.message);
         }
@@ -36,8 +35,7 @@ function Profile(){
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
             const jsonData = await response.json();
-            setDeckNumber(jsonData.filter(deck => deck.User_id === user));
-            console.log(jsonData);
+            setDeckData(jsonData.filter(deck => deck.User_id === user));
         } catch (error) {
             console.error(error.message);
         }

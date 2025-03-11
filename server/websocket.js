@@ -2,7 +2,17 @@ const {Server} = require('socket.io');
 const supabase = require('./supabase.js');
 const { cursorTo } = require('readline');
 
-const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, host(bool), User_id)
+const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, cards, currentCardIndex, players[{User_id, PlayerScore, CurrentSubmitAnswerRank}])
+
+function CalcPlayerScore(isQuestionCorrect, position, totalPos){
+    const positionReversed = totalPos - position;
+    var normalizedPosition = positionReversed / totalPos;
+    normalizedPosition = Math.abs(normalizedPosition);
+
+    var correctScore = (1000 * normalizedPosition) + 1000;
+    var positionScore = normalizedPosition * 100;
+    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
+}
 
 module.exports = (server) => {
     const io = new Server(server, {
@@ -46,7 +56,10 @@ module.exports = (server) => {
             if(isHost){
                 socket.data.host = true;
                 io.to(socket.id).emit("host_permissions", {canStartGame: true});
+                //initialize empty game
+                activeGames[Game_id] = {Deck_id: null, cards: null, currentCardIndex: 0, players: []};
             }
+            activeGames[Game_id].players[User_id] = {User_id: User_id, Player_score: 0, CurrentSubmitAnswer: null};
         })
 
         //Host selects a deck
@@ -88,7 +101,8 @@ module.exports = (server) => {
                 console.log("Cards retrieved:", cards);
 
                 //Store Deck_id and cards in active games (server data)
-                activeGames[Game_id] = {Deck_id, cards, currentCardIndex: 0};
+                activeGames[Game_id].Deck_id = Deck_id;
+                activeGames[Game_id].cards = cards;
                 console.log("Active Games: ", activeGames[Game_id]);
             }
         });
@@ -131,6 +145,8 @@ module.exports = (server) => {
             }
         });
         
+        //  Gameplay mechanics  //
+
         //Host sends card to clients
         socket.on("send_next_card", ({Game_id}) => {
             if(socket.data.host){ //Only host should be able to send cards
@@ -154,6 +170,24 @@ module.exports = (server) => {
                 }
             }
         });
+
+        //Host moves on to next question
+        socket.on("end_question", ({Game_id}) => {
+            if(socket.data.host){ //Only host can move to next game state
+                io.to(Game_id).emit("question_ended", {Scores: activeGames[Game_id].players.sort((a,b) => a.PlayerScore > b.PlayerScore ? 1 : -1)});
+            }
+        })
+
+        //Player submits answer
+        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status}) => {
+            position = activeGames[Game_id].players.filter(player => player.PlayerScore !== null).length + 1;
+            totalPos = activeGames[Game_id].players.length + 1;
+            playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
+            activeGames[Game_id].players[Player_id].Player_score += playerScore;
+            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer += Answer_Status;
+
+            io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
+        })
 
         //Host ends the game
         socket.on("end_game", async ({Game_id}) => {
