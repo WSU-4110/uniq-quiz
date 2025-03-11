@@ -13,20 +13,15 @@ export function AuthProvider({ children }) {
         const checkAuth = async () => {
             try {
                 const response = await axios.get("/api/auth/session", { withCredentials: true });
-                console.log("Response is:", response);
                 if (response.data.authenticated) {
-                    console.log(`AuthContext.jsx: response was ${response.data.authenticated}`);
                     setIsAuthenticated(true);
                     setUser(response.data.user.id);
                 } else {
-                    console.log(`AuthContext.jsx: response was null`);
                     setIsAuthenticated(false);
                 }
             } catch (error) {
-                console.error("Auth check failed:", error);
                 setIsAuthenticated(false);
-            } finally {
-                console.log("AuthContext.jsx: finally block reached");
+            } finally { 
                 setLoading(false);
             }
         };
@@ -40,7 +35,6 @@ export function AuthProvider({ children }) {
                 try {
                     const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
                     setUserName(response.data.display_name);
-                    console.log(response.data);
                 } catch (err) {
                     console.error("Error fetching user:", err);
                 }

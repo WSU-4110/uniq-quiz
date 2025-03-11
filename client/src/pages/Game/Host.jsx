@@ -74,7 +74,7 @@ export default function Host(){
             }
             const jsonData = await response.json();
             setGame(jsonData.data[0]);
-            getDecks();
+            selectDeck(decks[0]);
 
         } catch(err) {
             console.log(err.message);
@@ -112,6 +112,7 @@ export default function Host(){
                 ...prevMessages,
                 'Connected to Socket.IO Server.'
             ]);
+            getIsInActiveGame();
         })
 
         socket.on('player_joined', (data)=>{

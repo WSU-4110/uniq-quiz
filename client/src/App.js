@@ -15,6 +15,7 @@ import Profile from './pages/Profile/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
+import HostGame from "./pages/Game/HostGame";
 import Groups from './pages/Groups/GroupsPage.jsx';
 
 axios.defaults.withCredentials = true;
@@ -23,7 +24,6 @@ axios.defaults.baseURL = 'http://localhost:3000/';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
-  console.log(`Checking protected route, authentication status ${isAuthenticated}`);
   if (loading) {
       return <p>Loading...</p>;
   }
@@ -49,12 +49,6 @@ function RootLayout() {
       }
   }, [location.pathname])
 
-  //component mount listener
-  useEffect(()=>{
-    if(isAuthenticated);
-  })
-
-
   return (
         <div className="application">
           {isAuthenticated && !isGame && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
@@ -77,7 +71,7 @@ function RootLayout() {
                   <Route path="/join/lobby" element={<ProtectedRoute><Join /></ProtectedRoute>} />
                   <Route path="/join/game" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
                   <Route path="/host/start" element={<ProtectedRoute><Host /></ProtectedRoute>} />
-                  <Route path="/host/:Game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
+                  <Route path="/host/:Game_id" element={<ProtectedRoute><HostGame /></ProtectedRoute>} />
 
                   <Route path="*" element={<Navigate to="/" />} />
               </Routes>

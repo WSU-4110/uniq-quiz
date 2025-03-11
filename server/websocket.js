@@ -96,13 +96,13 @@ module.exports = (server) => {
         //Socket to retrieve deck title upon page loading
         socket.on("get_deck_title", async ({Game_id}) =>{
             //Get current ID from activeGames
-            const deckId = activeGames[Game_id].Deck_id;
+            const Deck_id = activeGames[Game_id].Deck_id;
 
             //Retrieve deck title from database
             const {data: deckTitle, error: titleError} = await supabase
                 .from("Decks")
                 .select("Title")
-                .eq("Deck_id", DeckId)
+                .eq("Deck_id", Deck_id)
                 .single();
 
             if(titleError){
