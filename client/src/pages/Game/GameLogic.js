@@ -1,5 +1,7 @@
 export class Question {
-    constructor(question, correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3, correctAnswerID) {
+    constructor(question, correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3) {
+        console.log("Constructor Called Question Class");
+        console.log(question);
         // Validate inputs aren't blank to prevent errors
         if (
             question === null ||
@@ -45,3 +47,38 @@ export class Question {
         return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
     }
 }
+
+export class Player {
+    constructor(name, score) {
+        this.name = name;
+        this.score = score;
+    }
+}
+
+export class Leaderboard {
+    constructor() {
+        this.leaderboard = [];
+    }
+
+    registerPlayer(name) {
+        this.leaderboard.push(
+            new Player(name, 0)
+        );
+    }
+
+    findPlayer(name) {
+        return this.leaderboard.find(player => player.name === name);
+    }
+
+    updatePlayer(name, newScore) {
+        const player = this.findPlayer(name);
+        if (player) {
+            player.score = newScore;
+        } else {
+            throw new Error("Invalid player name");
+        }
+        this.leaderboard.sort();
+    }
+}
+
+
