@@ -58,6 +58,7 @@ function PlayerGame() {
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [isHost, setIsHost] = useState(true); //Ensure this is set to false in PlayerGame.jsx and true in HostGame.jsx
+    const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
 
     const getJoinCode = async() => {
         console.log(params);
@@ -211,6 +212,8 @@ function PlayerGame() {
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
                     timerRef={timerRef}
+                    isQuestionPageRendering={isQuestionPageRendering}
+                    seconds={60}
                 />
             </header>
             <div>
@@ -218,11 +221,13 @@ function PlayerGame() {
                 {currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     leaderboard={leaderboard}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}

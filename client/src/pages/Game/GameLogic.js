@@ -82,3 +82,42 @@ export class Leaderboard {
 }
 
 
+export class GameSettings {
+    constructor(timePerQuestion, shuffleDeck) {
+        this.timePerQuestion = timePerQuestion;
+        this.shuffleDeck = shuffleDeck;
+    }
+}
+
+export class Deck {
+    cards = [];
+    #onCard = 0;
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    registerCard(card, shuffleDeck) {
+        this.cards.push(card);
+        if (shuffleDeck && this.cards.length > 2) {
+            for(let i = this.cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+            }
+        }
+    }
+
+    getNextCard() {
+        if (this.#onCard >= this.cards.length) {
+            throw new Error("Attempting to get next card when card deck is empty");
+        }
+        const toReturn = this.cards[this.#onCard];
+        this.#onCard += 1;
+        return toReturn;
+    }
+
+    getRemainingCardCount() {
+        return this.cards.length - this.#onCard;
+    }
+
+}
