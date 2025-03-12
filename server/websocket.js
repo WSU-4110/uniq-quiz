@@ -174,13 +174,14 @@ module.exports = (server) => {
         //Host moves on to next question
         socket.on("end_question", ({Game_id}) => {
             if(socket.data.host){ //Only host can move to next game state
-                io.to(Game_id).emit("question_ended", {Scores: activeGames[Game_id].players.sort((a,b) => a.PlayerScore > b.PlayerScore ? 1 : -1)});
+                console.log("End question", activeGames[Game_id].players);
+                io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players)});
             }
         })
 
         //Player submits answer
         socket.on("submit_answer", ({Game_id, Player_id, Answer_Status}) => {
-            position = activeGames[Game_id].players.filter(player => player.PlayerScore !== null).length + 1;
+            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
             totalPos = activeGames[Game_id].players.length + 1;
             playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
             activeGames[Game_id].players[Player_id].Player_score += playerScore;
@@ -194,6 +195,7 @@ module.exports = (server) => {
             if(socket.data.host){ //Make sure only host has access to this function
                 try{
                     //send game end message to clients before disconnecting
+                    io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players).sort((a, b) => b.Player_score - a.Player_score)});
                     io.to(Game_id).emit("game_ended", {message: "Game has ended"});
 
                     //Get all clients connected to host

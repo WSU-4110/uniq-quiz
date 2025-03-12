@@ -26,7 +26,7 @@ function PostGamePage({ first, second, third, others }) {
                             <h1> Final Leaderboard</h1>
                         </div>
                         <div>
-                            {others.map((item, i) => (
+                            {others && others.map((item, i) => (
                                 <div className={styles.leaderboardPosContainer}>
                                     <h3 className={styles.leaderboardPos}><strong>{i+1} </strong></h3> <h3
                                     className={styles.leaderboardName}>{item}</h3>

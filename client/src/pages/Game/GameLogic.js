@@ -48,10 +48,11 @@ export class Leaderboard {
         this.leaderboard = [];
     }
 
-    registerPlayer(name) {
+    registerPlayer(name, score = 0) {
         this.leaderboard.push(
-            new Player(name, 0)
+            new Player(name, score)
         );
+        console.log("Pushed new player", name, score);
     }
 
     findPlayer(name) {
@@ -63,7 +64,7 @@ export class Leaderboard {
         if (player) {
             player.score = newScore;
         } else {
-            throw new Error("Invalid player name");
+            this.registerPlayer(name, newScore);
         }
         this.leaderboard.sort();
     }

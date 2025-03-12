@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
@@ -36,19 +36,11 @@ const initQuestion = new Question(
 );
 
 function HostGame() {
-    const leaderboard = new Leaderboard()
-    //TODO: Write logic to register players to the leaderboard
-    //Temporary test data
-    leaderboard.registerPlayer("Player 1")
-    leaderboard.registerPlayer("Player 2")
-    leaderboard.registerPlayer("Player 3")
-    leaderboard.registerPlayer("Player 4")
-    leaderboard.registerPlayer("Player 5")
-    leaderboard.registerPlayer("Player 6")
-
+    const leaderboard = new Leaderboard();
 
     const params = useParams();
     const socket = useSocket();
+    const navigate = useNavigate();
     const {user, userName, loading} = useAuth();
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
     const [card, setCard] = useState({});
@@ -83,6 +75,16 @@ function HostGame() {
         }
     }
 
+    /**@todo this is a duplicate with host, please unpair */
+    const destroyGame = () => {
+        socket.emit('end_game', {Game_id: params.Game_id});
+        console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
+    }
+
+    const exitToDashboard = () => {
+        navigate("/dashboard");
+    }
+
     //socket listener
     useEffect(() => {
         socket.on('card_for_client', (data) => {
@@ -98,15 +100,17 @@ function HostGame() {
                 data.Card.Incorrect3
             ));
 
-            if(!data.Card){
-                socket.emit('end_game', {Game_id: params.Game_id});
-                console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
+            if(data.CardIndex === -999){
+                destroyGame();
             }
         })
 
         socket.on('question_ended', (data) => {
-            console.log("Question end", data);
-            //display it on leaderboard
+            console.log("Question end", data.Scores);
+            data.Scores.map((player) => {
+                leaderboard.updatePlayer(player.User_id, player.Player_score);
+                console.log("Updating player", player);
+            })
         })
 
         socket.on('answer_submitted', (data) => {
@@ -147,7 +151,8 @@ function HostGame() {
         };
 
         //get deck title
-        socket.emit('get_deck_title', {Game_id: params.Game_id});
+        if(!isGameOver)
+            socket.emit('get_deck_title', {Game_id: params.Game_id});
 
         return () => {
             delete window.changeQuizState;
@@ -230,6 +235,8 @@ function HostGame() {
                     isHost={isHost}
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
+                    onEndGame={isGameOver ? exitToDashboard : destroyGame}
+                    endGameText={isGameOver ? "Exit" : "End Game"}
                     timerRef={timerRef}
                 />
             </header>
