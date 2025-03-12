@@ -97,13 +97,14 @@ export class Deck {
         this.name = name;
     }
 
-    registerCard(card, shuffleDeck) {
+    registerCard(card) {
         this.cards.push(card);
-        if (shuffleDeck && this.cards.length > 2) {
-            for(let i = this.cards.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-            }
+    }
+
+    shuffleDeck(){
+        for(let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
         }
     }
 
