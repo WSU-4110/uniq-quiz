@@ -2,10 +2,8 @@ import React from 'react';
 import styles from '../../../../Stylesheets/Game/Components/LeaderboardPage.module.css';
 
 
-function LeaderboardPage({ leaderboard }) {
-    const lb = leaderboard.leaderboard
-    console.log("lb", lb);
-    console.log("leaderboard", leaderboard);
+function LeaderboardPage({ lb }) {
+    console.log("leaderboard", lb);
     return (
         <div className={styles.pageContainer}>
             <div className={styles.leaderboardContainer}>
@@ -13,6 +11,7 @@ function LeaderboardPage({ leaderboard }) {
                     <h1>Leaderboard</h1>
                 </div>
                 <div>
+                    {lb && <>
                     <div className={styles.leaderboardPosContainer}>
                         {lb[0] && <>
                             <h3 className={styles.leaderboardPos}><strong>1st </strong></h3> <h3 className={styles.leaderboardName}>{lb[0].name}</h3>
@@ -38,6 +37,7 @@ function LeaderboardPage({ leaderboard }) {
                             <h3 className={styles.leaderboardPos}><strong>5th </strong></h3> <h3 className={styles.leaderboardName}>{lb[4].name}</h3>
                         </>}
                     </div>
+                    </>}
                 </div>
             </div>
         </div>

@@ -24,9 +24,10 @@ function Profile(){
             console.error(error.message);
         }
     }
+    
     useEffect(()=>{
-            getUser();
-        }, [])
+        getUser();
+    }, [])
 
     const getMyDecks = async() =>{
         try {

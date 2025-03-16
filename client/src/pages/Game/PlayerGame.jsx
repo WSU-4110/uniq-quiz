@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
@@ -36,20 +36,15 @@ const initQuestion = new Question(
 );
 
 function PlayerGame() {
-    const leaderboard = new Leaderboard()
-    //TODO: Write logic to register players to the leaderboard
-    //Temporary test data
-    leaderboard.registerPlayer("Player 1")
-    leaderboard.registerPlayer("Player 2")
-    leaderboard.registerPlayer("Player 3")
-    leaderboard.registerPlayer("Player 4")
-    leaderboard.registerPlayer("Player 5")
-    leaderboard.registerPlayer("Player 6")
-
-
+    // Contexts
     const params = useParams();
     const socket = useSocket();
+    const navigate = useNavigate();
     const {user, userName, loading} = useAuth();
+
+    // Variables
+    const [leaderboard, setLeaderboard] = useState(new Leaderboard());
+    const [refresh, setRefresh] = useState(0);
     const [currentPage, setCurrentPage] = useState(QuizPages.START);
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("No title selected");
@@ -58,10 +53,11 @@ function PlayerGame() {
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
-    const [isHost, setIsHost] = useState(true); //Ensure this is set to false in PlayerGame.jsx and true in HostGame.jsx
+
+    // Player Variables
+    const isHost = false;
 
     const getJoinCode = async() => {
-        console.log(params);
         if(params.Game_id){
             try {
                 const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
@@ -69,7 +65,6 @@ function PlayerGame() {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const jsonData = await response.json();
-                console.log(jsonData);
                 setJoinCode(jsonData.Join_Code);
             } catch (error) {
                 console.error(error.message);
@@ -79,17 +74,26 @@ function PlayerGame() {
 
     const getNextQuestion = async() => {
         if(params){
-            console.log("sending game ID", params.Game_id);
             socket.emit('send_next_card', {Game_id: params.Game_id});
         }
+    }
+
+    const updatePlayer = (player) =>{
+        leaderboard.updatePlayer(player.User_id, player.Player_score);
+        if(player.User_id === user){
+            setPlayerScore(player.Player_score);
+        }
+        setRefresh(r => r + 1);
+    }
+
+    const exitToDashboard = () => {
+        navigate("/dashboard");
     }
 
     //socket listener
     useEffect(() => {
         socket.on('card_for_client', (data) => {
             setCard(data.Card);
-            console.log(data);
-            console.log(card);
 
             setCurrentQuestion( new Question(
                 data.Card.Question,
@@ -101,27 +105,28 @@ function PlayerGame() {
 
             setCurrentPage(QuizPages.QUESTION);
 
-            if(!data.Card){
-                socket.emit('end_game', {Game_id: params.Game_id});
-                console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
+            if(data.CardIndex === -999){
+                setIsGameOver(true);
             }
         })
 
         socket.on('question_ended', (data) => {
-            console.log(data);
             setCurrentPage(QuizPages.LEADERBOARD);
-        })
-
-        socket.on('scores_sent', (data) => {
-            let newValue = 0;
-            setPlayerScore(playerScore + newValue);
-            //setPlayerScore(playerScore + currentQuestion.CheckAnswer(AnswerID));
+            data.Scores.map((player) => {
+                updatePlayer(player);
+            })
         })
 
         socket.on('game_ended', (data)=>{
             setIsGameOver(true);
         });
-    }, []);
+
+        return () => {
+            socket.off('card_for_client');
+            socket.off('question_ended');
+            socket.off('game_ended');
+        };
+    }, [socket]);
 
     //params listener
     useEffect(()=>{
@@ -192,15 +197,11 @@ function PlayerGame() {
     }
 
     const onQuestionSubmit = (AnswerID) => {
-        console.log("Check Answer", currentQuestion.CheckAnswer(AnswerID));
-        console.log("Player score", playerScore);
-        console.log("Answer: ", AnswerID);
         socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: currentQuestion.CheckAnswer(AnswerID)});
         setCurrentPage(QuizPages.POSTQUESTION);
     }
 
     const onTimerEnd = () => {
-        setPlayerScore(playerScore + currentQuestion.CheckAnswer(9, 0, 1));
         console.log("Timer End");
         setCurrentPage(QuizPages.LEADERBOARD);
     }
@@ -219,6 +220,7 @@ function PlayerGame() {
                     score={playerScore}
                     isHost={isHost}
                     onAdvance={nextState}
+                    onEndGame={exitToDashboard}
                     onTimerEnd={onTimerEnd}
                     timerRef={timerRef}
                 />

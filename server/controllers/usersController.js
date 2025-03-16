@@ -4,11 +4,6 @@ const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
 
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//     console.log("Server running on port 3000");
-// })
-
 //middleware
 app.use(cors());
 app.use(express.json()); //req.body
@@ -64,7 +59,7 @@ async function getUser(req, res) {
 async function updateUser(req, res) {
     try {
         const {id} = req.params;
-        const{Username, Games_Played, Wins, Total_Score, Highest_Score, HighestScoreId} = req.body;
+        const{Username, Games_Played, Wins, Total_Score, Highest_Score, Highest_Score_id} = req.body;
 
         const newData = {};
         if (Username) newData.Username = Username;
@@ -72,7 +67,7 @@ async function updateUser(req, res) {
         if (Wins) newData.Wins = Wins;
         if (Total_Score) newData.Total_Score = Total_Score;
         if (Highest_Score) newData.Highest_Score = Highest_Score;
-        if (HighestScoreId) newData.Highest_Score_id = HighestScoreId;
+        if (Highest_Score_id) newData.Highest_Score_id = Highest_Score_id;
 
         const {data: updatedUser, error} = await supabase.from("Users").update(newData).eq('User_id', id).select("*");
         res.json(updatedUser);
