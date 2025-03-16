@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useReducer} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
@@ -35,6 +35,36 @@ const initQuestion = new Question(
     1
 );
 
+const quizReducer = (state, action) =>{
+    switch (action.type){
+        case 'START':
+            return {...state, currentPage: QuizPages.LOADING};
+        case 'LOADING':
+            return {...state, currentPage: QuizPages.QUESTION};
+        case 'QUESTION':
+            return{
+                ...state,
+                currentPage: action.isHost ? QuizPages.LEADERBOARD : QuizPages.POSTQUESTIONPAGE
+            };
+        case 'POSTQUESTION':
+            return{
+                ...state,
+                currentPage: action.isHost ? (state.isGameOver ? QuizPages.POSTGAME : QuizPages.LEADERBOARD) : state.currentPage
+            }
+        case 'LEADERBOARD':
+            return{
+                ...state,
+                currentPage: state.isGameOver ? QuizPages.POSTGAME : QuizPages.QUESTION
+            }
+        case 'POSTGAME':
+            return {...state, currentPage: QuizPages.POSTGAME, isGameOver: true}
+        case "ERROR":
+            return { ...state, currentPage: QuizPages.ERROR };
+        default:
+            return state;
+    }
+}
+
 function HostGame() {
     // Contexts
     const params = useParams();
@@ -45,11 +75,9 @@ function HostGame() {
     // Variables
     const [leaderboard, setLeaderboard] = useState(new Leaderboard());
     const [refresh, setRefresh] = useState(0);
-    const [currentPage, setCurrentPage] = useState(QuizPages.START);
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("");
     const [joinCode, setJoinCode] = useState("");
-    const [isGameOver, setIsGameOver] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
@@ -58,6 +86,47 @@ function HostGame() {
     // Host Variables
     const [numPlayerAnswers, setNumPlayerAnswers] = useState(0);
     const isHost = true;
+
+    // Reducer
+    const [state, dispatch] = useReducer(quizReducer, {
+        currentPage: QuizPages.START,
+        isGameOver: false
+    })
+
+    //This is the logic for the host to change between different states
+    //TODO: Completely overhaul this
+    //Good code this is not, rewrite this needs to be -Paul
+    const nextState = (isHost) => {
+        console.log("In nextState, current page " + state.currentPage);
+        switch (state.currentPage) {
+            case QuizPages.START:
+                dispatch({type: 'START'});
+                break;
+            case QuizPages.QUESTION:
+                socket.emit('end_question', {Game_id: params.Game_id}); //DO NOT PUT THIS ON THE JOIN SIDE.
+                dispatch({type: 'QUESTION', isHost});
+                break;
+            case QuizPages.POSTQUESTION:
+                socket.emit('end_question', {Game_id: params.Game_id}); //DO NOT PUT THIS ON THE JOIN SIDE.
+                dispatch({type: 'POSTQUESTION', isHost});
+                break;
+            case QuizPages.LOADING:
+                getNextQuestion();
+                dispatch({type: 'LOADING'});
+                break;
+            case QuizPages.LEADERBOARD:
+                if (state.isGameOver) {
+                    dispatch({ type: "POSTGAME" });
+                } else {
+                    getNextQuestion();
+                    dispatch({ type: "LEADERBOARD" });
+                }
+                break;
+            default:
+                dispatch({ type: "ERROR" });
+                break;
+        }
+    }
 
     const getJoinCode = async() => {
         if(params.Game_id){
@@ -99,26 +168,24 @@ function HostGame() {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const jsonData = response.json();
-            console.log("save player data:", jsonData);
         } catch (error) {
             console.error(error.message);
         }
     }
 
     const updatePlayerData = async () =>{
-        console.log("updatePlayerData playerscore: ", playerScore);
+        const updateScore = leaderboard.findPlayer(user).score;
         setPlayerData((prevData) => {
             const newData = {
                 ...prevData,
                 Games_Played: (prevData.Games_Played || 0) + 1,
                 Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
-                Total_Score: (prevData.Total_Score || 0) + playerScore,
-                Highest_Score: playerScore > (prevData.Highest_Score || 0) ? playerScore : prevData.Highest_Score || 0,
-                Highest_Score_id: playerScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
+                Total_Score: (prevData.Total_Score || 0) + updateScore,
+                Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
+                Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
             };
     
             savePlayerData(newData);
-            console.log("newDAta", newData);
             return newData;
         });
     }
@@ -130,24 +197,28 @@ function HostGame() {
     }
 
     const updatePlayer = (player) =>{
-        console.log("updatePlayer playerscore: ", playerScore);
         leaderboard.updatePlayer(player.User_id, player.Player_score);
         if(player.User_id === user){
             console.log("updating!!! playerscorez: ", player.Player_score);
             setPlayerScore(player.Player_score);
         }
-        setRefresh(r => r + 1);
+    }
+    
+    const onQuestionSubmit = (AnswerID) => {
+        socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: currentQuestion.CheckAnswer(AnswerID)});
+        nextState(true);
     }
 
-    useEffect(()=>{
-        console.log("Player Score Updated: ", playerScore);
-    }, [playerScore]);
+    const onTimerEnd = () => {
+        console.log("Timer End");
+        //socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: 0}); //This crashes the game!
+        nextState(true);
+    }
 
     /**@todo Update group data if flagged as group game */
     const handleGameEnd = () => {
-        console.log("handleGameEnd playerscore: ", playerScore);
         updatePlayerData();
-        setIsGameOver(true);
+        dispatch({ type: 'POSTGAME' });
     }
 
     const exitToDashboard = () => {
@@ -156,18 +227,17 @@ function HostGame() {
 
     /**@todo duplicate function with Host. Export to hooks */
     const destroyGame = () => {
-        console.log("destroyGame playerscore: ", playerScore);
-        setIsGameOver(true);
-        setCurrentPage(QuizPages.POSTGAME);
+        handleGameEnd();
         socket.emit('end_game', {Game_id: params.Game_id});
-        console.log("destroyGame2 playerscore: ", playerScore);
         console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
     }
 
     //socket listener
     useEffect(() => {
         socket.on('card_for_client', (data) => {
-            console.log("card for client playerscore: ", playerScore);
+            if(data.CardIndex === -999){
+                handleGameEnd();
+            }
             setCard(data.Card);
 
             setCurrentQuestion( new Question(
@@ -177,14 +247,9 @@ function HostGame() {
                 data.Card.Incorrect2,
                 data.Card.Incorrect3
             ));
-
-            if(data.CardIndex === -999){
-                destroyGame();
-            }
         })
 
         socket.on('question_ended', (data) => {
-            console.log("question_ended playerSCore: ", playerScore);
             data.Scores.map((player) => {
                 updatePlayer(player);
             })
@@ -192,7 +257,6 @@ function HostGame() {
         })
 
         socket.on('answer_submitted', (data) => {
-            console.log("answer submitted playerscore: ", playerScore);
             if(data.AllSubmitted){
                 nextState(true);
             }else{
@@ -201,14 +265,13 @@ function HostGame() {
         })
 
         socket.on('deck_title', (data) => {
-            console.log("deck title playerscore: ", playerScore);
             if(data){
                 setDeckTitle(data.Title);
             }
         })
 
         socket.on('game_ended', (data)=>{
-            console.log("game_ended playerscore: ", playerScore);
+            nextState(true);
             handleGameEnd();
         });
 
@@ -232,7 +295,7 @@ function HostGame() {
         //e.g. setCurrentPage("loading")
         window.changeQuizState = (newState) => {
             if (Object.values(QuizPages).includes(newState)) {
-                setCurrentPage(newState);
+                dispatch({type: newState});
                 console.log(`State changed to ${newState}`);
             } else {
                 console.error(`Invalid state: ${newState}`);
@@ -240,7 +303,7 @@ function HostGame() {
         };
 
         //get deck title
-        if(!isGameOver)
+        if(!state.isGameOver)
             socket.emit('get_deck_title', {Game_id: params.Game_id});
 
         //get player data
@@ -250,67 +313,6 @@ function HostGame() {
             delete window.changeQuizState;
         };
     }, []);
-
-    //This is the logic for the host to change between different states
-    //TODO: Completely overhaul this
-    //Good code this is not, rewrite this needs to be -Paul
-    const nextState = (isHost) => {
-        console.log("In nextState, current page " + currentPage);
-        switch (currentPage) {
-            case QuizPages.START:
-                setCurrentPage(QuizPages.LOADING);
-                break;
-            case QuizPages.QUESTION:
-                if (isHost) {
-                    socket.emit('end_question', {Game_id: params.Game_id});
-                    setCurrentPage(QuizPages.LEADERBOARD);
-                } else {
-                    setCurrentPage(QuizPages.POSTQUESTION);
-                }
-                break;
-            case QuizPages.POSTQUESTION:
-                if (isHost) {
-                    socket.emit('end_question', {Game_id: params.Game_id});
-                    if(isGameOver)
-                        setCurrentPage(QuizPages.POSTGAME);
-                    else
-                        setCurrentPage(QuizPages.LEADERBOARD);
-                }
-                break;
-            case QuizPages.LOADING:
-                setCurrentPage(QuizPages.QUESTION);
-                getNextQuestion();
-                break;
-            case QuizPages.LEADERBOARD:
-                if (isGameOver) {
-                    setCurrentPage(QuizPages.POSTGAME);
-                } else {
-                    getNextQuestion();
-                    setCurrentPage(QuizPages.QUESTION);
-                }
-                break;
-            case QuizPages.POSTGAME:
-                setCurrentPage(QuizPages.POSTGAME);
-                break;
-            case QuizPages.ERROR:
-                setCurrentPage(QuizPages.ERROR);
-                break;
-            default:
-                setCurrentPage(QuizPages.ERROR);
-                break;
-        }
-    }
-
-    const onQuestionSubmit = (AnswerID) => {
-        socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: currentQuestion.CheckAnswer(AnswerID)});
-        setCurrentPage(QuizPages.POSTQUESTION);
-    }
-
-    const onTimerEnd = () => {
-        console.log("Timer End");
-        //socket.emit("submit_answer", {Game_id: params.Game_id, Player_id: user, Answer_Status: 0}); //This crashes the game!
-        setCurrentPage(QuizPages.LEADERBOARD);
-    }
 
     //99 little bugs in the code 99 little bugs
     //Take one down patch it around
@@ -327,27 +329,27 @@ function HostGame() {
                     isHost={isHost}
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
-                    onEndGame={isGameOver ? exitToDashboard : destroyGame}
-                    endGameText={isGameOver ? "Exit" : "End Game"}
+                    onEndGame={state.isGameOver ? exitToDashboard : destroyGame}
+                    endGameText={state.isGameOver ? "Exit" : "End Game"}
                     timerRef={timerRef}
                     numPlayerAnswers={numPlayerAnswers}
                 />
             </header>
             <div>
-                {currentPage === QuizPages.START && <StartPage/>}
-                {currentPage === QuizPages.QUESTION && <QuestionPage
+                {state.currentPage === QuizPages.START && <StartPage/>}
+                {state.currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
                 />}
-                {currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
-                {currentPage === QuizPages.LOADING && <LoadingPage/>}
-                {currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
+                {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
+                {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
+                {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     lb={leaderboard.leaderboard}
                 />}
-                {currentPage === QuizPages.POSTGAME && <PostGamePage
+                {state.currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}
                 />}
-                {currentPage === QuizPages.ERROR &&
+                {state.currentPage === QuizPages.ERROR &&
                     <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1>}
             </div>
         </div>
