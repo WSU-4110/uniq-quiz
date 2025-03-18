@@ -16,7 +16,7 @@ export default function Groups({asInset = false})
 
     const getGroupMembership = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groupMembership/");
+            const response = await fetch("/api/groupMembership/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -31,7 +31,7 @@ export default function Groups({asInset = false})
 
     const getDecks = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -45,7 +45,7 @@ export default function Groups({asInset = false})
 
     const getGames = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/games/");
+            const response = await fetch("/api/games/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -59,7 +59,7 @@ export default function Groups({asInset = false})
 
     const getGroup = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groups/");
+            const response = await fetch("/api/groups/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

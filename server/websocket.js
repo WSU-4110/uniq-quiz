@@ -3,11 +3,13 @@ const supabase = require('./supabase.js');
 const { cursorTo } = require('readline');
 
 const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, host(bool), User_id)
+//TODO: Add gamesettings to activeGames
 
 module.exports = (server) => {
+    console.log("Initializing Socket.IO...");
     const io = new Server(server, {
         cors: {
-            origin: "*", // Frontend URL
+            origin: "http://68.43.32.87", // Frontend URL
             methods: ["GET", "POST", "DELETE"], // Allow specific HTTP methods
             //allowedHeaders: ["my-custom-header"], // Optional: if you're using custom headers
             credentials: true // If needed for cookie/session sharing

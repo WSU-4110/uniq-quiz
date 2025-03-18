@@ -5,7 +5,7 @@ import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
-import QuestionPage from './GameComponents/Pages/QuestionPage';
+import QuestionPage from './GameComponents/Pages/QuestionPage.jsx';
 import PostQuestionPage from './GameComponents/Pages/PostQuestionPage';
 import LoadingPage from './GameComponents/Pages/LoadingPage';
 import LeaderboardPage from './GameComponents/Pages/LeaderboardPage';
@@ -58,12 +58,13 @@ function PlayerGame() {
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [isHost, setIsHost] = useState(true); //Ensure this is set to false in PlayerGame.jsx and true in HostGame.jsx
+    const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
 
     const getJoinCode = async() => {
         console.log(params);
         if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
+                const response = await fetch(`/api/games/${params.Game_id}/game`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -211,6 +212,8 @@ function PlayerGame() {
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
                     timerRef={timerRef}
+                    isQuestionPageRendering={isQuestionPageRendering}
+                    seconds={60}
                 />
             </header>
             <div>
@@ -218,11 +221,13 @@ function PlayerGame() {
                 {currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     leaderboard={leaderboard}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}

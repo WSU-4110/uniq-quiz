@@ -25,7 +25,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getDecks = async() =>{
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
@@ -39,7 +39,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const createDeck = async() => {
         try{
             const body = {Title: "Untitled Deck", User_id: user};
-            const response = await fetch("http://localhost:3000/api/decks/",{
+            const response = await fetch("/api/decks/",{
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify(body)
@@ -61,7 +61,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 throw new Error(`No deck selected!`);
             }
             console.log(selectedDeck.Deck_id);
-            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
+            const response = await fetch(`/api/decks/${selectedDeck.Deck_id}`, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body)
@@ -83,7 +83,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }
 
         try{
-            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`)
+            const response = await fetch(`/api/cards/${selectedDeck.Deck_id}`)
             if (!response.ok){
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -97,7 +97,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const createCard = async() => {
         try{
             const body = {Deck_id: selectedDeck.Deck_id, Question: "", Answer: "", Incorrect1: "", Incorrect2: "", Incorrect3: ""};
-            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`,{
+            const response = await fetch(`/api/cards/${selectedDeck.Deck_id}`,{
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify(body)
@@ -112,7 +112,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const deleteDeck = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
+            const response = await fetch(`/api/decks/${selectedDeck.Deck_id}`, {
                 method: "DELETE"
             });
             setDecks(decks.filter(decks => decks.Deck_id !== selectedDeck.Deck_id));
