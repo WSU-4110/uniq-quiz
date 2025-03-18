@@ -13,7 +13,7 @@ import PostGamePage from './GameComponents/Pages/PostGamePage';
 import InfoBar from './GameComponents/Components/InfoBar';
 
 //Game Logic
-import {Leaderboard, Question, CalcPlayerScore} from './GameLogic';
+import {Leaderboard, Question} from './GameLogic';
 
 
 const QuizPages = {
@@ -75,7 +75,7 @@ function HostGame() {
     // Variables
     const [leaderboard, setLeaderboard] = useState(new Leaderboard());
     const [card, setCard] = useState({});
-    const [deckTitle, setDeckTitle] = useState("");
+    const [deckTitle, setDeckTitle] = useState("No title selected");
     const [joinCode, setJoinCode] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
     const timerRef = useRef(null);
@@ -188,23 +188,17 @@ function HostGame() {
         });
     }
 
-    const updatePlayer = (player) =>{ //fixme: bug on early exit if score does not yet exist
-        leaderboard.updatePlayer(player.User_id, player.Player_score);
-        console.log("updating player with:", player);
-        if(player.User_id === user){
+    const updatePlayer = (player) =>{ //fixme: bug on early exit if score does not yet exist. 
+        leaderboard.updatePlayer(player.Username, player.Player_score); //send in player.Username along with
+        if(player.Username === userName){
             setPlayerScore(player.Player_score);
         }
-        sendLeaderboard();
     }
     
     const getNextQuestion = async() => {
         if(params){
             socket.emit('send_next_card', {Game_id: params.Game_id});
         }
-    }
-
-    const sendLeaderboard = () => {
-        socket.emit('send_leaderboard', {Game_id:  params.Game_id, Leaderboard: leaderboard.leaderboard});
     }
     
     const onQuestionSubmit = (AnswerID) => {
@@ -224,7 +218,6 @@ function HostGame() {
     }
 
     const exitToDashboard = () => {
-        handleGameEnd();
         navigate("/dashboard");
     }
 
@@ -235,8 +228,8 @@ function HostGame() {
     }
 
     const destroyGame = () => {
-        socket.emit('end_game', {Game_id: params.Game_id});
         handleGameEnd();
+        socket.emit('end_game', {Game_id: params.Game_id});
         console.log(`Destroying game ${params.Game_id ? params.Game_id : 'no game'}`);
     }
 
@@ -244,7 +237,7 @@ function HostGame() {
     useEffect(() => {
         socket.on('card_for_client', (data) => {
             if(data.CardIndex === -999){
-                destroyGame();
+                handleGameEnd();
             }
             setCard(data.Card);
 
@@ -259,8 +252,7 @@ function HostGame() {
 
         socket.on('question_ended', (data) => {
             data.Scores.map((player) => {
-                let score = CalcPlayerScore(player.CurrentSubmitAnswer, player.Position, data.Total_Positions);
-                updatePlayer(player, score);
+                updatePlayer(player);
             })
             setNumPlayerAnswers(0);
         })
@@ -281,7 +273,7 @@ function HostGame() {
 
         socket.on('game_ended', (data)=>{
             nextState(true);
-            destroyGame();
+            handleGameEnd();
         });
 
         return () => {

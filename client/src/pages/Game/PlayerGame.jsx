@@ -13,7 +13,7 @@ import PostGamePage from './GameComponents/Pages/PostGamePage';
 import InfoBar from './GameComponents/Components/InfoBar';
 
 //Game Logic
-import {Leaderboard, Question, CalcPlayerScore} from './GameLogic';
+import {Leaderboard, Question} from './GameLogic';
 
 
 const QuizPages = {
@@ -75,7 +75,6 @@ function PlayerGame() {
 
     // Variables
     const [leaderboard, setLeaderboard] = useState(new Leaderboard());
-    const [refresh, setRefresh] = useState(0);
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("No title selected");
     const [joinCode, setJoinCode] = useState("");
@@ -189,8 +188,8 @@ function PlayerGame() {
 
     const updatePlayer = (player) =>{
         leaderboard.updatePlayer(player.name, player.score);
-        if(player.User_id === user){
-            setPlayerScore(player.score);
+        if(player.Username === userName){
+            setPlayerScore(player.Player_score);
         }
     }
 
@@ -208,6 +207,7 @@ function PlayerGame() {
             Timer_Status: timerRef
         });
         nextState(false);
+        //dispatch({ type: 'POSTQUESTION' });
     }
 
     const onTimerEnd = () => {
@@ -242,19 +242,21 @@ function PlayerGame() {
                 data.Card.Incorrect3
             ));
 
-            nextState(false);
+            //nextState(false);
+            dispatch({ type: 'QUESTION' });
         })
 
         socket.on('question_ended', (data)=>{
+            data.Scores.map((player) => {
+                updatePlayer(player);
+            })
             nextState(false);
         })
 
-        socket.on('leaderboard_sent', (data) => {
-            data.Leaderboard.map((player) => {
-                let score = CalcPlayerScore(player.CurrentSubmitAnswer, player.Position, data.Total_Positions);
-                updatePlayer(player, score);
-            })
-            nextState(false);
+        socket.on('deck_title', (data) => {
+            if(data){
+                setDeckTitle(data.Title);
+            }
         })
 
         socket.on('game_ended', (data)=>{
@@ -264,7 +266,8 @@ function PlayerGame() {
 
         return () => {
             socket.off('card_for_client');
-            socket.off('leaderboard_sent');
+            socket.off('question_ended');
+            socket.off('deck_title');
             socket.off('game_ended');
         };
     }, [socket]);
@@ -286,6 +289,10 @@ function PlayerGame() {
                 console.error(`Invalid state: ${newState}`);
             }
         };
+
+        //get deck title
+        if(!state.isGameOver)
+            socket.emit('get_deck_title', {Game_id: params.Game_id});
 
         //get player data
         getUser();
