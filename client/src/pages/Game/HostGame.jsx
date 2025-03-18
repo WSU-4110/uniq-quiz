@@ -100,11 +100,9 @@ function HostGame() {
                 dispatch({type: 'START'});
                 break;
             case QuizPages.QUESTION:
-                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 dispatch({type: 'QUESTION', isHost});
                 break;
             case QuizPages.POSTQUESTION:
-                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 dispatch({type: 'POSTQUESTION', isHost});
                 break;
             case QuizPages.LOADING:
@@ -259,6 +257,7 @@ function HostGame() {
 
         socket.on('answer_submitted', (data) => {
             if(data.AllSubmitted){
+                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 nextState(true);
             }else{
                 setNumPlayerAnswers(prevNumPlayerAnswers => prevNumPlayerAnswers + 1);

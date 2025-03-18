@@ -171,19 +171,21 @@ function PlayerGame() {
 
     const updatePlayerData = async () =>{
         const updateScore = leaderboard.findPlayer(user).score;
-        setPlayerData((prevData) => {
-            const newData = {
-                ...prevData,
-                Games_Played: (prevData.Games_Played || 0) + 1,
-                Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
-                Total_Score: (prevData.Total_Score || 0) + updateScore,
-                Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
-                Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
-            };
-    
-            savePlayerData(newData);
-            return newData;
-        });
+        if(updateScore !== null){
+            setPlayerData((prevData) => {
+                const newData = {
+                    ...prevData,
+                    Games_Played: (prevData.Games_Played || 0) + 1,
+                    Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
+                    Total_Score: (prevData.Total_Score || 0) + updateScore,
+                    Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
+                    Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
+                };
+        
+                savePlayerData(newData);
+                return newData;
+            });
+        }
     }
 
     const updatePlayer = (player) =>{
@@ -206,8 +208,8 @@ function PlayerGame() {
             Answer_Status: currentQuestion.CheckAnswer(AnswerID), 
             Timer_Status: timerRef
         });
-        nextState(false);
-        //dispatch({ type: 'POSTQUESTION' });
+        //nextState(false);
+        dispatch({ type: 'QUESTION' });
     }
 
     const onTimerEnd = () => {
@@ -247,6 +249,7 @@ function PlayerGame() {
         })
 
         socket.on('question_ended', (data)=>{
+            console.log(data.Scores);
             data.Scores.map((player) => {
                 updatePlayer(player);
             })

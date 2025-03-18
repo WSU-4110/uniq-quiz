@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import {Link, Navigate} from 'react-router-dom';
-import Lobby from './Lobby.jsx';
+import Lobby from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
 
@@ -83,7 +83,7 @@ export default function Join(){
 
     return(<>
         {started && <Navigate to={`/join/${game.Game_id}`} replace />}
-        <Lobby>
+        <Lobby />
             <Link to={'/host/start'} className={styles.menuButton}>Host</Link>
             <form onSubmit={joinGame}>
                 <label htmlFor="Join Code">Join Code </label><br/>
@@ -97,6 +97,5 @@ export default function Join(){
                         <div key={index}>{msg}</div>
                     ))} 
             </div>
-        </Lobby>
     </>);
 }

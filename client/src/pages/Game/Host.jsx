@@ -1,20 +1,21 @@
 import {useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import {Link, Navigate} from 'react-router';
-import Lobby from './Lobby.jsx';
+import Lobby from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
-import styles from '../../Stylesheets/Game/Join.module.css'
+import styles from '../../Stylesheets/Game/Host.module.css'
 
 export default function Host(){
     // Contexts
     const socket = useSocket();
     const {user, userName, loading} = useAuth();
 
-    // Game logic variables
+    // Game customization variables
     const [decks, setDecks] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
-    // 
-    const [game, setGame] = useState(""); //Stores Game_id and Join_Code
+
+    // Game logic variables
+    const [game, setGame] = useState({}); //Stores Game_id and Join_Code
     const [canStart, setCanStart] = useState(false);
     const [players, setPlayers] = useState([]);
     const [started, setStarted] = useState(false);
@@ -23,6 +24,8 @@ export default function Host(){
     const [joinMessage, setJoinMessage] = useState("");
     const [messages, setMessages] = useState([]); 
     const [lobbyMessage, setLobbyMessage] = useState(null);
+    const [selectError, setSelectError] = useState(false);
+    const [mode, setMode] = useState("Info");
 
 
     /**@todo convert this to a separate hook for reuse with decks */
@@ -50,21 +53,24 @@ export default function Host(){
             const jsonData = await response.json();
             if(jsonData){
                 setGame(jsonData);
+                return true;
             }
+            return false;
         } catch (error) {
             console.error(error.message);
         }
     }
 
     const createGame = async() => {
-        if (loading) {
-            console.log("Auth is still loading... waiting for user");
-            return; // Stop the function until loading is done
-        }
+        if (loading || !user) return;
     
-        if (!user) {
-            console.log("No user found! Please log in first.");
+        if(!selectedDeck.Title){
+            setSelectError(true);
             return;
+        }
+
+        if(getIsInActiveGame){
+            destroyGame();
         }
 
         try{
@@ -79,18 +85,11 @@ export default function Host(){
             }
             const jsonData = await response.json();
             setGame(jsonData.data[0]);
-            //FIXME: send out title emit here and only here
-            //FIXME: if game exists, delete game and create new one
+            setMode("Lobby");
 
         } catch(err) {
             console.log(err.message);
         }
-
-        socket.on("host_permissions", (data) => {
-            if (data.canStartGame) setCanStart(true);
-            setLobbyMessage('You are the host. Waiting for players to join...');
-            console.log(`Host permission granted. Game is ready to start`);
-        });
     }
 
     const startGame = () => {
@@ -98,14 +97,17 @@ export default function Host(){
             console.log("Starting game:", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
-        }else{
-            /**@TODO update UI to let user know to select a deck */
         }
     }
-
+        
     const destroyGame = () => {
-        socket.emit('end_game', {Game_id: game.Game_id});
-        console.log(`Destroying game ${game.Game_id ? game.Game_id : 'no game'}`);
+        if(game.Game_id){
+            socket.emit('end_game', {Game_id: game.Game_id});
+            setMode("Info");
+            setMessages([]);
+            setLobbyMessage("");
+            console.log(`Destroying game ${game.Game_id}`);
+        }
     }
 
     const selectDeck = (deck) =>{
@@ -113,6 +115,7 @@ export default function Host(){
             setSelectedDeck(deck);
         else
             setSelectedDeck({});
+        console.log("selectDeck called, updated to: ", deck.Title);
     }
 
     //socket listener 
@@ -138,6 +141,12 @@ export default function Host(){
             console.log(`Player ${data.Username} joined lobby (Host: ${data.isHost})`);
         })
 
+        socket.on("host_permissions", (data) => {
+            if (data.canStartGame) setCanStart(true);
+            setLobbyMessage('You are the host. Waiting for players to join...');
+            console.log(`Host permission granted. Game is ready to start`);
+        });
+
         socket.on('game_started', (data)=>{
             setMessages((prevMessages) => [
                 ...prevMessages,
@@ -151,7 +160,7 @@ export default function Host(){
             console.log("message:", data.message);
             setJoinMessage("");
             setCanStart(false);
-            setGame("");
+            setGame({});
             setMessages([]);
             setPlayers([]);
             setStarted(false);
@@ -169,61 +178,84 @@ export default function Host(){
 
     //game update listener
     useEffect(()=>{
-        if(game.Join_Code)
+        if(game.Join_Code){
             setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
-        socket.emit('join_lobby', { Game_id: game.Game_id, User_id: user, Username: userName });
+            socket.emit('join_lobby', { Game_id: game.Game_id, User_id: user, Username: userName });
+        }
 
     }, [game]);
 
-    //deck select listener
+    //canStart listener
     useEffect(()=>{
-        if(selectedDeck?.Deck_id){
-            socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+        if(canStart){
+            //Select deck
+            console.log("Deck that was selected:", selectedDeck);
+            if(selectedDeck?.Deck_id){
+                console.log("right before emit:", game.Game_id, selectedDeck.Deck_id);
+                socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+            }else{
+                setSelectError(true);
+                console.log("Deck select error in Host.jsx.");
+                destroyGame();
+            }
         }
-    }, [selectedDeck])
+    }, [canStart])
 
     //component mount listener
     useEffect(()=>{
-        getIsInActiveGame();
         getDecks();
+        getIsInActiveGame();
     }, []);
 
     return(<>
         {started && <Navigate to={`/host/${game.Game_id}`} replace />}
-        <Lobby started={setStarted}>
+        <Lobby started={setStarted} />
             <Link to={'/join'} className={styles.menuButton}>Join</Link>
-            <p>{joinMessage}</p>
-            <button className={styles.menuButton} onClick={()=>{setCanStart(true)}}>debug</button>
-            <button className={styles.menuButton} onClick={createGame}>Create Game</button>
-            {canStart && <button className={styles.menuButton} onClick={startGame}>Start Game</button>}
-            <button className={styles.menuButton} onClick={destroyGame}>End Game</button>
+            {mode === "Info" && 
+                <div className={styles.InfoBlockEx}>
+                    <div className={styles.deckSelect}>
+                        <label for="decks">Choose a deck:</label>
+                        <select onChange={(e) => {selectDeck(decks[e.target.selectedIndex-1]); setSelectError(false)}}>
+                            <option key ={-1} value="">
+                                --No Deck Selected--
+                            </option>
+                            {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                            .map((deck, index) => (
+                                <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>
+                                    {deck.Title ? deck.Title : "Untitled Deck"}
+                                </option>
+                            ))}
+                        </select>
+                        {selectError && <p>Please fill in all information before selecting a deck.</p>}
+                    </div>
 
-            <div>
-                <label for="decks">Choose a deck:</label>
-                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex-1])}>
-                    <option key ={-1} value="">
-                        --No Deck Selected--
-                    </option>
-                    {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
-                    .map((deck, index) => (
-                        <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>
-                            {deck.Title ? deck.Title : "Untitled Deck"}
-                        </option>
+                    <button className={selectedDeck.Title ? styles.menuButton : styles.menuButtonDisabled} onClick={createGame}>Create Game</button>
+                </div>
+            }
+            {mode === "Lobby" && 
+                <div className={styles.InfoBlock}>
+                    <h2>Deck Title: {selectedDeck.Title}</h2>
+                    <h2>Join Code: {game.Join_Code}</h2>
+                </div>
+            }
+
+            <div className={styles.lobbyBlock}>
+                <div className={styles.buttonContainer}>
+                    <p>{joinMessage}</p>
+                    <button className={styles.menuButton} onClick={()=>{setCanStart(true)}}>debug</button>
+                    {canStart && <button className={styles.menuButton} onClick={startGame}>Start Game</button>}
+                    <button className={styles.menuButton} onClick={destroyGame}>End Game</button>
+                </div>
+                <div className={styles.lobby}>
+                    <p>{lobbyMessage}</p>
+                    {messages.map((msg, index) => (
+                            <div key={index}>{msg}</div>
+                        ))} 
+                    {players.map((player, index) => (
+                            <h1 key={index}>{player.Username ? player.Username : "Unknown Player"}</h1>
                     ))}
-                </select>
-                <p>{selectedDeck.Title ? selectedDeck.Title : "no deck selected"}</p>
+                </div>
             </div>
-
-            <div className={styles.lobby}>
-                <p>{lobbyMessage}</p>
-                {messages.map((msg, index) => (
-                        <div key={index}>{msg}</div>
-                    ))} 
-                {players.map((player, index) => (
-                        <h1 key={index}>{player.Username ? player.Username : "Unknown Player"}</h1>
-                ))}
-            </div>
-        </Lobby>
 
     </>);
 }
