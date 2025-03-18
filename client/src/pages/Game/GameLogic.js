@@ -6,7 +6,9 @@ export class Question {
         if (
             question === null ||
             correctAnswer === null ||
-            incorrectAnswer1 === null
+            incorrectAnswer1 === null ||
+            incorrectAnswer2 === null ||
+            incorrectAnswer3 === null
         ) {
             throw new Error("Question or Answer is null");
         }
@@ -28,12 +30,23 @@ export class Question {
 
     CheckAnswer(AnswerID) {
         console.log(AnswerID === this.correctAnswerID);
+        console.log("Your answer vs server answer:", this.answers[AnswerID], this.answers[this.correctAnswerID])
         if(AnswerID === this.correctAnswerID) {
             return true;
         } else {
             return false;
         }
     }
+}
+
+export function CalcPlayerScore(isQuestionCorrect, position, totalPos){
+    const positionReversed = totalPos - position;
+    var normalizedPosition = positionReversed / totalPos;
+    normalizedPosition = Math.abs(normalizedPosition);
+
+    var correctScore = (1000 * normalizedPosition) + 1000;
+    var positionScore = normalizedPosition * 100;
+    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
 }
 
 export class Player {
@@ -52,7 +65,6 @@ export class Leaderboard {
         this.leaderboard.push(
             new Player(name, score)
         );
-        console.log("Pushed new player", name, score);
     }
 
     findPlayer(name) {
@@ -62,10 +74,17 @@ export class Leaderboard {
     updatePlayer(name, newScore) {
         const player = this.findPlayer(name);
         if (player) {
-            player.score = newScore;
+            player.score += newScore;
         } else {
             this.registerPlayer(name, newScore);
         }
         this.leaderboard.sort();
+    }
+}
+
+export class GameSettings {
+    constructor(timePerQuestion, shuffleDeck) {
+        this.timePerQuestion = timePerQuestion;
+        this.shuffleDeck = shuffleDeck;
     }
 }

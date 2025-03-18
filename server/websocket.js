@@ -2,17 +2,8 @@ const {Server} = require('socket.io');
 const supabase = require('./supabase.js');
 const { cursorTo } = require('readline');
 
-const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, cards, currentCardIndex, players[{User_id, PlayerScore, CurrentSubmitAnswerRank}])
-
-function CalcPlayerScore(isQuestionCorrect, position, totalPos){
-    const positionReversed = totalPos - position;
-    var normalizedPosition = positionReversed / totalPos;
-    normalizedPosition = Math.abs(normalizedPosition);
-
-    var correctScore = (1000 * normalizedPosition) + 1000;
-    var positionScore = normalizedPosition * 100;
-    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
-}
+//TODO: add gamesettings
+const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, cards, currentCardIndex, gameSettings{}, players[{User_id, CurrentSubmitAnswer, CurrentSubmitTimer, Position}])
 
 module.exports = (server) => {
     const io = new Server(server, {
@@ -59,7 +50,7 @@ module.exports = (server) => {
                 //initialize empty game
                 activeGames[Game_id] = {Deck_id: null, cards: null, currentCardIndex: 0, players: []};
             }
-            activeGames[Game_id].players[User_id] = {User_id: User_id, Player_score: 0, CurrentSubmitAnswer: null};
+            activeGames[Game_id].players[User_id] = {User_id: User_id, CurrentSubmitAnswer: null, CurrentSubmitTimer: null, Position: null};
         })
 
         //Host selects a deck
@@ -102,7 +93,7 @@ module.exports = (server) => {
 
                 //Store Deck_id and cards in active games (server data)
                 activeGames[Game_id].Deck_id = Deck_id;
-                activeGames[Game_id].cards = cards;
+                activeGames[Game_id].cards = cards; //TODO: shuffle this here
                 console.log("Active Games: ", activeGames[Game_id]);
             }
         });
@@ -161,6 +152,13 @@ module.exports = (server) => {
                     //Send card to clients
                     io.to(Game_id).emit("card_for_client", {Card: card, CardIndex: game.currentCardIndex});
                     game.currentCardIndex++; //Increment index to next card
+
+                    //Clear out data from previous round
+                    activeGames[Game_id].players.forEach(player =>{
+                        player.CurrentSubmitAnswer = null;
+                        player.Position = null;
+                        player.CurrentSubmitTimer = null;
+                    });
                 }
                 else{
                     io.to(Game_id).emit("card_for_client", {Card: {}, CardIndex: -999});
@@ -175,19 +173,25 @@ module.exports = (server) => {
         socket.on("end_question", ({Game_id}) => {
             if(socket.data.host){ //Only host can move to next game state
                 console.log("End question", activeGames[Game_id].players);
-                io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players)});
+                totalPos = activeGames[Game_id].players.length;
+                io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players), Total_Positions: totalPos});
             }
         })
 
         //Player submits answer
-        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status}) => {
-            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
-            totalPos = activeGames[Game_id].players.length + 1;
-            playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
-            activeGames[Game_id].players[Player_id].Player_score += playerScore;
-            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer += Answer_Status;
+        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status, Timer_Status}) => {
+            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length;
+            activeGames[Game_id].players[Player_id].Position = position;
+            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer = Answer_Status;
+            activeGames[Game_id].players[Player_id].CurrentSubmitTimer = Timer_Status;
+            totalPos = activeGames[Game_id].players.length;
 
-            io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
+            io.to(Game_id).emit("answer_submitted", {AllSubmitted: position === totalPos});
+        })
+
+        //Host sends leaderboard updates
+        socket.on("send_leaderboard", ({Game_id, Leaderboard}) => {
+            io.to(Game_id).emit("leaderboard_sent", {Leaderboard: Leaderboard});
         })
 
         //Host ends the game
@@ -195,7 +199,6 @@ module.exports = (server) => {
             if(socket.data.host){ //Make sure only host has access to this function
                 try{
                     //send game end message to clients before disconnecting
-                    io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players).sort((a, b) => b.Player_score - a.Player_score)});
                     io.to(Game_id).emit("game_ended", {message: "Game has ended"});
 
                     //Get all clients connected to host

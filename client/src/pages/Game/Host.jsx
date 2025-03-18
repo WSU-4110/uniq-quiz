@@ -6,18 +6,24 @@ import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
 
 export default function Host(){
+    // Contexts
     const socket = useSocket();
     const {user, userName, loading} = useAuth();
 
-    const [canStart, setCanStart] = useState(false);
-    const [game, setGame] = useState(""); //Stores Game_id and Join_Code
-    const [joinMessage, setJoinMessage] = useState("");
-    const [messages, setMessages] = useState([]); 
-    const [players, setPlayers] = useState([]);
-    const [started, setStarted] = useState(false);
+    // Game logic variables
     const [decks, setDecks] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
+    // 
+    const [game, setGame] = useState(""); //Stores Game_id and Join_Code
+    const [canStart, setCanStart] = useState(false);
+    const [players, setPlayers] = useState([]);
+    const [started, setStarted] = useState(false);
+
+    // UI variables
+    const [joinMessage, setJoinMessage] = useState("");
+    const [messages, setMessages] = useState([]); 
     const [lobbyMessage, setLobbyMessage] = useState(null);
+
 
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
@@ -73,6 +79,8 @@ export default function Host(){
             }
             const jsonData = await response.json();
             setGame(jsonData.data[0]);
+            //FIXME: send out title emit here and only here
+            //FIXME: if game exists, delete game and create new one
 
         } catch(err) {
             console.log(err.message);
