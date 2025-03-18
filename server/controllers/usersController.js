@@ -64,15 +64,12 @@ async function getUser(req, res) {
 async function updateUser(req, res) {
     try {
         const {id} = req.params;
-        const{Username, Games_Played, Wins, Total_Score, Highest_Score, HighestScoreId} = req.body;
+        const{Username, Password, Email} = req.body;
 
         const newData = {};
         if (Username) newData.Username = Username;
-        if (Games_Played) newData.Games_Played = Games_Played;
-        if (Wins) newData.Wins = Wins;
-        if (Total_Score) newData.Total_Score = Total_Score;
-        if (Highest_Score) newData.Highest_Score = Highest_Score;
-        if (HighestScoreId) newData.Highest_Score_id = HighestScoreId;
+        if (Password) newData.Password = Password;
+        if (Email) newData.Email = Email;
 
         const {data: updatedUser, error} = await supabase.from("Users").update(newData).eq('User_id', id).select("*");
         res.json(updatedUser);
@@ -104,11 +101,29 @@ async function deleteUser(req, res){
     }
 }
 
+//set user profile privacy
+async function setUserPrivacy(req, res){
+    try{
+        const {id} = req.params;
+        const {privacy} = req.body;
+        const{data, error} = await supabase.from("Users").update({Private: privacy}).eq('User_id', id);
+        if(error){
+            console.log("Error setting user to private: ", error.message);
+            return res.status(400).json({error: error.message});
+        }
+
+        return res.status(200).json({message: `User privacy set to ${privacy}`})
+    }
+    catch(err){
+        console.log(err.message);
+    }
+}
 
 module.exports = {
     createUser,
     getAllUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    setUserPrivacy
 };
