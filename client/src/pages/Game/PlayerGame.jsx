@@ -82,6 +82,7 @@ function PlayerGame() {
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
+    const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
 
     // Player Variables
     const isHost = false;
@@ -127,7 +128,7 @@ function PlayerGame() {
     const getJoinCode = async() => {
         if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
+                const response = await fetch(`/api/games/${params.Game_id}/game`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -180,7 +181,7 @@ function PlayerGame() {
                 Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
                 Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
             };
-    
+
             savePlayerData(newData);
             return newData;
         });
@@ -201,9 +202,9 @@ function PlayerGame() {
 
     const onQuestionSubmit = (AnswerID) => {
         socket.emit("submit_answer", {
-            Game_id: params.Game_id, 
-            Player_id: user, 
-            Answer_Status: currentQuestion.CheckAnswer(AnswerID), 
+            Game_id: params.Game_id,
+            Player_id: user,
+            Answer_Status: currentQuestion.CheckAnswer(AnswerID),
             Timer_Status: timerRef
         });
         nextState(false);
@@ -319,6 +320,8 @@ function PlayerGame() {
                     onEndGame={exitToDashboard}
                     onTimerEnd={onTimerEnd}
                     timerRef={timerRef}
+                    isQuestionPageRendering={isQuestionPageRendering}
+                    seconds={60}
                 />
             </header>
             <div>
@@ -326,11 +329,13 @@ function PlayerGame() {
                 {state.currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     leaderboard={leaderboard}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}

@@ -1,9 +1,12 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styles from '../../../../Stylesheets/Game/Components/LeaderboardPage.module.css';
 
 
-function LeaderboardPage({ lb }) {
-    console.log("leaderboard", lb);
+function LeaderboardPage({ leaderboard, setIsQuestionPageRendering }) {
+    const lb = leaderboard.leaderboard;
+    useEffect(() => {
+        setIsQuestionPageRendering(false);
+    }, [setIsQuestionPageRendering]);
     return (
         <div className={styles.pageContainer}>
             <div className={styles.leaderboardContainer}>

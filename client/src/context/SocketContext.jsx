@@ -3,7 +3,10 @@ import {io} from 'socket.io-client';
 
 const SocketContext = createContext();
 
-const socket = io("http://localhost:3000");
+const socket = io("http://68.43.32.87", {
+    withCredentials: true
+});
+
 
 export function SocketProvider({ children }){
     useEffect(() => {

@@ -14,7 +14,7 @@ function Profile(){
 
     const getUser = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
+            const response = await fetch(`/api/users/${user}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
@@ -31,7 +31,7 @@ function Profile(){
 
     const getMyDecks = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/decks/`);
+            const response = await fetch(`/api/decks/`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }

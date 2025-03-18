@@ -24,6 +24,7 @@ function CalcPlayerScore(isQuestionCorrect, position, totalPos){
 }
 
 module.exports = (server) => {
+    console.log("Initializing Socket.IO...");
     const io = new Server(server, {
         cors: {
             origin: "*", // Frontend URL
@@ -71,9 +72,9 @@ module.exports = (server) => {
 
             //Store player data in active game
             activeGames[Game_id].players[User_id] = {
-                User_id: User_id, 
-                Username: Username, 
-                Player_score: 0, 
+                User_id: User_id,
+                Username: Username,
+                Player_score: 0,
                 CurrentSubmitAnswer: null,
             };
         })

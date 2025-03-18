@@ -20,7 +20,7 @@ import Groups from './pages/Groups/GroupsPage.jsx';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.baseURL = 'http://localhost:3000/';
+axios.defaults.baseURL = 'http://68.43.32.87/';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
