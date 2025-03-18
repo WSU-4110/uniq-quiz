@@ -1,4 +1,4 @@
-import React from "react";
+import {useState, useEffect} from "react";
 import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
@@ -11,10 +11,11 @@ import Decks from './pages/Decks/Decks.jsx';
 import Cards from './pages/Decks/Cards.jsx';
 import Host from './pages/Game/Host.jsx';
 import Join from './pages/Game/Join.jsx';
-import Profile from './pages/Profile.jsx';
+import Profile from './pages/Profile/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
+import HostGame from "./pages/Game/HostGame";
 import Groups from './pages/Groups/GroupsPage.jsx';
 
 axios.defaults.withCredentials = true;
@@ -32,11 +33,12 @@ function ProtectedRoute({ children }) {
 function RootLayout() {
   const {isAuthenticated} = useAuth();
   const location = useLocation();
-  const [sidebar, setSidebar] = React.useState(true);
-  const [isGame, setIsGame] = React.useState(false);
+  const [sidebar, setSidebar] = useState(true);
+  const [isGame, setIsGame] = useState(false);
 
 
-  React.useEffect(() => {
+  //path listener
+  useEffect(() => {
       if (
           location.pathname.startsWith("/join") ||
           location.pathname.startsWith("/host")
@@ -46,7 +48,6 @@ function RootLayout() {
           setIsGame(false);
       }
   }, [location.pathname])
-
 
   return (
         <div className="application">
@@ -68,9 +69,9 @@ function RootLayout() {
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />
                   <Route path="/join/lobby" element={<ProtectedRoute><Join /></ProtectedRoute>} />
-                  <Route path="/join/game" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
+                  <Route path="/join/:Game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
                   <Route path="/host/start" element={<ProtectedRoute><Host /></ProtectedRoute>} />
-                  <Route path="/host/:Game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
+                  <Route path="/host/:Game_id" element={<ProtectedRoute><HostGame /></ProtectedRoute>} />
 
                   <Route path="*" element={<Navigate to="/" />} />
               </Routes>

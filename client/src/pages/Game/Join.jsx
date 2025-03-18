@@ -82,7 +82,7 @@ export default function Join(){
     }, [socket]);
 
     return(<>
-        {started && <Navigate to={`/join/game`} replace />}
+        {started && <Navigate to={`/join/${game.Game_id}`} replace />}
         <Lobby>
             <Link to={'/host/start'} className={styles.menuButton}>Host</Link>
             <form onSubmit={joinGame}>

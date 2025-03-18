@@ -1,7 +1,5 @@
-import {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import styles from '../../Stylesheets/Game/Lobby.module.css';
-import {useSocket} from '../../context/SocketContext.jsx';
 
 export default function Lobby({children}) {
     const navigate = useNavigate();

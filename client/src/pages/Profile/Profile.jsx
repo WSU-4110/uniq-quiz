@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import Decks from '../pages/Decks/Decks.jsx';
-import styles from '../Stylesheets/Profile.module.css';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Decks from '../Decks/Decks.jsx';
+import styles from '../../Stylesheets/Profile.module.css';
 
 function Profile(){
     const [error, setError] = useState(null);
     const [userData, setUserData] = useState({});
-    const [deckData, setDeckNumber] = useState({});
+    const [deckData, setDeckData] = useState({});
     const {user, userName} = useAuth();
     const location = useLocation();
     const [profilePicture, setProfilePicture] = useState(null);
@@ -20,30 +20,29 @@ function Profile(){
               }
             const jsonData = await response.json();
             setUserData(jsonData);
-            console.log(jsonData);
         } catch (error) {
             console.error(error.message);
         }
     }
+    
     useEffect(()=>{
-            getUser();
-        }, [])
+        getUser();
+    }, [])
 
-    const getDeckNumber = async() =>{
+    const getMyDecks = async() =>{
         try {
             const response = await fetch(`/api/decks/`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
             const jsonData = await response.json();
-            setDeckNumber(jsonData);
-            console.log(jsonData);
+            setDeckData(jsonData.filter(deck => deck.User_id === user));
         } catch (error) {
             console.error(error.message);
         }
     }
     useEffect(()=>{
-            getDeckNumber();
+            getMyDecks();
         }, [])
 
     return (

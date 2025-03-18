@@ -4,8 +4,7 @@ import styles from '../../../../Stylesheets/Game/Components/InfoBar.module.css'
 //Components
 import Timer from './Timer';
 
-function InfoBar({isHost, deckName, displayName, onAdvance, score, onTimerEnd, timerRef, gameCode, isQuestionPageRendering, seconds}) {
-
+function InfoBar({isHost, deckName, displayName, onAdvance, score, onTimerEnd, timerRef}) {
     return (
             <div className={ isHost ? styles.gamenavContainerHost : styles.gamenavContainer }>
                 <div className={ isHost ? styles.gamenavInnerHost : styles.gamenavInner}>
@@ -20,6 +19,9 @@ function InfoBar({isHost, deckName, displayName, onAdvance, score, onTimerEnd, t
                     <h2>{displayName} : {score}</h2>
                 </div>
                 <div className={styles.buttonContainer}>
+                    {numPlayerAnswers && <h2>Players Answered: {numPlayerAnswers}</h2>}
+                    {isHost ? <button className={styles.hostButton} onClick={onEndGame}><h2>{endGameText}</h2></button> : null}
+                    {!isHost ? <button className={styles.hostButton} onClick={onEndGame}><h2>Exit Game</h2></button> : null}
                     {isHost ? <button className={styles.hostButton} onClick={() => onAdvance(isHost)}><h2 className={styles.hostButtonText}>Next</h2></button> : null}
                 </div>
             </div>

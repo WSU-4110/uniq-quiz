@@ -7,20 +7,26 @@ import styles from '../../Stylesheets/Game/Join.module.css'
 import { GameSettings } from './GameLogic';
 
 export default function Host(){
+    // Contexts
     const socket = useSocket();
     const {user, userName, loading} = useAuth();
 
-    const [canStart, setCanStart] = useState(false);
-    const [game, setGame] = useState(""); //Stores Game_id and Join_Code
-    const [joinMessage, setJoinMessage] = useState("");
-    const [messages, setMessages] = useState([]); 
-    const [players, setPlayers] = useState([]);
-    const [started, setStarted] = useState(false);
+    // Game logic variables
     const [decks, setDecks] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
+    //
+    const [game, setGame] = useState(""); //Stores Game_id and Join_Code
+    const [canStart, setCanStart] = useState(false);
+    const [players, setPlayers] = useState([]);
+    const [started, setStarted] = useState(false);
+
+    // UI variables
+    const [joinMessage, setJoinMessage] = useState("");
+    const [messages, setMessages] = useState([]);
     const [lobbyMessage, setLobbyMessage] = useState(null);
     const [timer, setTimer] = useState(60);
     const [shuffleDecks, setShuffleDecks] = useState(false);
+
 
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
@@ -32,7 +38,6 @@ export default function Host(){
             const jsonData = await response.json();
             if(jsonData){
                 setDecks(jsonData.filter(deck => deck.User_id === user));
-                setSelectedDeck(jsonData.filter(deck => deck.User_id === user)[0]);
             }
         } catch (error) {
             console.error(error.message);
@@ -98,14 +103,15 @@ export default function Host(){
     }
 
     const startGame = () => {
-        if(canStart){
+        if(canStart && selectedDeck.Title){
+            console.log("Starting game:", game.Game_id);
             let gameSettings = new GameSettings(timer, shuffleDecks);
             localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
             //TODO: Store local storage, game starts get from local storage
-            console.log("game id", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
-            setStarted(true); //DEBUG
+        }else{
+            /**@TODO update UI to let user know to select a deck */
         }
     }
 
@@ -115,7 +121,10 @@ export default function Host(){
     }
 
     const selectDeck = (deck) =>{
-        setSelectedDeck(deck);
+        if(deck)
+            setSelectedDeck(deck);
+        else
+            setSelectedDeck({});
     }
 
     //socket listener
@@ -126,6 +135,7 @@ export default function Host(){
                 ...prevMessages,
                 'Connected to Socket.IO Server.'
             ]);
+            getIsInActiveGame();
         })
 
         socket.on('player_joined', (data)=>{
@@ -171,7 +181,8 @@ export default function Host(){
 
     //game update listener
     useEffect(()=>{
-        setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
+        if(game.Join_Code)
+            setJoinMessage(`Game created! Join code: ${game.Join_Code}`);
         socket.emit('join_lobby', { Game_id: game.Game_id, User_id: user, Username: userName });
 
     }, [game]);
@@ -201,7 +212,10 @@ export default function Host(){
 
             <div>
                 <label for="decks">Choose a deck:</label>
-                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex])}>
+                <select onChange={(e) => selectDeck(decks[e.target.selectedIndex-1])}>
+                    <option key ={-1} value="">
+                        --No Deck Selected--
+                    </option>
                     {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
                     .map((deck, index) => (
                         <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>

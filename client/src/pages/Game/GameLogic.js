@@ -2,7 +2,7 @@ export class Question {
     constructor(question, correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3) {
         console.log("Constructor Called Question Class");
         console.log(question);
-        // Validate inputs aren't blank to prevent errors
+        // Validate required inputs aren't blank to prevent errors
         if (
             question === null ||
             correctAnswer === null ||
@@ -28,23 +28,14 @@ export class Question {
     }
 
 
-    CheckAnswer(AnswerID, pos, totalPos) {
+    CheckAnswer(AnswerID) {
         console.log(AnswerID === this.correctAnswerID);
+        console.log("Your answer vs server answer:", this.answers[AnswerID], this.answers[this.correctAnswerID])
         if(AnswerID === this.correctAnswerID) {
-            return this.CalcPlayerScore(true, pos, totalPos);
+            return true;
         } else {
-            return this.CalcPlayerScore(false, pos, totalPos);
+            return false;
         }
-    }
-
-    CalcPlayerScore(isQuestionCorrect, position, totalPos){
-        const positionReversed = totalPos - position;
-        var normalizedPosition = positionReversed / totalPos;
-        normalizedPosition = Math.abs(normalizedPosition);
-
-        var correctScore = (1000 * normalizedPosition) + 1000;
-        var positionScore = normalizedPosition * 100;
-        return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
     }
 }
 
@@ -60,9 +51,9 @@ export class Leaderboard {
         this.leaderboard = [];
     }
 
-    registerPlayer(name) {
+    registerPlayer(name, score = 0) {
         this.leaderboard.push(
-            new Player(name, 0)
+            new Player(name, score)
         );
     }
 
@@ -73,9 +64,9 @@ export class Leaderboard {
     updatePlayer(name, newScore) {
         const player = this.findPlayer(name);
         if (player) {
-            player.score = newScore;
+            player.score += newScore;
         } else {
-            throw new Error("Invalid player name");
+            this.registerPlayer(name, newScore);
         }
         this.leaderboard.sort();
     }
