@@ -84,12 +84,19 @@ export class Leaderboard {
 
 export class GameSettings {
     constructor(timePerQuestion, shuffleDeck) {
+        if(!this.#isTimeInRange(timePerQuestion)) {
+            throw new Error("Time per question is out of range (1-220)");
+        }
         this.timePerQuestion = timePerQuestion;
         this.shuffleDeck = shuffleDeck;
     }
+
+    #isTimeInRange(timePerQuestion) {
+        return timePerQuestion <= 220 && timePerQuestion > 0;
+    }
 }
 
-export class Deck {
+export class Deck { //TODO: Move this to backend
     cards = [];
     #onCard = 0;
 

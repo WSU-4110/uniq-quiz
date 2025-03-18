@@ -4,6 +4,7 @@ import {Link, Navigate} from 'react-router';
 import Lobby from './Lobby.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
+import { GameSettings } from './GameLogic';
 
 export default function Host(){
     const socket = useSocket();
@@ -18,11 +19,13 @@ export default function Host(){
     const [decks, setDecks] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
     const [lobbyMessage, setLobbyMessage] = useState(null);
+    const [timer, setTimer] = useState(60);
+    const [shuffleDecks, setShuffleDecks] = useState(false);
 
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
@@ -38,7 +41,7 @@ export default function Host(){
 
     const getIsInActiveGame = async() => {
         try{
-            const response = await fetch(`http://localhost:3000/api/games/${user}/host`);
+            const response = await fetch(`/api/games/${user}/host`);
             if(!response.ok){
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -64,7 +67,7 @@ export default function Host(){
 
         try{
             const body = {Host_id: user};
-            const response = await fetch(`http://localhost:3000/api/games/`, {
+            const response = await fetch(`/api/games/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify(body)
@@ -73,11 +76,14 @@ export default function Host(){
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const jsonData = await response.json();
+            console.log(jsonData);
+            console.log("FUCK MY LIFE");
+            console.log(response);
             setGame(jsonData.data[0]);
             getDecks();
 
         } catch(err) {
-            console.log(err.message);
+            console.error(err);
         }
 
         socket.on("host_permissions", (data) => {
@@ -87,11 +93,19 @@ export default function Host(){
         });
     }
 
+    const updateTimer = (event) => {
+        setTimer(event.target.value);
+    }
+
     const startGame = () => {
         if(canStart){
+            let gameSettings = new GameSettings(timer, shuffleDecks);
+            localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+            //TODO: Store local storage, game starts get from local storage
             console.log("game id", game.Game_id);
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
+            setStarted(true); //DEBUG
         }
     }
 
@@ -196,6 +210,18 @@ export default function Host(){
                     ))}
                 </select>
                 <p>{selectedDeck.Title ? selectedDeck.Title : "no deck selected"}</p>
+                <div>
+                    <div>
+                        <input type="range" name="timer" min="1" max="220" value={timer} onChange={updateTimer} />
+                        <input type="number" name="timerNum" min="1" max="220" value={timer} onChange={updateTimer} />
+                    </div>
+                    <div>
+                        <label htmlFor="shuffleTure">Shuffle Deck</label>
+                        <input type="radio" id="shuffleTure" name="shuffle" value="true" onClick={() => setShuffleDecks(true)}/>
+                        <label htmlFor="shuffleFalse">Don't Shuffle Deck</label>
+                        <input type="radio" id="shuffleFalse" name="shuffle" value="false" onClick={() => setShuffleDecks(true)} defaultChecked />
+                    </div>
+                </div>
             </div>
 
             <div className={styles.lobby}>

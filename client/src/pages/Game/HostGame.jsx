@@ -5,7 +5,7 @@ import {useSocket} from '../../context/SocketContext.jsx';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
-import QuestionPage from './GameComponents/Pages/QuestionPage';
+import QuestionPage from './GameComponents/Pages/QuestionPage.jsx.old';
 import PostQuestionPage from './GameComponents/Pages/PostQuestionPage';
 import LoadingPage from './GameComponents/Pages/LoadingPage';
 import LeaderboardPage from './GameComponents/Pages/LeaderboardPage';
@@ -63,7 +63,7 @@ function PlayerGame() {
         console.log(params);
         if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
+                const response = await fetch(`/api/games/${params.Game_id}/game`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
