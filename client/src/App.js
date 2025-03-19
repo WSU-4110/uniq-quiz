@@ -27,7 +27,7 @@ function ProtectedRoute({ children }) {
   if (loading) {
       return <p>Loading...</p>;
   }
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/" replace />;
 }
 
 function RootLayout() {

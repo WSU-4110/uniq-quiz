@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState, useReducer} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
+import axios from 'axios';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
@@ -76,9 +77,10 @@ function HostGame() {
     const [leaderboard, setLeaderboard] = useState(new Leaderboard());
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("No title selected");
+    const [timer, setTimer] = useState(1);
+    const timerRef = useRef(null);
     const [joinCode, setJoinCode] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
-    const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
 
@@ -127,12 +129,9 @@ function HostGame() {
     const getJoinCode = async() => {
         if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
-                setJoinCode(jsonData.Join_Code);
+                const response = await axios.get(`/api/games/${params.Game_id}/game`);
+                setJoinCode(response.data.Join_Code);
+                console.log(response.data);
             } catch (error) {
                 console.error(error.message);
             }
@@ -142,12 +141,8 @@ function HostGame() {
     /** @todo consolidate with profile and the others into a users hooks folder */
     const getUser = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setPlayerData(jsonData);
+            const response = await axios.get(`/api/users/${user}`);
+            setPlayerData(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -155,15 +150,7 @@ function HostGame() {
 
     const savePlayerData = async(newData) => {
         try{
-            const response = await fetch(`http://localhost:3000/api/users/${user}`,{
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(newData)
-            });
-            if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = response.json();
+            const response = await axios.put(`http://localhost:3000/api/users/${user}`, newData);
         } catch (error) {
             console.error(error.message);
         }
@@ -264,9 +251,10 @@ function HostGame() {
             }
         })
 
-        socket.on('deck_title', (data) => {
+        socket.on('game_settings', (data) => {
             if(data){
                 setDeckTitle(data.Title);
+                setTimer(data.Timer);
             }
         })
 
@@ -304,7 +292,7 @@ function HostGame() {
 
         //get deck title
         if(!state.isGameOver)
-            socket.emit('get_deck_title', {Game_id: params.Game_id});
+            socket.emit('get_game_settings', {Game_id: params.Game_id});
 
         //get player data
         getUser();
@@ -316,7 +304,7 @@ function HostGame() {
 
     //99 little bugs in the code 99 little bugs
     //Take one down patch it around
-    //943 little bugs in the code
+    //942 little bugs in the code
     return (
         <div style={{ overflowY: 'hidden' }}>
 

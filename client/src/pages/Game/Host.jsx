@@ -4,6 +4,8 @@ import {Link, Navigate} from 'react-router';
 import Lobby from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Host.module.css'
+import axios from 'axios';
+import { GameSettings } from './GameLogic';
 
 export default function Host(){
     // Contexts
@@ -13,6 +15,9 @@ export default function Host(){
     // Game customization variables
     const [decks, setDecks] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
+    const [timer, setTimer] = useState(60);
+    const [shuffleDeck, setShuffleDeck] = useState(false);
+    const [gameSettings, setGameSettings] = useState(new GameSettings(60));
 
     // Game logic variables
     const [game, setGame] = useState({}); //Stores Game_id and Join_Code
@@ -22,7 +27,7 @@ export default function Host(){
 
     // UI variables
     const [joinMessage, setJoinMessage] = useState("");
-    const [messages, setMessages] = useState([]); 
+    const [messages, setMessages] = useState([]);
     const [lobbyMessage, setLobbyMessage] = useState(null);
     const [selectError, setSelectError] = useState(false);
     const [mode, setMode] = useState("Info");
@@ -31,14 +36,8 @@ export default function Host(){
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            if(jsonData){
-                setDecks(jsonData.filter(deck => deck.User_id === user));
-            }
+            const response = await axios.get("/api/decks/");
+            setDecks(response.data.filter(deck => deck.User_id === user));
         } catch (error) {
             console.error(error.message);
         }
@@ -46,13 +45,9 @@ export default function Host(){
 
     const getIsInActiveGame = async() => {
         try{
-            const response = await fetch(`http://localhost:3000/api/games/${user}/host`);
-            if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            if(jsonData){
-                setGame(jsonData);
+            const response = await axios.get(`/api/games/${user}/host`);
+            if(response.data){
+                setGame(response.data);
                 return true;
             }
             return false;
@@ -64,7 +59,7 @@ export default function Host(){
     const createGame = async() => {
         if (loading || !user) return;
     
-        if(!selectedDeck.Title){
+        if(!selectedDeck.Title || !timer){
             setSelectError(true);
             return;
         }
@@ -74,27 +69,24 @@ export default function Host(){
         }
 
         try{
-            const body = {Host_id: user};
-            const response = await fetch(`http://localhost:3000/api/games/`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(body)
-            });
-            if (!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setGame(jsonData.data[0]);
+            const response = await axios.post("/api/games/", {Host_id: user});
+            setGame(response.data.data[0]);
             setMode("Lobby");
+            setGameSettings(new GameSettings(timer, selectedDeck, shuffleDeck));
 
         } catch(err) {
-            console.log(err.message);
+            console.error(err);
         }
+    }
+
+    const updateTimer = (event) => {
+        setTimer(event.target.value);
     }
 
     const startGame = () => {
         if(canStart && selectedDeck.Title){
             console.log("Starting game:", game.Game_id);
+            setGameSettings(new GameSettings(timer, selectedDeck));
             socket.emit('start_game', { Game_id: game.Game_id });
             setCanStart(false);
         }
@@ -115,10 +107,10 @@ export default function Host(){
             setSelectedDeck(deck);
         else
             setSelectedDeck({});
-        console.log("selectDeck called, updated to: ", deck.Title);
+        console.log("Selected deck:", deck);
     }
 
-    //socket listener 
+    //socket listener
     useEffect(()=>{
         socket.on('connect', ()=>{
             console.log('Connected to Socket.IO Server');
@@ -147,6 +139,10 @@ export default function Host(){
             console.log(`Host permission granted. Game is ready to start`);
         });
 
+        socket.on("game_settings", (data)=>{
+            console.log(data);
+        });
+
         socket.on('game_started', (data)=>{
             setMessages((prevMessages) => [
                 ...prevMessages,
@@ -154,7 +150,7 @@ export default function Host(){
             ]);
             console.log('Game has started!');
             setStarted(true);
-        })
+        });
 
         socket.on('game_ended', (data)=>{
             console.log("message:", data.message);
@@ -164,12 +160,13 @@ export default function Host(){
             setMessages([]);
             setPlayers([]);
             setStarted(false);
-        })
+        });
 
         return () => {
             socket.off('connect');
             socket.off('player_joined');
             socket.off('host_permissions');
+            socket.off('game_settings');
             socket.off('game_started');
             socket.off('game_ended');
         };
@@ -188,14 +185,18 @@ export default function Host(){
     //canStart listener
     useEffect(()=>{
         if(canStart){
-            //Select deck
-            console.log("Deck that was selected:", selectedDeck);
-            if(selectedDeck?.Deck_id){
-                console.log("right before emit:", game.Game_id, selectedDeck.Deck_id);
-                socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+            if(gameSettings.selectedDeck != null){
+                //Send game data to back-end
+                console.log("Sending this data:", gameSettings);
+                if(gameSettings?.selectedDeck.Deck_id && gameSettings?.timePerQuestion){
+                    console.log("right before emit:", game.Game_id, gameSettings);
+                    socket.emit('game_settings_selected', { Game_id: game.Game_id, Game_Settings: gameSettings });
+                }else{
+                    setSelectError(true);
+                    console.log("Game settings error in Host.jsx.");
+                    destroyGame();
+                }
             }else{
-                setSelectError(true);
-                console.log("Deck select error in Host.jsx.");
                 destroyGame();
             }
         }
@@ -227,6 +228,16 @@ export default function Host(){
                             ))}
                         </select>
                         {selectError && <p>Please fill in all information before selecting a deck.</p>}
+                    </div>
+                    <div className={styles.timerSelect}>
+                        <input type="range" name="timer" min="1" max="220" value={timer} onChange={updateTimer} />
+                        <input type="number" name="timerNum" min="1" max="220" value={timer} onChange={updateTimer} />
+                    </div>
+                    <div className={styles.shuffleSelect}>
+                        <label htmlFor="shuffleTrue">Shuffle Deck</label>
+                        <input type="radio" id="shuffleTrue" name="shuffle" value="true" onClick={() => setShuffleDeck(true)}/>
+                        <label htmlFor="shuffleFalse">Don't Shuffle Deck</label>
+                        <input type="radio" id="shuffleFalse" name="shuffle" value="false" onClick={() => setShuffleDeck(false)} defaultChecked />
                     </div>
 
                     <button className={selectedDeck.Title ? styles.menuButton : styles.menuButtonDisabled} onClick={createGame}>Create Game</button>

@@ -20,7 +20,7 @@ export default function Join(){
         e.preventDefault(); //form automatically reloads page
         if(joinCode){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${joinCode}/join`);
+                const response = await fetch(`/api/games/${joinCode}/join`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }

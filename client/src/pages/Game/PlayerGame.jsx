@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState, useReducer} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
+import axios from 'axios';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
@@ -82,6 +83,7 @@ function PlayerGame() {
     const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
+    const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
 
     // Player Variables
     const isHost = false;
@@ -127,12 +129,9 @@ function PlayerGame() {
     const getJoinCode = async() => {
         if(params.Game_id){
             try {
-                const response = await fetch(`http://localhost:3000/api/games/${params.Game_id}/game`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
-                setJoinCode(jsonData.Join_Code);
+                const response = await axios.get(`/api/games/${params.Game_id}/game`);
+                setJoinCode(response.data.Join_Code);
+                console.log(response.data);
             } catch (error) {
                 console.error(error.message);
             }
@@ -142,12 +141,8 @@ function PlayerGame() {
     /** @todo consolidate with profile and the others into a users hooks folder */
     const getUser = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setPlayerData(jsonData);
+            const response = await axios.get(`/api/users/${user}`);
+            setPlayerData(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -155,15 +150,7 @@ function PlayerGame() {
 
     const savePlayerData = async(newData) => {
         try{
-            const response = await fetch(`http://localhost:3000/api/users/${user}`,{
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(newData)
-            });
-            if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = response.json();
+            const response = await axios.put(`http://localhost:3000/api/users/${user}`, newData);
         } catch (error) {
             console.error(error.message);
         }
@@ -171,21 +158,19 @@ function PlayerGame() {
 
     const updatePlayerData = async () =>{
         const updateScore = leaderboard.findPlayer(user).score;
-        if(updateScore !== null){
-            setPlayerData((prevData) => {
-                const newData = {
-                    ...prevData,
-                    Games_Played: (prevData.Games_Played || 0) + 1,
-                    Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
-                    Total_Score: (prevData.Total_Score || 0) + updateScore,
-                    Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
-                    Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
-                };
-        
-                savePlayerData(newData);
-                return newData;
-            });
-        }
+        setPlayerData((prevData) => {
+            const newData = {
+                ...prevData,
+                Games_Played: (prevData.Games_Played || 0) + 1,
+                Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
+                Total_Score: (prevData.Total_Score || 0) + updateScore,
+                Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
+                Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
+            };
+
+            savePlayerData(newData);
+            return newData;
+        });
     }
 
     const updatePlayer = (player) =>{
@@ -203,9 +188,9 @@ function PlayerGame() {
 
     const onQuestionSubmit = (AnswerID) => {
         socket.emit("submit_answer", {
-            Game_id: params.Game_id, 
-            Player_id: user, 
-            Answer_Status: currentQuestion.CheckAnswer(AnswerID), 
+            Game_id: params.Game_id,
+            Player_id: user,
+            Answer_Status: currentQuestion.CheckAnswer(AnswerID),
             Timer_Status: timerRef
         });
         //nextState(false);
@@ -322,6 +307,8 @@ function PlayerGame() {
                     onEndGame={exitToDashboard}
                     onTimerEnd={onTimerEnd}
                     timerRef={timerRef}
+                    isQuestionPageRendering={isQuestionPageRendering}
+                    seconds={60}
                 />
             </header>
             <div>
@@ -329,11 +316,13 @@ function PlayerGame() {
                 {state.currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
                     leaderboard={leaderboard}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}

@@ -72,9 +72,54 @@ export class Leaderboard {
     }
 }
 
+
 export class GameSettings {
-    constructor(timePerQuestion, shuffleDeck) {
+    constructor(timePerQuestion, selectedDeck, shuffleDeck) {
+        if(!this.#isTimeInRange(timePerQuestion)) {
+            throw new Error("Time per question is out of range (1-220)");
+        }
         this.timePerQuestion = timePerQuestion;
+        this.selectedDeck = selectedDeck;
         this.shuffleDeck = shuffleDeck;
     }
+
+    #isTimeInRange(timePerQuestion) {
+        return timePerQuestion <= 220 && timePerQuestion > 0;
+    }
 }
+
+/*
+export class Deck { //TODO: Move this to backend
+    cards = [];
+    #onCard = 0;
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    registerCard(card) {
+        this.cards.push(card);
+    }
+
+    shuffleDeck(){
+        for(let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+        }
+    }
+
+    getNextCard() {
+        if (this.#onCard >= this.cards.length) {
+            throw new Error("Attempting to get next card when card deck is empty");
+        }
+        const toReturn = this.cards[this.#onCard];
+        this.#onCard += 1;
+        return toReturn;
+    }
+
+    getRemainingCardCount() {
+        return this.cards.length - this.#onCard;
+    }
+
+}
+*/
