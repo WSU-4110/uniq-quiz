@@ -14,6 +14,7 @@ import InfoBar from './GameComponents/Components/InfoBar';
 
 //Game Logic
 import {Leaderboard, Question} from './GameLogic';
+import axios from "axios";
 
 
 const QuizPages = {
@@ -128,6 +129,18 @@ function PlayerGame() {
     const getJoinCode = async() => {
         if(params.Game_id){
             try {
+                const response = await axios.get(`/api/games/${params.Game_id}/game`);
+                const jsonData = await response.data;
+                setJoinCode(jsonData.Join_Code);
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+    }
+
+    const getJoinCode_OLD = async() => {
+        if(params.Game_id){
+            try {
                 const response = await fetch(`/api/games/${params.Game_id}/game`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -142,6 +155,16 @@ function PlayerGame() {
 
     /** @todo consolidate with profile and the others into a users hooks folder */
     const getUser = async() =>{
+        try {
+            const response = await axios.get(`/api/users/${user}`);
+            const jsonData = await response.data;
+            setPlayerData(jsonData);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getUser_OLD = async() =>{
         try {
             const response = await fetch(`http://localhost:3000/api/users/${user}`);
             if (!response.ok) {

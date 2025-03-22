@@ -11,19 +11,22 @@ function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         const { success, error } = await login(email, password);
         if (error) {
-            setError(error);
+            //TODO: Implement proper error handling, setError sets the error that is displayed to end user
+            setError("A login error has occurred");
+            console.log(error);
         } else if (success) {
             navigate("/dashboard");
         }
     };
 
-    const handleSubmit_OLD2 = async (e) => {
+    const handleSubmit_OLD = async (e) => {
         e.preventDefault();
         setError(null);
 
@@ -49,37 +52,6 @@ function Login() {
         }
     }
 
-    const handleSubmit_OLD = async (e) => {
-        e.preventDefault();
-
-        setError(null);
-
-        const payload = {
-            email,
-            password,
-        };
-
-        try{
-            const respone = await fetch('/api/auth/login', {
-                method: 'POST',
-                credentials: "same-origin",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            })
-
-            const data = await respone.json();
-
-            if (data.error) {
-                setError(data.error || 'Something went wrong');
-            }
-        }
-        catch(err) {
-            console.log("Login() error: " + err);
-            setError("If you are seeing this message, the developer is crying.");
-        }
-    }
     return (
 
         <div className="Login">

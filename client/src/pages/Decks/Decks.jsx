@@ -5,6 +5,7 @@ import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
 import {useAuth} from '../../context/AuthContext.jsx';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
+import axios from "axios";
 
 
 export default function Decks({asInset = false, showOnlyDecks = false}){
@@ -25,6 +26,16 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getDecks = async() =>{
         try {
+            const response = await axios.get("/api/decks/");
+            const jsonData = await response.data;
+            setDecks(jsonData);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getDecks_OLD = async() =>{
+        try {
             const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -37,6 +48,19 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     }
 
     const createDeck = async() => {
+        try{
+            const body = {Title: "Untitled Deck", User_id: user};
+            const response = await axios.post("/api/decks/", {
+                body: JSON.stringify(body)
+            })
+            const jsonData = await response.data;
+            setRefresh(prev => prev + 1);
+        } catch (error){
+            console.error(error.message);
+        }
+    }
+
+    const createDeck_OLD = async() => {
         try{
             const body = {Title: "Untitled Deck", User_id: user};
             const response = await fetch("/api/decks/",{
@@ -53,8 +77,23 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             console.error(error.message);
         }
     }
-    
+
     const updateDeck = async() =>{
+        try{
+            const body = selectedDeck;
+            if(!selectedDeck){
+                throw new Error(`No deck selected!`);
+            }
+            console.log(selectedDeck.Deck_id);
+            await axios.put(`/api/decks/${selectedDeck.Deck_id}`, {
+                body: JSON.stringify(body)
+            })
+        }catch(error){
+            console.error(error.message);
+        }
+    }
+
+    const updateDeck_OLD = async() =>{
         try{
             const body = selectedDeck;
             if(!selectedDeck){

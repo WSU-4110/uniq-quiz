@@ -3,7 +3,7 @@ import {io} from 'socket.io-client';
 
 const SocketContext = createContext();
 
-const socket = io("http://68.43.32.87", {
+const socket = io("http://localhost:3000", {
     withCredentials: true
 });
 

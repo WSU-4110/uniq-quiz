@@ -5,6 +5,7 @@ import Lobby from './Lobby.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
 import { GameSettings } from './GameLogic';
+import axios from "axios";
 
 export default function Host(){
     // Contexts
@@ -30,6 +31,18 @@ export default function Host(){
 
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/games/${game}/decks`);
+            const jsonData = await response.data;
+            if(jsonData){
+                setDecks(jsonData.filter(deck => deck.User_id === user));
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getDecks_OLD = async() =>{
         try {
             const response = await fetch("/api/decks/");
             if (!response.ok) {

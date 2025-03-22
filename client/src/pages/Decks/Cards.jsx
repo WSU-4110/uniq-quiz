@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ListItem from '../../components/ListItem';
 import styles from '../../Stylesheets/Decks/Cards.module.css';
+import axios from "axios";
 
 export default function Cards(){
     const params = useParams();
@@ -10,7 +11,7 @@ export default function Cards(){
     
     const getCard = async () =>{
       try{
-        const response = await fetch(`/api/cards/${params.card_id}/card`);
+        const response = await axios.get(`/api/cards/${params.card_id}/card`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
@@ -22,6 +23,18 @@ export default function Cards(){
     }
 
     const updateCard = async() =>{
+        try{
+            const body = card;
+            await axios.put(`/api/cards/${params.card_id}/card`,
+                {
+                    body: JSON.stringify(body)
+                });
+        }catch(error){
+            console.error(error.message);
+        }
+    }
+
+    const updateCard_OLD = async() =>{
       try{
           const body = card;
           const response = await fetch(`/api/cards/${params.card_id}`, {
@@ -37,9 +50,18 @@ export default function Cards(){
       }catch(error){
         console.error(error.message);
       }
-    } 
+    }
 
     const deleteCard = async () => {
+        try {
+            const response = await axios.delete(`/api/cards/${params.card_id}`);
+            handleClose();
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const deleteCard_OLD = async () => {
       try {
           const response = await fetch(`/api/cards/${params.card_id}`, {
               method: "DELETE"

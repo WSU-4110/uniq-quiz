@@ -5,6 +5,7 @@ import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
 import styles from "../../Stylesheets/Groups/GroupsPage.module.css";
 import Decks from "../Decks/Decks.jsx"
+import axios from "axios";
 
 export default function Groups({asInset = false})
 {
@@ -16,7 +17,7 @@ export default function Groups({asInset = false})
 
     const getGroupMembership = async() => {
         try {
-            const response = await fetch("/api/groupMembership/");
+            const response = await axios.get("/api/groupMembership/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -31,7 +32,7 @@ export default function Groups({asInset = false})
 
     const getDecks = async() => {
         try {
-            const response = await fetch("/api/decks/");
+            const response = await axios.get("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -45,7 +46,7 @@ export default function Groups({asInset = false})
 
     const getGames = async() => {
         try {
-            const response = await fetch("/api/games/");
+            const response = await axios.get("/api/games/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -59,7 +60,7 @@ export default function Groups({asInset = false})
 
     const getGroup = async() => {
         try {
-            const response = await fetch("/api/groups/");
+            const response = await axios.get("/api/groups/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

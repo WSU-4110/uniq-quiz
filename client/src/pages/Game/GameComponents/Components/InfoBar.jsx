@@ -4,7 +4,7 @@ import styles from '../../../../Stylesheets/Game/Components/InfoBar.module.css'
 //Components
 import Timer from './Timer';
 
-function InfoBar({isHost, deckName, displayName, onAdvance, score, onTimerEnd, timerRef}) {
+function InfoBar({isHost, deckName, displayName, onAdvance, score, onTimerEnd, timerRef, isQuestionPageRendering, seconds, gameCode, numPlayerAnswers, onEndGame, endGameText}) {
     return (
             <div className={ isHost ? styles.gamenavContainerHost : styles.gamenavContainer }>
                 <div className={ isHost ? styles.gamenavInnerHost : styles.gamenavInner}>
