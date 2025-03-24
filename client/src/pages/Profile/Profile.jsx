@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
 import axios from 'axios';
 import styles from '../../Stylesheets/Profile.module.css';
+import axios from "axios";
 
 function Profile(){
     const [error, setError] = useState(null);
@@ -21,12 +22,22 @@ function Profile(){
             console.error(error.message);
         }
     }
-    
+
     useEffect(()=>{
         getUser();
     }, [])
 
     const getMyDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/decks/${deckData}`);
+            const jsonData = await response.data;
+            setDeckData(jsonData.filter(deck => deck.User_id === user));
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getMyDecks_OLD = async() =>{
         try {
             const response = await fetch(`/api/decks/`);
             if (!response.ok) {
@@ -38,6 +49,7 @@ function Profile(){
             console.error(error.message);
         }
     }
+
     useEffect(()=>{
             getMyDecks();
         }, [])

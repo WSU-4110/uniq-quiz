@@ -23,7 +23,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading } = useAuth();
   if (loading) {
       return <p>Loading...</p>;
   }

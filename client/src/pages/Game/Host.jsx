@@ -6,6 +6,7 @@ import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Host.module.css'
 import axios from 'axios';
 import { GameSettings } from './GameLogic';
+import axios from "axios";
 
 export default function Host(){
     // Contexts

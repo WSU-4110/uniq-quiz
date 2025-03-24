@@ -26,16 +26,14 @@ const app = express();
 
 //allow api requests from front-end run on 3001
 
+
 console.log("Input port:", process.env.INPUT_PORT);
 app.use(cors({
    origin: process.env.INPUT_PORT,
    credentials: true
 }));
-// app.use(cors({
-//     origin: 'http://68.43.32.87',
-//     credentials: true
-// }));
-//app.use(cors()); //full permissions granted with cors- DEBUG.
+
+//missions granted with cors- DEBUG.
 
 //middleware
 app.use(logger('dev'));

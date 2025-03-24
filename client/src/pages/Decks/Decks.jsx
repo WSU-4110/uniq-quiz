@@ -6,6 +6,7 @@ import { Link, } from 'react-router'
 import {useAuth} from '../../context/AuthContext.jsx';
 import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
+import axios from "axios";
 
 
 export default function Decks({asInset = false, showOnlyDecks = false}){
@@ -41,7 +42,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             console.error(error.message);
         }
     }
-    
+
     const updateDeck = async() =>{
         try{
             if(selectedDeck){

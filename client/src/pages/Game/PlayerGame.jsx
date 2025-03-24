@@ -15,6 +15,7 @@ import InfoBar from './GameComponents/Components/InfoBar';
 
 //Game Logic
 import {Leaderboard, Question} from './GameLogic';
+import axios from "axios";
 
 
 const QuizPages = {
