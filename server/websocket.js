@@ -84,10 +84,15 @@ module.exports = (server) => {
             if(socket.data.host){
                 //Verify that host has access to this deck
                 console.log("Using ID: ", socket.data.User_id);
+                console.log("Using settings: ", Game_Settings);
+
+                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Timer = Game_Settings.timePerQuestion;
+
                 const {data, error} = await supabase
                     .from("Decks")
                     .select("Deck_id")
-                    .eq("Deck_id", Game_Settings.Deck_id)
+                    .eq("Deck_id", Deck_id)
                     .eq("User_id", socket.data.User_id) 
                     .single();
                 
@@ -128,7 +133,7 @@ module.exports = (server) => {
                 //Store Deck_id and cards in active games (server data)
                 activeGames[Game_id].Deck_id = Deck_id;
                 activeGames[Game_id].cards = cards;
-                activeGames[Game_id].timer = Game_Settings.timer;
+                activeGames[Game_id].timer = Timer;
 
                 console.log("Active Games: ", activeGames[Game_id]);
             }

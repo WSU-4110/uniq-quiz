@@ -131,7 +131,6 @@ function HostGame() {
             try {
                 const response = await axios.get(`/api/games/${params.Game_id}/game`);
                 setJoinCode(response.data.Join_Code);
-                console.log(response.data);
             } catch (error) {
                 console.error(error.message);
             }
@@ -291,8 +290,9 @@ function HostGame() {
         };
 
         //get deck title
-        if(!state.isGameOver)
+        if(!state.isGameOver){
             socket.emit('get_game_settings', {Game_id: params.Game_id});
+        }
 
         //get player data
         getUser();
