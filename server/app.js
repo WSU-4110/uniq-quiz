@@ -26,9 +26,9 @@ const app = express();
 
 //allow api requests from front-end run on 3001
 
-
+console.log("Input port:", process.env.INPUT_PORT);
 app.use(cors({
-   origin: 'http://localhost:3001',
+   origin: process.env.INPUT_PORT,
    credentials: true
 }));
 // app.use(cors({

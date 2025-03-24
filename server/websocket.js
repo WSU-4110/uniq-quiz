@@ -27,7 +27,7 @@ module.exports = (server) => {
     console.log("Initializing Socket.IO...");
     const io = new Server(server, {
         cors: {
-            origin: "http://localhost:3001", // Frontend URL
+            origin: process.env.INPUT_PORT, // Frontend URL
             methods: ["GET", "POST", "DELETE"], // Allow specific HTTP methods
             //allowedHeaders: ["my-custom-header"], // Optional: if you're using custom headers
             credentials: true // If needed for cookie/session sharing
