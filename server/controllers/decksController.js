@@ -172,11 +172,30 @@ async function getUserDecks (req, res) {
     }
 }
 
+async function getGroupDecks (req, res) {
+    try {
+        const {Group_id} = req.params;
+        const{data, error} = await supabase
+            .from("Decks")
+            .select("*")
+            .eq("Group_id", Group_id)
+        if(error){
+            console.log("Error retrieving group decks: ", error.message);
+            return res.status(502).json(error);
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        
+    }
+}
+
 module.exports = {
     createDeck,
     getAllDecks,
     getDeck,
     getUserDecks,
+    getGroupDecks,
     updateDeck,
     deleteDeck,
     getCardCount

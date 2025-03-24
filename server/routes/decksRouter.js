@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 //Import controller functions
-const {createDeck, getAllDecks, getDeck, getUserDecks, updateDeck, deleteDeck, getCardCount} = require("../controllers/decksController");
+const {createDeck, getAllDecks, getDeck, getUserDecks, getGroupDecks, updateDeck, deleteDeck, getCardCount} = require("../controllers/decksController");
 
 //Create a new deck
 router.post("/", createDeck);
@@ -15,6 +15,9 @@ router.get("/:id", getDeck);
 
 //Get a count of decks belonging to a user via User_id
 router.get("/:User_id/user_decks", getUserDecks);
+
+//Get all decks belonging to a group via Group_id
+router.get("/:Group_id/group_decks", getGroupDecks)
 
 //Update a deck via Deck_id
 router.put("/:id", updateDeck);
