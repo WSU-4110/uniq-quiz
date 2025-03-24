@@ -21,6 +21,8 @@ async function createDeck(req, res){
         const {Title, User_id, Group_id} = req.body;
         const {data, error} = await supabase.from("Decks").insert([{User_id: User_id, Title: Title, Group_id: Group_id}]);
         //if(error) res.status(401).json({error: error.message});
+        if(error)
+            return res.status(401).json("Error creating deck")
         res.json(data);
         console.log(data);
     }catch(err){
@@ -156,7 +158,7 @@ async function getUserDecks (req, res) {
 
         if(countError){
             console.log("Error retrieving count: ", countError.message);
-            res.status(502).json(countError);
+            return res.status(502).json(countError);
         }
 
         res.status(200).json({
