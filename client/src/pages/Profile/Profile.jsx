@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
+import axios from 'axios';
 import styles from '../../Stylesheets/Profile.module.css';
 import axios from "axios";
 
@@ -16,22 +17,7 @@ function Profile(){
     const getUser = async() =>{
         try {
             const response = await axios.get(`/api/users/${user}`);
-            const jsonData = await response.data;
-            setUserData(jsonData);
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
-
-    const getUser_OLD = async() =>{
-        try {
-            const response = await fetch(`/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setUserData(jsonData);
+            setUserData(response.data);
         } catch (error) {
             console.error(error.message);
         }

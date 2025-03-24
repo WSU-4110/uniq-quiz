@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState, useReducer} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
+import axios from 'axios';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
@@ -130,23 +131,8 @@ function PlayerGame() {
         if(params.Game_id){
             try {
                 const response = await axios.get(`/api/games/${params.Game_id}/game`);
-                const jsonData = await response.data;
-                setJoinCode(jsonData.Join_Code);
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-    }
-
-    const getJoinCode_OLD = async() => {
-        if(params.Game_id){
-            try {
-                const response = await fetch(`/api/games/${params.Game_id}/game`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
-                setJoinCode(jsonData.Join_Code);
+                setJoinCode(response.data.Join_Code);
+                console.log(response.data);
             } catch (error) {
                 console.error(error.message);
             }
@@ -157,21 +143,7 @@ function PlayerGame() {
     const getUser = async() =>{
         try {
             const response = await axios.get(`/api/users/${user}`);
-            const jsonData = await response.data;
-            setPlayerData(jsonData);
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
-    const getUser_OLD = async() =>{
-        try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setPlayerData(jsonData);
+            setPlayerData(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -179,15 +151,7 @@ function PlayerGame() {
 
     const savePlayerData = async(newData) => {
         try{
-            const response = await fetch(`http://localhost:3000/api/users/${user}`,{
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(newData)
-            });
-            if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = response.json();
+            const response = await axios.put(`/api/users/${user}`, newData);
         } catch (error) {
             console.error(error.message);
         }
@@ -230,8 +194,8 @@ function PlayerGame() {
             Answer_Status: currentQuestion.CheckAnswer(AnswerID),
             Timer_Status: timerRef
         });
-        nextState(false);
-        //dispatch({ type: 'POSTQUESTION' });
+        //nextState(false);
+        dispatch({ type: 'QUESTION' });
     }
 
     const onTimerEnd = () => {
@@ -271,6 +235,7 @@ function PlayerGame() {
         })
 
         socket.on('question_ended', (data)=>{
+            console.log(data.Scores);
             data.Scores.map((player) => {
                 updatePlayer(player);
             })

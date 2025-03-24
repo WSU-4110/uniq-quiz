@@ -2,12 +2,14 @@ import React, {useEffect} from 'react';
 import styles from '../../../../Stylesheets/Game/Components/QuestionPage.module.css';
 import song from '../../GameAssets/Cloud Dancer.mp3';
 
-function QuestionPage({ question, onAnswer, setIsQuestionPageRendering }) {
+function QuestionPage({ question, onAnswer}) {
     console.log(`QuestionPage: ${question.question}`);
     console.log(`CorrectAnswer: ${question.correctAnswerID}`)
+    /*
     useEffect(() => {
         setIsQuestionPageRendering(true);
     }, [setIsQuestionPageRendering]);
+    */
     //TODO: Put this somewhere on the page for credit:
     /*
     "Cloud Dancer " Kevin MacLeod (incompetech.com)

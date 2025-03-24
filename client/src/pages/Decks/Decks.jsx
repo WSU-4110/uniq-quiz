@@ -4,6 +4,7 @@ import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
 import {useAuth} from '../../context/AuthContext.jsx';
+import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 import axios from "axios";
 
@@ -27,21 +28,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const getDecks = async() =>{
         try {
             const response = await axios.get("/api/decks/");
-            const jsonData = await response.data;
-            setDecks(jsonData);
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
-    const getDecks_OLD = async() =>{
-        try {
-            const response = await fetch("/api/decks/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setDecks(jsonData);
+            setDecks(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -49,29 +36,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createDeck = async() => {
         try{
-            const body = {Title: "Untitled Deck", User_id: user};
-            const response = await axios.post("/api/decks/", {
-                body: JSON.stringify(body)
-            })
-            const jsonData = await response.data;
-            setRefresh(prev => prev + 1);
-        } catch (error){
-            console.error(error.message);
-        }
-    }
-
-    const createDeck_OLD = async() => {
-        try{
-            const body = {Title: "Untitled Deck", User_id: user};
-            const response = await fetch("/api/decks/",{
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(body)
-            });
-            const jsonData = await response.json();
-            if(!response.ok) {
-                throw new Error(`Failed to create deck: ${response.statusText}`);
-            }
+            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: user});
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -80,36 +45,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const updateDeck = async() =>{
         try{
-            const body = selectedDeck;
-            if(!selectedDeck){
-                throw new Error(`No deck selected!`);
+            if(selectedDeck){
+                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.Title});
             }
-            console.log(selectedDeck.Deck_id);
-            await axios.put(`/api/decks/${selectedDeck.Deck_id}`, {
-                body: JSON.stringify(body)
-            })
-        }catch(error){
-            console.error(error.message);
-        }
-    }
-
-    const updateDeck_OLD = async() =>{
-        try{
-            const body = selectedDeck;
-            if(!selectedDeck){
-                throw new Error(`No deck selected!`);
-            }
-            console.log(selectedDeck.Deck_id);
-            const response = await fetch(`/api/decks/${selectedDeck.Deck_id}`, {
-            method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(body)
-            }
-          );
-          if(!response.ok){
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const jsonData = response.json();
         }catch(error){
           console.error(error.message);
         }
@@ -122,12 +60,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }
 
         try{
-            const response = await fetch(`/api/cards/${selectedDeck.Deck_id}`)
-            if (!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setCards(jsonData);
+            const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
+            setCards(response.data);
         } catch (error){
           console.error(error.message);  
         }
@@ -135,14 +69,14 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createCard = async() => {
         try{
-            const body = {Deck_id: selectedDeck.Deck_id, Question: "", Answer: "", Incorrect1: "", Incorrect2: "", Incorrect3: ""};
-            const response = await fetch(`/api/cards/${selectedDeck.Deck_id}`,{
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(body)
-            });
-            const jsonData = await response.json();
-            console.log(jsonData);
+            const response = await axios.post(`/api/cards/${selectedDeck.Deck_id}`, 
+                {   Deck_id: selectedDeck.Deck_id, 
+                    Question: "", 
+                    Answer: "", 
+                    Incorrect1: "", 
+                    Incorrect2: "", 
+                    Incorrect3: ""
+                });
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -151,10 +85,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const deleteDeck = async () => {
         try {
-            const response = await fetch(`/api/decks/${selectedDeck.Deck_id}`, {
-                method: "DELETE"
-            });
-            setDecks(decks.filter(decks => decks.Deck_id !== selectedDeck.Deck_id));
+            await axios.delete(`api/decks/${selectedDeck.Deck_id}`);
             setRefresh(prev => prev + 1);
         } catch (error) {
             console.error(error.message);

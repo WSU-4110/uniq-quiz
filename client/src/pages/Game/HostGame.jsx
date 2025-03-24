@@ -2,10 +2,11 @@ import React, {useEffect, useRef, useState, useReducer} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {useSocket} from '../../context/SocketContext.jsx';
+import axios from 'axios';
 
 //pages
 import StartPage from './GameComponents/Pages/StartPage';
-import QuestionPage from './GameComponents/Pages/QuestionPage.jsx.old';
+import QuestionPage from './GameComponents/Pages/QuestionPage';
 import PostQuestionPage from './GameComponents/Pages/PostQuestionPage';
 import LoadingPage from './GameComponents/Pages/LoadingPage';
 import LeaderboardPage from './GameComponents/Pages/LeaderboardPage';
@@ -76,9 +77,10 @@ function HostGame() {
     const [leaderboard, setLeaderboard] = useState(new Leaderboard());
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("No title selected");
+    const [timer, setTimer] = useState(1);
+    const timerRef = useRef(null);
     const [joinCode, setJoinCode] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
-    const timerRef = useRef(null);
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
 
@@ -100,11 +102,9 @@ function HostGame() {
                 dispatch({type: 'START'});
                 break;
             case QuizPages.QUESTION:
-                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 dispatch({type: 'QUESTION', isHost});
                 break;
             case QuizPages.POSTQUESTION:
-                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 dispatch({type: 'POSTQUESTION', isHost});
                 break;
             case QuizPages.LOADING:
@@ -129,12 +129,8 @@ function HostGame() {
     const getJoinCode = async() => {
         if(params.Game_id){
             try {
-                const response = await fetch(`/api/games/${params.Game_id}/game`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
-                setJoinCode(jsonData.Join_Code);
+                const response = await axios.get(`/api/games/${params.Game_id}/game`);
+                setJoinCode(response.data.Join_Code);
             } catch (error) {
                 console.error(error.message);
             }
@@ -144,12 +140,8 @@ function HostGame() {
     /** @todo consolidate with profile and the others into a users hooks folder */
     const getUser = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setPlayerData(jsonData);
+            const response = await axios.get(`/api/users/${user}`);
+            setPlayerData(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -157,15 +149,7 @@ function HostGame() {
 
     const savePlayerData = async(newData) => {
         try{
-            const response = await fetch(`http://localhost:3000/api/users/${user}`,{
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(newData)
-            });
-            if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = response.json();
+            const response = await axios.put(`/api/users/${user}`, newData);
         } catch (error) {
             console.error(error.message);
         }
@@ -259,15 +243,17 @@ function HostGame() {
 
         socket.on('answer_submitted', (data) => {
             if(data.AllSubmitted){
+                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
                 nextState(true);
             }else{
                 setNumPlayerAnswers(prevNumPlayerAnswers => prevNumPlayerAnswers + 1);
             }
         })
 
-        socket.on('deck_title', (data) => {
+        socket.on('game_settings', (data) => {
             if(data){
                 setDeckTitle(data.Title);
+                setTimer(data.Timer);
             }
         })
 
@@ -304,8 +290,9 @@ function HostGame() {
         };
 
         //get deck title
-        if(!state.isGameOver)
-            socket.emit('get_deck_title', {Game_id: params.Game_id});
+        if(!state.isGameOver){
+            socket.emit('get_game_settings', {Game_id: params.Game_id});
+        }
 
         //get player data
         getUser();
@@ -317,7 +304,7 @@ function HostGame() {
 
     //99 little bugs in the code 99 little bugs
     //Take one down patch it around
-    //943 little bugs in the code
+    //942 little bugs in the code
     return (
         <div style={{ overflowY: 'hidden' }}>
 

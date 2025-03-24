@@ -6,10 +6,10 @@ const { cursorTo } = require('readline');
 /**
  * Key: Game_id
  * Value:   Deck_id,
- *          cards
- *          currentCardIndex
- *          gameSettings{}
- *          players[{User_id, PlayerScore, CurrentSubmitAnswerRank}]
+ *          cards,
+ *          currentCardIndex,
+ *          timer,
+ *          players[{User_id (uuid), Username (int), Player_score (int), CurrentSubmitAnswer(bool)}]
  */
 const activeGames = {};
 
@@ -27,7 +27,7 @@ module.exports = (server) => {
     console.log("Initializing Socket.IO...");
     const io = new Server(server, {
         cors: {
-            origin: "http://localhost:3001", // Frontend URL
+            origin: process.env.INPUT_PORT, // Frontend URL
             methods: ["GET", "POST", "DELETE"], // Allow specific HTTP methods
             //allowedHeaders: ["my-custom-header"], // Optional: if you're using custom headers
             credentials: true // If needed for cookie/session sharing
@@ -80,10 +80,15 @@ module.exports = (server) => {
         })
 
         //Host selects a deck
-        socket.on("deck_selected", async ({Game_id, Deck_id}) => {
+        socket.on("game_settings_selected", async ({Game_id, Game_Settings}) => {
             if(socket.data.host){
                 //Verify that host has access to this deck
                 console.log("Using ID: ", socket.data.User_id);
+                console.log("Using settings: ", Game_Settings);
+
+                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Timer = Game_Settings.timePerQuestion;
+
                 const {data, error} = await supabase
                     .from("Decks")
                     .select("Deck_id")
@@ -114,20 +119,31 @@ module.exports = (server) => {
                     console.log("No cards found for the selected deck.");
                     return;
                 }
+
+                //Shuffle cards
+                if(Game_Settings.shuffleDecks){
+                    for(let i = cards.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [cards[i], cards[j]] = [cards[j], cards[i]];
+                    }
+                }
     
                 console.log("Cards retrieved:", cards);
 
                 //Store Deck_id and cards in active games (server data)
                 activeGames[Game_id].Deck_id = Deck_id;
-                activeGames[Game_id].cards = cards; //TODO: shuffle this here
+                activeGames[Game_id].cards = cards;
+                activeGames[Game_id].timer = Timer;
+
                 console.log("Active Games: ", activeGames[Game_id]);
             }
         });
 
-        //Socket to retrieve deck title upon page loading
-        socket.on("get_deck_title", async ({Game_id}) =>{
+        //Socket to retrieve game settings upon page loading
+        socket.on("get_game_settings", async ({Game_id}) =>{
             //Get current ID from activeGames
             const Deck_id = activeGames[Game_id].Deck_id;
+            const Timer = activeGames[Game_id].timer;
 
             //Retrieve deck title from database
             const {data: deckTitle, error: titleError} = await supabase
@@ -141,7 +157,7 @@ module.exports = (server) => {
             }
 
             //Emit title as event to all clients connected to Game_id
-            io.to(Game_id).emit("deck_title", deckTitle);
+            io.to(Game_id).emit("game_settings", {Deck_Title: deckTitle, Timer: Timer});
         })
         
 

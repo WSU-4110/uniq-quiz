@@ -1,23 +1,15 @@
 import {useNavigate} from 'react-router-dom';
 import styles from '../../Stylesheets/Game/Lobby.module.css';
 
-export default function Lobby({children}) {
+export default function LobbyHeader() {
     const navigate = useNavigate();
 
     return (
         <div className={styles.lobbyPage}>
             <div className={styles.header}>
                 <button className={styles.menuButton} onClick={()=>{navigate(-1)}}>Go Back</button>
-            </div>
-            <div className={styles.logo}>
                 <img src="/TitleLogo.svg" alt="Uniq-Quiz Logo" />
-            </div>
-            <div className={styles.joinMenu}>
-                {children}
-            </div>
-            <div className={styles.browseGamesContainer}>
-                <p>No Public Games</p>
-            </div>      
+            </div>    
         </div>
     )
 }
