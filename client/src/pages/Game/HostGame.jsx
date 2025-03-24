@@ -149,7 +149,7 @@ function HostGame() {
 
     const savePlayerData = async(newData) => {
         try{
-            const response = await axios.put(`http://localhost:3000/api/users/${user}`, newData);
+            const response = await axios.put(`/api/users/${user}`, newData);
         } catch (error) {
             console.error(error.message);
         }
