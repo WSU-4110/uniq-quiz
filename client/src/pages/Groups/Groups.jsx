@@ -1,12 +1,10 @@
 import {React, useState, useEffect} from 'react';
 import TabButton from '../../components/TabButton.jsx';
-import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
-import { Link, } from 'react-router'
-import styles from "../../Stylesheets/Groups/GroupsPage.module.css";
+import styles from "../../Stylesheets/Groups/Groups.module.css";
 import Decks from "../Decks/Decks.jsx"
 
-export default function Groups({asInset = false})
+export default function Groups()
 {
     const [members, setMembers] = useState([]);
     const [decks, setDecks] = useState([]);
@@ -100,7 +98,7 @@ export default function Groups({asInset = false})
             <div className={styles.groupHeaders}>
                 <h3>Active Games</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className = {styles.groupContainer}>
             {activeGames.map((games) => (
                         <TabButton>
                             <div className={styles.groupItem}>
@@ -117,7 +115,7 @@ export default function Groups({asInset = false})
             <div className={styles.groupHeaders}>
                 <h3>Leaderboards</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className = {styles.groupContainer}>
 
             </div>
         </div>

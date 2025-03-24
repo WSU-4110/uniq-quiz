@@ -16,7 +16,7 @@ import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
 import HostGame from "./pages/Game/HostGame";
-import Groups from './pages/Groups/GroupsPage.jsx';
+import Groups from './pages/Groups/Groups.jsx';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
