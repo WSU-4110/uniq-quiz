@@ -3,6 +3,7 @@ const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
+const {jwtDecode} = require("jwt-decode"); //Needed for decoding a session token
 
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {
@@ -118,6 +119,7 @@ async function setUserPrivacy(req, res){
         console.log(err.message);
     }
 }
+
 
 module.exports = {
     createUser,
