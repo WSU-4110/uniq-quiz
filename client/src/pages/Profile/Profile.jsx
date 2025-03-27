@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
 import axios from 'axios';
 import styles from '../../Stylesheets/Profile.module.css';
-import axios from "axios";
 
 function Profile(){
     const [error, setError] = useState(null);

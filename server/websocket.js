@@ -106,7 +106,8 @@ module.exports = (server) => {
                 const {data: cards, error: cardError} = await supabase
                     .from("Cards")
                     .select("*")
-                    .eq("Deck_id", Deck_id);
+                    .eq("Deck_id", Deck_id)
+                    .order("Card_id"); //TODO: Get this to work, why won't it work, gonna kms
 
                 console.log("Cards data retrieved: ", cards);
                 if(cardError){

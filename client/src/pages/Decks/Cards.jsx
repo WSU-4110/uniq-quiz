@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import ListItem from '../../components/ListItem';
 import axios from 'axios';
 import styles from '../../Stylesheets/Decks/Cards.module.css';
-import axios from "axios";
 
 export default function Cards(){
     const params = useParams();
