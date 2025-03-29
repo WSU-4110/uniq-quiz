@@ -56,9 +56,9 @@ function RootLayout() {
               <Routes>
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/" element={<Landing/>} />
+                  <Route path="/" element={ isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing/>} />
                   <Route path="/game" element={<PlayerGame />} />
-              
+
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
