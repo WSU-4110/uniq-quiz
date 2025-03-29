@@ -224,6 +224,11 @@ module.exports = (server) => {
             io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
         })
 
+        //Host tells player what state to be in
+        socket.on("send_current_state", ({Game_id, currentState, isGameOver}) => {
+            io.to(Game_id).emit("get_current_state", {currentState: currentState, isGameOver: isGameOver});
+        })
+
         //Host ends the game
         socket.on("end_game", async ({Game_id}) => {
             if(socket.data.host){ //Make sure only host has access to this function

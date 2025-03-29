@@ -277,6 +277,19 @@ function HostGame() {
         getJoinCode();
     }, [params]);
 
+    //Update player clients on current state
+    useEffect(() => {
+        console.log("Emitting updated state:", state);
+        socket.emit('send_current_state', {
+            Game_id: params.Game_id,
+            currentState: state.currentPage,
+            isGameOver: state.isGameOver,
+        });
+        console.log("Socket send_current_state emitted");
+    }, [state]);
+
+
+
     //component mount listener
     useEffect(() => {
         //Allow the game to change states via the console,
