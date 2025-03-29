@@ -107,7 +107,7 @@ module.exports = (server) => {
                     .from("Cards")
                     .select("*")
                     .eq("Deck_id", Deck_id)
-                    .order("Card_id"); //TODO: Get this to work, why won't it work, gonna kms
+                    .order("Card_id");
 
                 console.log("Cards data retrieved: ", cards);
                 if(cardError){

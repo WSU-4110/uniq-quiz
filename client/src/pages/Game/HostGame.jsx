@@ -83,6 +83,7 @@ function HostGame() {
     const [currentQuestion, setCurrentQuestion] = useState( initQuestion);
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
+    const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
 
     // Host Variables
     const [numPlayerAnswers, setNumPlayerAnswers] = useState(0);
@@ -321,6 +322,8 @@ function HostGame() {
                     endGameText={state.isGameOver ? "Exit" : "End Game"}
                     timerRef={timerRef}
                     numPlayerAnswers={numPlayerAnswers}
+                    isQuestionPageRendering={isQuestionPageRendering}
+                    seconds={timer}
                 />
             </header>
             <div>
@@ -328,11 +331,13 @@ function HostGame() {
                 {state.currentPage === QuizPages.QUESTION && <QuestionPage
                     question={currentQuestion}
                     onAnswer={onQuestionSubmit}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
-                    lb={leaderboard.leaderboard}
+                    leaderboard={leaderboard.leaderboard}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}

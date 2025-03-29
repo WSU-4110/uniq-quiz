@@ -14,7 +14,7 @@ export class Question {
         }
 
         this.question = question;
-         const answers = [correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3];
+        const answers = [correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3];
 
         // Using the Fisher-Yates algorithm to shuffle the questions
         // I had come across this algorithm while researching a fix to a bug

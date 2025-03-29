@@ -176,7 +176,7 @@ function PlayerGame() {
     const updatePlayer = (player) =>{
         leaderboard.updatePlayer(player.name, player.score);
         if(player.Username === userName){
-            setPlayerScore(player.Player_score);
+            setPlayerScore(player.Player_score); //TODO: ?
         }
     }
 

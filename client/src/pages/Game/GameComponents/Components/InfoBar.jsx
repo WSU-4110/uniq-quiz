@@ -14,7 +14,7 @@ function InfoBar({gameCode, isHost, deckName, displayName, onAdvance, score, onT
                         ) : (
                             gameCode
                         )}
-                        </h2>
+                    </h2>
                     <h2>{deckName}</h2>
                     <h2>{displayName} : {score}</h2>
                 </div>

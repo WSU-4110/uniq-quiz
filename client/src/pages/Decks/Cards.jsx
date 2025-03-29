@@ -21,7 +21,7 @@ export default function Cards(){
     const updateCard = async() =>{
         try{
             const body = card;
-            await axios.put(`/api/cards/${params.card_id}/card`,
+            await axios.put(`/api/cards/${params.card_id}`,
                 {
                     body: JSON.stringify(body)
                 });
