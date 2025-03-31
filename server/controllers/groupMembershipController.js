@@ -44,16 +44,39 @@ async function getAllGroupMemberships(req, res){
     }
 }
 
-//get a group membership
-async function getGroupMembership(req, res){
+//get all users in a group
+async function getGroupByGroupId(req, res){
     try {
-        const{id} = req.params;
-        const{data: aGroupMem, error} = await supabase.from("Group_Membership").select('*').eq("Group_id", id).single();
+        const {id} = req.params;
+        const {data: aGroupMem, error} = await supabase.from("Group_Membership").select('*').eq("Group_id", id);
         console.log(aGroupMem);
-        res.json(aGroupMem);
+        res.status(201).json(aGroupMem);
     } catch (err) {
         console.log(err.message);
+    }
+}
+
+//get all groups that one user is in
+async function getGroupByMemberId(req, res){
+    try {
+        const {id} = req.params;
+        const {data: aGroupMem, error} = await supabase.from("Group_Membership").select('*').eq("User_id", id);
+        console.log("Group by member:", aGroupMem);
         res.status(201).json(aGroupMem);
+    } catch (err) {
+        console.log(err.message);
+    }
+}
+
+//get a single instance of a group membership
+async function getGroupMembership(req, res){
+    try {
+        const {Group_id, User_id} = req.body;
+        const {data: aGroupMem, error} = await supabase.from("Group_Membership").select('*').eq("Group_id", Group_id).eq("User_id", User_id).single();
+        console.log(aGroupMem);
+        res.status(201).json(aGroupMem);
+    } catch (err) {
+        console.log(err.message);
     }
 }
 
@@ -99,6 +122,8 @@ async function deleteGroupMembership(req, res){
 module.exports = {
     createGroupMembership,
     getAllGroupMemberships,
+    getGroupByGroupId, 
+    getGroupByMemberId, 
     getGroupMembership,
     updateGroupMembership,
     deleteGroupMembership

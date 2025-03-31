@@ -20,8 +20,18 @@ export default function GroupViewer({asInset = false}){
         try {
             const response = await axios.get("/api/groups/");
             setAllGroups(response.data);
-            setMyGroups(response.data); //TODO: once we can join groups, filter accordingly. .filter(group => group.User_id === user)
             //TODO: update groups with ongoingGames, decks, topUsers
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getMyGroups = async() =>{
+        try{
+            const response = await axios.get(`/api/groupMembership/member/${user}`);
+            console.log("my groups", response);
+            const dataGroups = response.data.map(group => group.Group_id);
+            setMyGroups(allGroups.filter(group => dataGroups.includes(group.Group_id)));
         } catch (error) {
             console.error(error.message);
         }
@@ -70,11 +80,13 @@ export default function GroupViewer({asInset = false}){
     //refresh listener
     useEffect(()=>{
         getGroups();
+        getMyGroups();
     }, [refresh])
 
     //component mount listener
     useEffect(()=>{
         getGroups();
+        getMyGroups();
     }, []);
 
     return(<>
