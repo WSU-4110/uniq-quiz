@@ -2,6 +2,12 @@
     padding: 2vh;
     font-size: 0;
 }
+.page a{
+    text-decoration: none;
+}
+.page a:visited{
+    color: var(--lightest);
+}
 .menuContainer{
     border-top: 2px solid var(--darkest);
     background-color: var(--medium);
@@ -88,6 +94,53 @@
 
     background-color: var(--feature);
     color: var(--feature-dark);
+    border: none;
+    border-radius: 5px;
+    height: 60%;
+    margin: 8px;
+
+    cursor: pointer;
+    &:hover {
+        background-color: var(--feature-light);
+    }
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    @media screen and (max-width: 600px) {
+        display: flex;
+        width: 100%;
+    }
+}
+
+.browseContainer{
+    background-color: var(--medium);
+    border-top: 2px solid var(--lightest);
+    height: 70vh;
+    padding: 5px;
+    overflow-y: auto;
+}
+.browseItem{
+    background-color: var(--darkest);
+    border: 2px solid var(--lightest);
+    margin: 1vw auto;
+    padding: 15px;
+    width: 90%;
+    height: 100px;
+    border-radius: 1px;
+    color: var(--lightest);
+    overflow-y: hidden;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
+.browseItem h1{
+    font-size: 15px;
+    color: var(--lightest);
+}
+.browseItem button{
+    background-color: var(--light);
+    color: var(--darkest);
     border: none;
     border-radius: 5px;
     height: 60%;

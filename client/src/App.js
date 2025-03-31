@@ -17,6 +17,7 @@ import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
 import HostGame from "./pages/Game/HostGame";
 import GroupViewer from './pages/Groups/GroupViewer.jsx';
+import Group from './pages/Groups/Group.jsx';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -63,6 +64,7 @@ function RootLayout() {
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/groups" element={<ProtectedRoute><GroupViewer /></ProtectedRoute>}></Route>
+                  <Route path="/groups/:Group_id" element={<ProtectedRoute><Group /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />

@@ -1,5 +1,7 @@
 import {React, useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router'
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import axios from 'axios';
 import styles from "../../Stylesheets/Groups/GroupViewer.module.css";
@@ -7,15 +9,19 @@ import styles from "../../Stylesheets/Groups/GroupViewer.module.css";
 export default function GroupViewer({asInset = false}){
 
     const {user, userName, loading} = useAuth();
-    const [groups, setGroups] = useState([]); //holds ongoingGames, decks, topUsers
+    const navigate = useNavigate();
+
+    const [myGroups, setMyGroups] = useState([]); //holds ongoingGames, decks, topUsers
+    const [allGroups, setAllGroups] = useState([]); //holds ongoingGames, decks, topUsers
     const [viewMyGroups, setViewMyGroups] = useState(true);
     const [refresh, setRefresh] = useState(0);
 
     const getGroups = async() =>{
         try {
             const response = await axios.get("/api/groups/");
-            setGroups(response.data); //TODO: once we can join groups, filter accordingly. .filter(group => group.User_id === user)
-
+            setAllGroups(response.data);
+            setMyGroups(response.data); //TODO: once we can join groups, filter accordingly. .filter(group => group.User_id === user)
+            //TODO: update groups with ongoingGames, decks, topUsers
         } catch (error) {
             console.error(error.message);
         }
@@ -48,6 +54,19 @@ export default function GroupViewer({asInset = false}){
         }
     }
 
+    const viewGroup = (Group_id) =>{
+        navigate(`/groups/${Group_id}`);
+    }
+
+    const joinGroup = async(Group_id) =>{
+        try{
+            const response = await axios.post("api/groupMembership", {Group_id: Group_id, User_id: user});
+            setRefresh(prev => prev + 1);
+        } catch (error){
+            console.error(error.message);
+        }
+    }
+
     //refresh listener
     useEffect(()=>{
         getGroups();
@@ -70,19 +89,21 @@ export default function GroupViewer({asInset = false}){
                     </div>
                 )}
             </div>
-            <div className={asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className={asInset ? styles.groupContainerSmall : (viewMyGroups ? styles.groupContainer : styles.browseContainer)}>
                 {viewMyGroups && (<>
-                    {groups.sort((a,b) => a.Group_Name > b.Group_Name ? 1 : -1)
+                    {myGroups.sort((a,b) => a.Group_Name > b.Group_Name ? 1 : -1)
                         .map((group, index) => (
                             <div key={index} className={styles.groupItem}>
+                                <Link to={`/groups/${group.Group_id}`}>
                                 <div className={styles.groupItemHeader}>
                                     <h1>{group.Group_Name ? group.Group_Name : "Untitled Group"}</h1>
                                 </div>
+                                </Link>
                                 <div className={styles.groupItemContent}>
                                     <div className={styles.buttonContent}>
-                                        <p>Ongoing Games: {groups.ongoingGames ? groups.ongoingGames : "NONE"}</p>
-                                        <p>Decks: {groups.decks ? groups.decks : "NONE"}</p>
-                                        <p>Top Users: {groups.topUsers ? groups.topUsers : "NONE"}</p>
+                                        <p>Ongoing Games: {myGroups.ongoingGames ? myGroups.ongoingGames : "NONE"}</p>
+                                        <p>Decks: {myGroups.decks ? myGroups.decks : "NONE"}</p>
+                                        <p>Top Users: {myGroups.topUsers ? myGroups.topUsers : "NONE"}</p>
                                     </div>
                                     {!asInset && <button onClick={() => leaveGroup(group.Group_id)} className={styles.hoverButton}>Leave This Group</button>}
                                     {!asInset && group.Founder_id === user && <button onClick={() => deleteGroup(group.Group_id)} className={styles.hoverButton}>Delete Group</button>}
@@ -91,7 +112,18 @@ export default function GroupViewer({asInset = false}){
                     ))}
                 </>)}
                 {!viewMyGroups && (<>
-                    <p>Browse groups here</p>
+                    {allGroups.sort((a,b) => a.Group_Name > b.Group_Name ? 1 : -1)
+                        .map((group, index) => (
+                            <div key={index} className={styles.browseItem}>
+                                <div className={styles.browseInfo}>
+                                    <h1>{group.Group_Name ? group.Group_Name : "Untitled Group"}</h1>
+                                </div>
+                                <div className={styles.browseMenu}>
+                                    <button onClick={() => viewGroup(group.Group_id)}>View Group</button>
+                                    <button onClick={() => joinGroup(group.Group_id)}>Join Group</button>
+                                </div>
+                            </div>
+                    ))}
                 </>)}
             </div>
         </div>

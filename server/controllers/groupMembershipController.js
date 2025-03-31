@@ -17,15 +17,18 @@ async function createGroupMembership(req, res){
         console.log(req.body);
         console.log("Received data: ", {Group_id, User_id});
 
+        const {data: checkMembership, error: checkError} = await supabase.from("Group_Membership").select('*').eq("Group_id", Group_id).eq("User_id", User_id);
+        if(checkMembership !== null){
+            res.json({"Error: user already in group": checkError});
+        }
         const {data, error} = await supabase.from("Group_Membership").insert([{Group_id: Group_id, User_id: User_id}]);
-
 
         if (error){
             console.log("Database error: ", error); //Log detailed database error
         }
+        res.status(201).json(data);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(data);
     }
 }
 
