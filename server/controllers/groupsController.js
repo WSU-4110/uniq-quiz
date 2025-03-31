@@ -12,21 +12,25 @@ app.use(express.json()); //req.body
 //create group
 async function createGroup(req, res) {
     try {
-        const {Group_id, Group_Name, Founder_id} = req.body;
-
-        //Log received info
-        console.log(req.body);
-        console.log("Received data: ", {Group_id, Group_name, Founder_id});
-
-        const {data, error} = await supabase.from("Groups").insert([{Group_id: Group_id, Group_Name: Group_Name, Founder_id: Founder_id}]);
-
+        const {Group_Name, Founder_id} = req.body;
+        const {data, error} = await supabase.from("Groups").insert([{Group_Name: Group_Name, Founder_id: Founder_id}]).select();
 
         if (error){
             console.log("Database error: ", error); //Log detailed database error
         }
+
+        console.log("Inserted group:", data);
+
+        //Insert new user as member in group
+        const {data: insertData, error: insertError} = await supabase.from("Group_Membership").insert([{Group_id: data[0].Group_id, User_id: Founder_id}]);
+
+        if (insertError){
+            console.log("Database error: ", error);
+        }
+
+        res.status(201).json(data);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(data);
     }
 }
 
@@ -35,10 +39,9 @@ async function getAllGroups(req, res) {
     try {
         const{data: AllGroups, error} = await supabase.from("Groups").select('*');
         console.log(AllGroups);
-        res.json(AllGroups);
+        res.status(201).json(AllGroups);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(AllGroups);
     }
 }
 
@@ -48,10 +51,9 @@ async function getGroup(req, res){
         const{id} = req.params;
         const{data: aGroup, error} = await supabase.from("Groups").select('*').eq("Group_id", id).single();
         console.log(aGroup);
-        res.json(aGroup);
+        res.status(201).json(aGroup);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(aGroup);
     }
 }
 
@@ -59,20 +61,18 @@ async function getGroup(req, res){
 async function updateGroup(req, res){
     try {
         const {id} = req.params;
-        const{Group_id, Group_Name, Founder_id} = req.body;
+        const{Group_Name, Founder_id} = req.body;
 
         const newData = {};
-        if (Group_id) newData.Group_id = Group_id;
         if (Group_Name) newData.Group_Name = Group_Name;
         if (Founder_id) newData.Founder_id = Founder_id;
 
         const {data: updatedGroup, error} = await supabase.from("Groups").update(newData).eq('Group_id', id).select("*");
-        res.json(updatedGroup);
-        console.log("Updated group: ", updatedGroup);
-
         if(error){
             console.log("Error updating group: ", error);
         }
+        res.status(201).json(updatedGroup);
+        console.log("Updated group: ", updatedGroup);
     } catch (err) {
         console.log(err.message);
     }

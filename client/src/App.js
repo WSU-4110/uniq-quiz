@@ -16,7 +16,7 @@ import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
 import HostGame from "./pages/Game/HostGame";
-import Groups from './pages/Groups/Groups.jsx';
+import GroupViewer from './pages/Groups/GroupViewer.jsx';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -56,13 +56,13 @@ function RootLayout() {
               <Routes>
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/" element={<Landing/>} />
+                  <Route path="/" element={ isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing/>} />
                   <Route path="/game" element={<PlayerGame />} />
               
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
-                  <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>}></Route>
+                  <Route path="/groups" element={<ProtectedRoute><GroupViewer /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />

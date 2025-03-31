@@ -20,7 +20,6 @@ async function createDeck(req, res){
     try{    
         const {Title, User_id} = req.body;
         const {data, error} = await supabase.from("Decks").insert([{User_id: User_id, Title: Title}]);
-        //if(error) res.status(401).json({error: error.message});
         res.json(data);
         console.log(data);
     }catch(err){

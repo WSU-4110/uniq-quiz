@@ -3,9 +3,11 @@ import TabButton from '../../components/TabButton.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import styles from "../../Stylesheets/Groups/Groups.module.css";
 import Decks from "../Decks/Decks.jsx"
+import {useAuth} from '../../context/AuthContext.jsx';
 
 export default function Groups()
 {
+    const {user, userName, loading} = useAuth();
     const [members, setMembers] = useState([]);
     const [decks, setDecks] = useState([]);
     const [activeGames, setActiveGames] = useState([]);
