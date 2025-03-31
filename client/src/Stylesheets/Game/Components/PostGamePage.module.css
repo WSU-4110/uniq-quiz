@@ -1,0 +1,116 @@
+.pageContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20vw;
+}
+
+.podiumContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2vw;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 5px solid white;
+    padding: 3vw 3vw 0 3vw;
+}
+
+.podiumContainer:after{
+    padding-top: 29vh;
+    z-index: -1;
+    content: "";
+    background-color: #FFF;
+    position: absolute;
+    width: 5px;
+    height: 70vh;
+    top: 10px;
+    left: 50%;
+    display: block;
+}
+
+.podiumSecond {
+    height: 20vh;
+    width: 5vw;
+    text-align: center;
+    background-color: #FFFFFF;
+    color: #C0C0C0;
+}
+
+
+.podiumFirst {
+    height: 25vh;
+    width: 5vw;
+    text-align: center;
+    background-color: #FFFFFF;
+    color: #FFD700;
+}
+
+.podiumThird{
+    height: 15vh;
+    width: 5vw;
+    text-align: center;
+    background-color: #FFFFFF;
+    color: #CD7F32;
+}
+
+.leaderboardContainerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboardContainer {
+    background: rgba(255, 255, 255, 0.1);
+    min-width: 35vw;
+    min-height: 35vh;
+    max-width: 50vw;
+    border: 10px solid white;
+    border-radius: 10px;
+}
+
+.leaderboardHeader {
+    text-align: center;
+}
+
+.leaderboardPosContainer {
+    display: flex;
+    border-top: 2px solid white;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.leaderboardPos{
+    float: left;
+    padding-left: 10px;
+}
+
+.leaderboardName{
+    float: right;
+    padding-right: 10px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.podiumFirst h4,
+.podiumSecond h4,
+.podiumThird h4 {
+    position: relative;
+    top: -65px;
+    width: 100%;
+    text-align: center;
+}
+
+.scrollContainer {
+    margin-top: 25vh;
+    padding-right: 18px;
+    max-height: 45vh;
+    min-width: 25vw;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

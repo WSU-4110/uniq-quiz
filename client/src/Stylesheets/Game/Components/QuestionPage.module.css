@@ -1,0 +1,120 @@
+.QuestionContainer {
+    margin: 10px;
+    padding: 5% 0 5% 0;
+    background-color: #FFFFFF;
+    color: black;
+    text-align: center;
+}
+
+.Question {
+    color: black;
+    background-color: #FFFFFF;
+    text-align: center;
+}
+
+.QuestionButtonContainer {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+}
+
+.QuestionButton {
+    display: flex;
+    padding: 11% 48% 11% 48%;
+    border: black solid 3px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    max-width: 50%;
+    justify-content: center;
+}
+
+.QuestionButtonRow{
+    display: block;
+    clear: both;
+    content: "";
+    margin: 0;
+    padding: 0;
+}
+
+.QuestionButtonCol {
+    display: table-cell;
+    text-align: center;
+    float: left;
+    width: 50%;
+}
+
+.ButtonCyan {
+    background-color: #00adef;
+}
+.ButtonCyan:hover {
+    background-color: #00adefe0;
+}
+
+.ButtonYellow {
+    background-color: #fef102;
+}
+
+.ButtonYellow:hover {
+    background-color: #fef102e0;
+}
+
+.ButtonMagenta {
+    background-color: #ed008c;
+}
+
+.ButtonMagenta:hover {
+    background-color: #ed008ce0;
+}
+
+.ButtonGray {
+    background-color: #6fffe9;
+}
+
+.ButtonGray:hover {
+    background-color: #6fffe9e0
+}
+
+
+
+/* Joke colors that look absolutely fucking terrible but I am keeping them here */
+.ButtonPinkGreen {
+    border-color: limegreen;
+    background-color: #ff1dd4;
+}
+
+.ButtonNeonGreenYellow {
+    border-color: yellow;
+    background-color: #82ff53;
+}
+
+.ButtonBlueRed{
+    border-color: #192285;
+    background-color: red;
+}
+
+.ButtonMucusShitBeige:hover {
+    border-color: beige;
+    background-color: #00e22b;
+}
+
+.ButtonPinkGreen:hover {
+    border-color: limegreen;
+    background-color: #7d00ac;
+}
+
+.ButtonNeonGreenYellow:hover {
+    border-color: yellow;
+    background-color: #00ffff;
+}
+
+.ButtonBlueRed:hover {
+    border-color: #192285;
+    background-color: #9ba5ff;
+}
+
+.ButtonMucusShitBeige {
+    border-color: beige;
+    background-color: #645a00;
+}

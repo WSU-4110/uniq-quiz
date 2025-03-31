@@ -171,7 +171,6 @@ async function getUserDecks (req, res) {
         }
     }
 }
-
 async function getGroupDecks (req, res) {
     try {
         const {Group_id} = req.params;

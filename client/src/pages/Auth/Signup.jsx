@@ -1,4 +1,6 @@
 import React from 'react';
+import {useAuth} from '../../context/AuthContext';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import '../../Stylesheets/Auth/Auth.css'
 
@@ -8,7 +10,10 @@ function Signup() {
     const [password, setPassword] = React.useState('');
     const [passwordConfirm, setPasswordConfirm] = React.useState('');
     const [display_name, setDisplayName] = React.useState('');
+    const {login} = useAuth();
+    const navigate = useNavigate();
     const [error, setError] = React.useState('');
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,6 +41,13 @@ function Signup() {
             const data = respone.data;
             if (data.error) {
                 setError(data.error || 'Something went wrong with the network.');
+            }else{
+                const { success, error } = await login(email, password);
+                if (error) {
+                    setError(error);
+                } else if (success) {
+                    navigate("/dashboard");
+                }
             }
         } catch (error) {
             setError("Something went wrong with the network, the developers are crying fixing it.");
@@ -96,7 +108,7 @@ function Signup() {
 
     return (
         <div className="Signup">
-            <div className="OutterAuth">
+            <div className="OuterAuth">
                 <div className="AuthBlock">
                     <div className="InnerAuth">
                         <h2>Signup</h2>

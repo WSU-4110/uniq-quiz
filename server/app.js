@@ -4,7 +4,11 @@ const dotenv = require('dotenv').config();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const http = require('http');
+
 const supabase = require('./supabase');
+const websocket = require('./websocket');
+// console.log(process.env);
 
 //Routers
 // const indexRouter = require('./routes/index');
@@ -16,11 +20,18 @@ const groupsRouter = require("./routes/groupsRouter");
 const groupMembershipRouter = require("./routes/groupMembershipRouter"); 
 const gamesRouter = require("./routes/gamesRouter"); 
 const cardsRouter = require("./routes/cardsRouter"); 
-const decksRouter = require("./routes/decksRouter");
-
-
+const decksRouter = require("./routes/decksRouter"); 
 
 const app = express();
+const server = http.createServer(app);
+
+//allow api requests from front-end run on 3001
+
+ app.use(cors({
+     origin: 'http://localhost:3001',
+     credentials: true
+ }));
+//app.use(cors()); //full permissions granted with cors- DEBUG.
 
 //middleware
 app.use(logger('dev'));
@@ -41,8 +52,11 @@ app.use('/api/decks', decksRouter);
 app.use('/api/auth', authRouter);
 
 //Listen to local host port 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log(`Server has started on port ${process.env.PORT}.`)
 });
 
-module.exports = app;
+websocket(server);
+
+
+module.exports = {app, server};

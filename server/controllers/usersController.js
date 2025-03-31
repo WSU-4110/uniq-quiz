@@ -14,10 +14,10 @@ const {jwtDecode} = require("jwt-decode"); //Needed for decoding a session token
 app.use(cors());
 app.use(express.json()); //req.body
 
-//create user
+//create user - Should not be used outside testing. User creation happens through Auth Signup.
 async function createUser(req, res) {
     try {
-        const { Username, Password, Email } = req.body;
+        const { Username} = req.body;
         console.log(req.body);
 
         // Log incoming data from Postman

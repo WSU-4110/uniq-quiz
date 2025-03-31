@@ -4,7 +4,7 @@ const router = express.Router();
 //Import controller functions
 const {createDeck, getAllDecks, getDeck, getUserDecks, getGroupDecks, updateDeck, deleteDeck, getCardCount} = require("../controllers/decksController");
 
-//Create a new deck
+//Create a new deck via user_id
 router.post("/", createDeck);
 
 //Get all decks
