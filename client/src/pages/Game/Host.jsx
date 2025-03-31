@@ -36,6 +36,21 @@ export default function Host(){
         }
     }
 
+    const getIsInActiveGame = async() => {
+        try{
+            const response = await fetch(`http://localhost:3000/api/games/${user}/host`);
+            if(!response.ok){
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const jsonData = await response.json();
+            if(jsonData){
+                setGame(jsonData);
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
     const createGame = async() => {
         if (loading) {
             console.log("Auth is still loading... waiting for user");
@@ -149,11 +164,14 @@ export default function Host(){
 
     //deck select listener
     useEffect(()=>{
-        socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+        if(selectedDeck?.Deck_id){
+            socket.emit('deck_selected', { Game_id: game.Game_id, Deck_id: selectedDeck.Deck_id });
+        }
     }, [selectedDeck])
 
     //component mount listener
     useEffect(()=>{
+        getIsInActiveGame();
         getDecks();
     }, []);
 

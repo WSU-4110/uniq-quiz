@@ -89,9 +89,31 @@ module.exports = (server) => {
 
                 //Store Deck_id and cards in active games (server data)
                 activeGames[Game_id] = {Deck_id, cards, currentCardIndex: 0};
-                console.log(activeGames[Game_id]);
+                console.log("Active Games: ", activeGames[Game_id]);
             }
         });
+
+        //Socket to retrieve deck title upon page loading
+        socket.on("get_deck_title", async ({Game_id}) =>{
+            //Get current ID from activeGames
+            const deckId = activeGames[Game_id].Deck_id;
+
+            //Retrieve deck title from database
+            const {data: deckTitle, error: titleError} = await supabase
+                .from("Decks")
+                .select("Title")
+                .eq("Deck_id", DeckId)
+                .single();
+
+            if(titleError){
+                console.log("Error retrieving title: ", titleError.message);
+            }
+
+            //Emit title as event to all clients connected to Game_id
+            io.to(Game_id).emit("deck_title", deckTitle);
+        })
+        
+
 
         // Host starts the game
         socket.on("start_game", ({ Game_id }) => {
@@ -115,16 +137,20 @@ module.exports = (server) => {
                 const game = activeGames[Game_id];
 
                 if(game && game.currentCardIndex < game.cards.length){
-                    const card = game.cards[currentCardIndex]; //Retrieve card
-                    currentCardIndex++; //Increment index to next card
+                    const card = game.cards[game.currentCardIndex]; //Retrieve card
 
                     console.log("Host sending card: ", card);
+                    console.log("Host sending index: ", game.currentCardIndex);
 
                     //Send card to clients
-                    io.to(Game_id).emit("card_for_client", card);
+                    io.to(Game_id).emit("card_for_client", {Card: card, CardIndex: game.currentCardIndex});
+                    game.currentCardIndex++; //Increment index to next card
                 }
                 else{
+                    io.to(Game_id).emit("card_for_client", {Card: {}, CardIndex: -999});
                     console.log("No more cards able to be sent.");
+                    if(!game) console.log("No game detected.");
+                    else console.log("Current card is out of bounds.");
                 }
             }
         });

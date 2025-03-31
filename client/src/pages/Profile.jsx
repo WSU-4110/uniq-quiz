@@ -29,7 +29,7 @@ function Profile(){
             getUser();
         }, [])
 
-    const getDecks = async() =>{
+    const getDeckNumber = async() =>{
         try {
             const response = await fetch(`http://localhost:3000/api/decks/`);
             if (!response.ok) {
@@ -43,7 +43,7 @@ function Profile(){
         }
     }
     useEffect(()=>{
-            getDecks();
+            getDeckNumber();
         }, [])
 
     return (

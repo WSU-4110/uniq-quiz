@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 //Import controller functions
-const {createGame, getAllGames, getGameByGameId, getGameByJoinCode, updateGame, deleteGame} = require("../controllers/gamesController");
+const {createGame, getAllGames, getGameByGameId, getGameByJoinCode, getGameByHostId, updateGame, deleteGame} = require("../controllers/gamesController");
 
 //Create a new game
 router.post("/", createGame);
@@ -15,6 +15,9 @@ router.get("/:id/game", getGameByGameId);
 
 //Get a single game via Join_code
 router.get("/:Join_Code/join", getGameByJoinCode)
+
+//Get a single game via Host_id
+router.get("/:Host_id/host", getGameByHostId);
 
 //Update a game via Game_id
 router.put("/:id/game/update", updateGame);

@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
 import axios from 'axios';
@@ -15,6 +15,7 @@ import Profile from './pages/Profile.jsx';
 import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
+import Groups from './pages/Groups/GroupsPage.jsx';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -30,12 +31,27 @@ function ProtectedRoute({ children }) {
 
 function RootLayout() {
   const {isAuthenticated} = useAuth();
+  const location = useLocation();
   const [sidebar, setSidebar] = React.useState(true);
+  const [isGame, setIsGame] = React.useState(false);
+
+
+  React.useEffect(() => {
+      if (
+          location.pathname.startsWith("/join") ||
+          location.pathname.startsWith("/host")
+      ) {
+          setIsGame(true);
+      } else {
+          setIsGame(false);
+      }
+  }, [location.pathname])
+
 
   return (
         <div className="application">
-          {isAuthenticated && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
-          <div className={isAuthenticated ? (sidebar ? "body" : "bodyNX") : "bodyFull"}>
+          {isAuthenticated && !isGame && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
+          <div className={isAuthenticated && !isGame ? (sidebar ? "body" : "bodyNX") : "bodyFull"}>
               <Routes>
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/login" element={<Login />} />
@@ -45,15 +61,16 @@ function RootLayout() {
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
+                  <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />
                   <Route path="/join/lobby" element={<ProtectedRoute><Join /></ProtectedRoute>} />
-                  <Route path="/join/game" element={<ProtectedRoute><Join /></ProtectedRoute>} />
+                  <Route path="/join/game" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
                   <Route path="/host/start" element={<ProtectedRoute><Host /></ProtectedRoute>} />
-                  <Route path="/host/:game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
+                  <Route path="/host/:Game_id" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
 
                   <Route path="*" element={<Navigate to="/" />} />
               </Routes>
