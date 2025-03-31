@@ -30,6 +30,29 @@ export default function GroupViewer({asInset = false}){
         }
     }
 
+    const deleteGroup = async(Group_id) =>{
+        try{
+            const response = await axios.delete(`/api/groups/${Group_id}`);
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const leaveGroup = async(Group_id) =>{
+        try{
+            const response = await axios.delete('api/groupMembership/', { data: {Group_id: Group_id, User_id: user} });
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    //refresh listener
+    useEffect(()=>{
+        getGroups();
+    }, [refresh])
+
     //component mount listener
     useEffect(()=>{
         getGroups();
@@ -56,9 +79,13 @@ export default function GroupViewer({asInset = false}){
                                     <h1>{group.Group_Name ? group.Group_Name : "Untitled Group"}</h1>
                                 </div>
                                 <div className={styles.groupItemContent}>
-                                    <p>Ongoing Games: {groups.ongoingGames ? groups.ongoingGames : "NONE"}</p>
-                                    <p>Decks: {groups.decks ? groups.decks : "NONE"}</p>
-                                    <p>Top Users: {groups.topUsers ? groups.topUsers : "NONE"}</p>
+                                    <div className={styles.buttonContent}>
+                                        <p>Ongoing Games: {groups.ongoingGames ? groups.ongoingGames : "NONE"}</p>
+                                        <p>Decks: {groups.decks ? groups.decks : "NONE"}</p>
+                                        <p>Top Users: {groups.topUsers ? groups.topUsers : "NONE"}</p>
+                                    </div>
+                                    {!asInset && <button onClick={() => leaveGroup(group.Group_id)} className={styles.hoverButton}>Leave This Group</button>}
+                                    {!asInset && group.Founder_id === user && <button onClick={() => deleteGroup(group.Group_id)} className={styles.hoverButton}>Delete Group</button>}
                                 </div>
                             </div>
                     ))}

@@ -79,15 +79,15 @@ async function updateGroupMembership(req, res){
 //delete a group
 async function deleteGroupMembership(req, res){
     try {
-        const {id} = req.params;
-        const {data: deleteGroup, error} = await supabase.from("Group_Membership").delete().eq('Group_id', id);
-
+        const {Group_id, User_id} = req.body;
+        const {data: deleteMember, error} = await supabase.from("Group_Membership").delete().eq('Group_id', Group_id).eq('User_id', User_id);
+        console.log("Data: ", deleteMember);
         if(error){
             console.log("Error deleting group membership: ", error);
             return res.status(400).json({message: "Error deleting group membership", error});
         }
-        console.log("Group membership deleted: ", deleteUser);
-        return res.status(200).json({message: "Group membership successfully deleted", deleteUser});
+        console.log("Group membership deleted: ", deleteMember);
+        return res.status(200).json({message: "Group membership successfully deleted", deleteMember});
     } catch (err) {
         console.log(err.message);
     }

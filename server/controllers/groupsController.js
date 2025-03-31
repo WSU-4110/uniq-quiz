@@ -88,8 +88,8 @@ async function deleteGroup(req, res){
             console.log("Error deleting group: ", error);
             return res.status(400).json({message: "Error deleting group", error});
         }
-        console.log("Group deleted: ", deleteUser);
-        return res.status(200).json({message: "Group successfully deleted", deleteUser});
+        console.log("Group deleted: ", deleteGroup);
+        return res.status(200).json({message: "Group successfully deleted", deleteGroup});
     } catch (err) {
         console.log(err.message);
     }

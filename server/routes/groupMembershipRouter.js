@@ -16,8 +16,8 @@ router.get("/:id", getGroupMembership);
 //Update a user group membership Group_id
 router.put("/:id", updateGroupMembership);
 
-//Delete a user group membership Group_id
-router.delete("/:id", deleteGroupMembership);
+//Delete a group membership
+router.delete("/", deleteGroupMembership);
 
 //Export router to be used in main 
 module.exports = router;

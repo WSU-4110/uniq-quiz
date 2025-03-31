@@ -42,6 +42,10 @@
     height: 70vh;
     padding: 5px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 }
 .groupContainerSmall{
     background-color: var(--medium);
@@ -58,12 +62,14 @@
     margin: 15px;
     padding: 0;
     width: 200px;
-    height: 300px;
+    height: 250px;
     border-radius: 1px;
     color: var(--lightest);
     overflow-y: hidden;
-
     text-align: center;
+}
+.groupItem:hover{
+    border: 2px solid var(--feature);
 }
 .groupItemHeader{
     background-color: var(--dark);
@@ -72,4 +78,31 @@
 }
 .groupItemContent{
     font-size: 7px;
+}
+.hoverButton{
+    margin-top: 50%;
+    display:none;
+}
+.groupItem:hover .hoverButton{
+    display: inline-block;
+
+    background-color: var(--feature);
+    color: var(--feature-dark);
+    border: none;
+    border-radius: 5px;
+    height: 60%;
+    margin: 8px;
+
+    cursor: pointer;
+    &:hover {
+        background-color: var(--feature-light);
+    }
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    @media screen and (max-width: 600px) {
+        display: flex;
+        width: 100%;
+    }
 }
