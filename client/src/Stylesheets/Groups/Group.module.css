@@ -10,7 +10,7 @@
 .groupHeaders{
   height: 5vw;
   background-color: var(--medium);
-  color: var(--light);
+  color: var(--lightest);
   text-align: center;
 }
 

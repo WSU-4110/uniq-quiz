@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 //Import controller functions
-const {createUser, getAllUsers, getUser, updateUser, deleteUser, setUserPrivacy} = require("../controllers/usersController");
+const {createUser, getAllUsers, getUser, getUsersById, updateUser, deleteUser, setUserPrivacy} = require("../controllers/usersController");
 
 //Create a new user
 router.post("/", createUser);
@@ -12,6 +12,9 @@ router.get("/", getAllUsers);
 
 //Get a single user via User_id
 router.get("/:id", getUser);
+
+//Get an array of users via User_id
+router.post("/list/", getUsersById);
 
 //Update a user via User_id
 router.put("/:id", updateUser);

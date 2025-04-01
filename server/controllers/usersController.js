@@ -49,10 +49,23 @@ async function getUser(req, res) {
         const {id} = req.params;
         const {data: aUser, error}  = await supabase.from("Users").select('*').eq('User_id', id).single();
         console.log(aUser);
-        res.json(aUser);
+        res.status(201).json(aUser);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(aUser);
+        res.status(500).json({ error: "Error selecting user" });
+    }
+}
+
+//get users by ID array
+async function getUsersById(req, res){
+    try{
+        const { User_Ids } = req.body; 
+        console.log("User Ids:", User_Ids);
+        const {data, error} = await supabase.from("Users").select().in("User_id", User_Ids);
+        res.status(201).json(data);
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ error: "Error selecting user" });
     }
 }
 
@@ -123,6 +136,7 @@ module.exports = {
     createUser,
     getAllUsers,
     getUser,
+    getUsersById,
     updateUser,
     deleteUser,
     setUserPrivacy
