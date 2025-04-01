@@ -388,7 +388,7 @@ function HostGame() {
                 {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
-                    leaderboard={leaderboardRef.current.leaderboard}
+                    leaderboard={leaderboardRef.current}
                     setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTGAME && <PostGamePage

@@ -4,6 +4,13 @@ import styles from '../../../../Stylesheets/Game/Components/PostGamePage.module.
 function PostGamePage({ leaderboard }) {
     const lb = leaderboard.leaderboard;
     const dynamicHeight = Math.min(lb.length * 30, 160);
+
+    const getNumberWithOrdinal = (n) => {
+        const s = ["th", "st", "nd", "rd"],
+            v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
     return (
         <div>
             <div className={styles.pageContainer}>
@@ -31,7 +38,7 @@ function PostGamePage({ leaderboard }) {
                         <div>
                             {lb.map((item, i) => (
                                 <div className={styles.leaderboardPosContainer}>
-                                    <h3 className={styles.leaderboardPos}><strong>{i+1} </strong></h3> <h3
+                                    <h3 className={styles.leaderboardPos}><strong>{getNumberWithOrdinal(i+1)} </strong></h3> <h3
                                     className={styles.leaderboardName}>{item.name} : {item.score}</h3>
                                 </div>
                             ))}
