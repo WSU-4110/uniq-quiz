@@ -1,37 +1,50 @@
 import {React, useState, useEffect} from 'react';
+import {useParams} from 'react-router-dom';
+import axios from 'axios';
 import TabButton from '../../components/TabButton.jsx';
-import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
-import { Link, } from 'react-router'
-import styles from "../../Stylesheets/Groups/GroupsPage.module.css";
+import styles from "../../Stylesheets/Groups/Group.module.css";
 import Decks from "../Decks/Decks.jsx"
+import {useAuth} from '../../context/AuthContext.jsx';
 
-export default function Groups({asInset = false})
+export default function Group()
 {
+    const {user, userName, loading} = useAuth();
+    const params = useParams();
+
+    const [group, setGroup] = useState({});
+    const [isInGroup, setIsInGroup] = useState(false);
     const [members, setMembers] = useState([]);
     const [decks, setDecks] = useState([]);
     const [activeGames, setActiveGames] = useState([]);
-    const [groups, setGroups] = useState([]);
 
-
-    const getGroupMembership = async() => {
+    const getMembers = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groupMembership/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setMembers(jsonData);
-            console.log("Groups, ", jsonData);
+            const response = await axios.get(`api/groupMembership/group/${params.Group_id}`);
+            const memberData = getMemberUsers(response.data.map(member => member.User_id));
+            return memberData;
         }
         catch (error) {
             console.error(error.message);
         }
     }
 
+    const getMemberUsers = async(memberData) => {
+        if(memberData.includes(user)){
+            setIsInGroup(true);
+        }
+        try{
+            const response = await axios.post("api/users/list", { User_Ids: memberData });
+            setMembers(response.data);
+            return response.data;
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
     const getDecks = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -45,7 +58,7 @@ export default function Groups({asInset = false})
 
     const getGames = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/games/");
+            const response = await fetch("/api/games/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -59,48 +72,37 @@ export default function Groups({asInset = false})
 
     const getGroup = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groups/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setGroups(jsonData);
-            console.log("Groups, ", jsonData);
+            const response = await axios.get(`/api/groups/${params.Group_id}`);
+            setGroup(response.data);
+            return response.data;
         }
         catch (error) {
             console.error(error.message);
         }
     }
 
-    useEffect(()=>{
-            getGroup();
-        }, []);
+    const fetchData = () => {
+        const groupData = getGroup();
+        const memberData = getMembers();
+        getGames();
+        getDecks();
+    }
 
     useEffect(()=>{
-            getGames();
-        }, []);
-     
-    useEffect(()=>{
-            getDecks();
-        }, []);
-
-    useEffect(()=>{
-            getGroupMembership();
-        }, []);
+        fetchData();
+    }, []);
 
     return(
         <div class={styles.page}>
             <ProfileBanner/>
-            
             <div className={styles.groupHeaders}>
-                {groups.map((group) => (
-                        <h2>{group.Group_Name}</h2>
-                    ))}
+                <h1>{group.Group_Name}</h1>
+                <p>{isInGroup ? "Leave Group" : "Join Group"}</p>
             </div>
             <div className={styles.groupHeaders}>
                 <h3>Active Games</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className = {styles.groupContainer}>
             {activeGames.map((games) => (
                         <TabButton>
                             <div className={styles.groupItem}>
@@ -113,12 +115,18 @@ export default function Groups({asInset = false})
             <div className={styles.groupHeaders}>
                 <h3>Decks</h3>
             </div>
-            <Decks asInset={true} showOnlyDecks={true}/>
+            <div className = {styles.groupContainer}>
+
+            </div>
             <div className={styles.groupHeaders}>
                 <h3>Leaderboards</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
-
+            <div className = {styles.groupContainer}>
+                {members.map(member => 
+                    <div className={styles.leaderboardItem}>
+                        <h2>{member.Username}</h2>
+                    </div>
+                )}
             </div>
         </div>
     )

@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState, useImperativeHandle} from "react";
+import styles from '../../../../Stylesheets/Game/Components/Timer.module.css';
 
 function Timer({ seconds, onTimerEnd, timerRef }) {
     const [timer, setTimer] = useState(seconds);
@@ -25,16 +26,19 @@ function Timer({ seconds, onTimerEnd, timerRef }) {
         setTimer(seconds);
         setIsActive(false);
     }
+    const isQuestionPageRendering = false;
 
     useImperativeHandle(timerRef, () => ({
             startTimer,
             stopTimer,
-            resetTimer
-        }), [startTimer, stopTimer, resetTimer]);
+            resetTimer,
+            isQuestionPageRendering,
+        }), [startTimer, stopTimer, resetTimer, isQuestionPageRendering]);
 
     return(
         <div>
-            <p>{timer}</p>
+            <div className={styles.anim}></div>
+            <div className={styles.timer}>{timer}</div>
         </div>
     )
 }
