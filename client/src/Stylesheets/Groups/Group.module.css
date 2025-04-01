@@ -1,6 +1,7 @@
 .page{
   padding: 2vh;
   font-size: 12;
+  padding-bottom: 10vh;
 }
 
 .page{ 
@@ -126,4 +127,20 @@ input{
   border: 2px solid var(--feature);
   background-color: var(--feature-light);
   color: var(--feature-dark);
+}
+.deckItem{
+  background-color: var(--feature);
+  border: 2px solid var(--lightest);
+  margin: 15px;
+  width: 200px;
+  height: 150px;
+  background-color: var(--darkest);
+  border-color: var(--lightest);
+  border-radius: 1px;
+  color: var(--lightest);
+
+  text-align: center;
+}
+.deckItem h1{
+  font-size: 16px;
 }

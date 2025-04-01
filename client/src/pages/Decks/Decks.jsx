@@ -27,9 +27,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const getDecks = async() =>{
         try {
             const response = await axios.get("/api/decks/");
-            setDecks(response.data);
+            setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
-            console.error(error.message);
+            console.error(error.message);   
         }
     }
 
@@ -161,12 +161,12 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
                 {!viewDeck && (<>
                     <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
-                    {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                    {decks.sort((a,b) => a.title > b.title ? 1 : -1)
                     .map((deck, index) => (
                         <TabButton onClick={()=>{handleSelectDeck(deck)}}>
                             <div key={index} className={styles.deckItem}>
-                                <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
-                                <p></p>
+                                <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
+                                <p>Author: {deck.username}</p>
                             </div>
                         </TabButton>
                     ))}

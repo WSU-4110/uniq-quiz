@@ -96,7 +96,6 @@ export default function Group()
     }
 
     const transferOwnership = async(User_id) =>{
-        console.log("Transferring ownershp to:", User_id);
         try{
             let New_Founder;
             if(User_id) New_Founder = User_id;
@@ -105,7 +104,6 @@ export default function Group()
                 const randomIndex = Math.floor(Math.random() * validIds.length);
                 New_Founder = validIds[randomIndex];
             }
-            console.log("New founder:", New_Founder);
             const response = await axios.put(`/api/groups/${params.Group_id}`, {Founder_id: New_Founder.User_id});
         } catch (error) {
             console.error(error.message);
@@ -117,8 +115,6 @@ export default function Group()
         if (editTitle) {
             try{
                 const response = await axios.put(`/api/groups/${params.Group_id}`, {Group_Name: groupTitle});
-                console.log(groupTitle);
-                console.log(response);
             } catch (error) {
                 console.error(error.message);
             }
@@ -129,9 +125,20 @@ export default function Group()
         setGroupTitle(e.target.value);
     }
 
+    const getDecks = async() =>{
+        try{
+            const response = await axios.get("/api/decks/");
+            const validDecks = response.data.filter(deck => deck.deck_id !== null);
+            setDecks(validDecks.filter(deck => deck.group_id == params.Group_id));
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
     const fetchData = () => {
-        const groupData = getGroup();
-        const memberData = getMembers();
+        getGroup();
+        getMembers();
+        getDecks();
     }
 
     //refresh listener
@@ -189,7 +196,18 @@ export default function Group()
                 <h3>Decks</h3>
             </div>
             <div className={styles.groupContainerSmall}>
-
+                {decks.length === 0 && <p>No decks in group</p>}
+                {decks.length !== 0 && (<>
+                    {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                    .map((deck, index) => (
+                        <div key={index} className={styles.deckItem}>
+                            <div className={styles.deckItemHeader}>
+                                <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
+                                <p>Author: {deck.username}</p>
+                            </div>
+                        </div>
+                    ))}
+                </>)}
             </div>
         </div>
     )
