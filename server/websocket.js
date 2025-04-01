@@ -71,12 +71,12 @@ module.exports = (server) => {
             }
 
             //Store player data in active game
-            activeGames[Game_id].players[User_id] = {
+            activeGames[Game_id].players.push({
                 User_id: User_id,
                 Username: Username,
                 Player_score: 0,
                 CurrentSubmitAnswer: null,
-            };
+            });
         })
 
         //Host selects a deck
@@ -88,6 +88,8 @@ module.exports = (server) => {
 
                 const Deck_id = Game_Settings.selectedDeck.Deck_id;
                 const Timer = Game_Settings.timePerQuestion;
+                const deck_name = Game_Settings.selectedDeck.Title;
+                console.log(`Game data:;\nDeck_name: ${deck_name}\nDeck_id: ${Deck_id}\nDeck Timer${Timer}`);
 
                 const {data, error} = await supabase
                     .from("Decks")
@@ -135,6 +137,7 @@ module.exports = (server) => {
                 activeGames[Game_id].Deck_id = Deck_id;
                 activeGames[Game_id].cards = cards;
                 activeGames[Game_id].timer = Timer;
+                activeGames[Game_id].deck_name = deck_name;
 
                 console.log("Active Games: ", activeGames[Game_id]);
             }
@@ -145,17 +148,9 @@ module.exports = (server) => {
             //Get current ID from activeGames
             const Deck_id = activeGames[Game_id].Deck_id;
             const Timer = activeGames[Game_id].timer;
+            const deckTitle = activeGames[Game_id].deck_name;
 
-            //Retrieve deck title from database
-            const {data: deckTitle, error: titleError} = await supabase
-                .from("Decks")
-                .select("Title")
-                .eq("Deck_id", Deck_id)
-                .single();
-
-            if(titleError){
-                console.log("Error retrieving title: ", titleError.message);
-            }
+            console.log(`Sending Data { \nDeck_Title: ${deckTitle}\nTimer: ${Timer}\n}`);
 
             //Emit title as event to all clients connected to Game_id
             io.to(Game_id).emit("game_settings", {Deck_Title: deckTitle, Timer: Timer});
@@ -172,12 +167,18 @@ module.exports = (server) => {
                 console.log(`Game ${Game_id} started by the host`);
 
                 //Emit game start to all clients
+                console.log(activeGames[Game_id].players);
                 io.to(Game_id).emit("game_started");
             }
             else{
                 console.log("Start game: Game not found");
             }
         });
+
+        //Game Initilization,
+        socket.on("init_game_server", ({Game_id}) => {
+            io.to(Game_id).emit("init_game", {playerList: activeGames[Game_id].players, playerCount: 54});
+        })
         
         //  Gameplay mechanics  //
 
@@ -214,14 +215,11 @@ module.exports = (server) => {
         })
 
         //Player submits answer
-        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status, Timer_Status}) => {
-            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
-            totalPos = activeGames[Game_id].players.length + 1;
-            playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
-            activeGames[Game_id].players[Player_id].Player_score += playerScore;
-            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer += Answer_Status;
+        socket.on("submit_answer", ({Game_id, Player_id, Answer_id, Timer_Status}) => {
+            let position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
+            let totalPos = activeGames[Game_id].players.length + 1;
 
-            io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
+            io.to(Game_id).emit("check_answer", {Player_id: Player_id, Answer_id: Answer_id, position: position, totalPos: totalPos})
         })
 
         //Host tells player what state to be in

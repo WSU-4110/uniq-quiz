@@ -74,7 +74,6 @@ function HostGame() {
     const {user, userName, loading} = useAuth();
 
     // Variables
-    const [leaderboard, setLeaderboard] = useState(new Leaderboard());
     const [card, setCard] = useState({});
     const [deckTitle, setDeckTitle] = useState("No title selected");
     const [timer, setTimer] = useState(1);
@@ -84,6 +83,9 @@ function HostGame() {
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
     const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
+
+    const leaderboardRef = useRef(new Leaderboard());
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
 
     // Host Variables
     const [numPlayerAnswers, setNumPlayerAnswers] = useState(0);
@@ -157,12 +159,12 @@ function HostGame() {
     }
 
     const updatePlayerData = async () =>{
-        const updateScore = leaderboard.findPlayer(user).score;
+        const updateScore = leaderboardRef.current.findPlayer(user).score;
         setPlayerData((prevData) => {
             const newData = {
                 ...prevData,
                 Games_Played: (prevData.Games_Played || 0) + 1,
-                Wins: leaderboard.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
+                Wins: leaderboardRef.current.leaderboard[0] === user ? (prevData.Wins || 0) + 1 : prevData.Wins || 0,
                 Total_Score: (prevData.Total_Score || 0) + updateScore,
                 Highest_Score: updateScore > (prevData.Highest_Score || 0) ? updateScore: prevData.Highest_Score || 0,
                 Highest_Score_id: updateScore > (prevData.Highest_Score || 0) ? deckTitle : prevData.Highest_Score_id,
@@ -174,10 +176,10 @@ function HostGame() {
     }
 
     const updatePlayer = (player) =>{ //fixme: bug on early exit if score does not yet exist. 
-        leaderboard.updatePlayer(player.Username, player.Player_score); //send in player.Username along with
-        if(player.Username === userName){
-            setPlayerScore(player.Player_score);
-        }
+        //leaderboardRef.current.updatePlayer(player.User_id, player.Player_score); //send in player.Username along with
+        //if(player.Username === userName){
+        //    setPlayerScore(player.Player_score);
+        //}
     }
     
     const getNextQuestion = async() => {
@@ -190,9 +192,10 @@ function HostGame() {
         socket.emit("submit_answer", {
             Game_id: params.Game_id, 
             Player_id: user, 
-            Answer_Status: currentQuestion.CheckAnswer(AnswerID), 
+            Answer_id: AnswerID,
             Timer_Status: timerRef
         });
+        console.log(`GameID: ${params.Game_id} Player_ID: ${user}, Answer_ID: ${AnswerID}, Timer_Status: ${timerRef}`);
         nextState(true);
     }
 
@@ -220,6 +223,19 @@ function HostGame() {
 
     //socket listener
     useEffect(() => {
+        socket.on('init_game', ({playerList}) => {
+            console.log('init_game');
+            console.log(playerList);
+            let players = playerList;
+            for(let i = 0; i < players.length; i++){
+                let player = players[i];
+                leaderboardRef.current.registerPlayer(player.Username, player.User_id, 0);
+                console.log(`Registering Player ${player.Username}`);
+            }
+            setPlayerScore(0);
+            forceUpdate();
+        });
+
         socket.on('card_for_client', (data) => {
             if(data.CardIndex === -999){
                 handleGameEnd();
@@ -251,11 +267,10 @@ function HostGame() {
             }
         })
 
-        socket.on('game_settings', (data) => {
-            if(data){
-                setDeckTitle(data.Title);
-                setTimer(data.Timer);
-            }
+        socket.on('game_settings', ({Deck_Title, Timer}) => {
+            console.log("Game Settings Data");
+            setDeckTitle(Deck_Title);
+            setTimer(Timer);
         })
 
         socket.on('game_ended', (data)=>{
@@ -263,7 +278,28 @@ function HostGame() {
             handleGameEnd();
         });
 
-        return () => {
+        //Logic Sockets
+        socket.on('check_answer', ({Player_id, Answer_id, position, totalPos}) => {
+            let score = currentQuestion.CalcPlayerScore(Answer_id, position, totalPos)
+            leaderboardRef.current.updatePlayer(Player_id, score);
+            console.log(`IN check_answer  - ${Player_id} Score: ${score}`);
+            let nScore = leaderboardRef.current.findPlayer(Player_id).score ;
+            console.warn(`pScore: ${nScore} Score: ${score} UPDATE`);
+
+            console.log(`User_ID ${playerData.User_id}`)
+            if (Player_id === user) {
+                console.log("PID Match, update score AI SOL")
+                setPlayerScore(nScore);
+            }
+
+            if (Player_id === playerData.User_id){
+                console.log("PID Match, update score")
+                setPlayerScore(nScore);
+            }
+            //socket.emit('broadcast_score', {Game_id: params.Game_id, Score: score, User_id: Player_id})
+        });
+
+            return () => {
             socket.off('card_for_client');
             socket.off('question_ended');
             socket.off('answer_submitted');
@@ -308,6 +344,9 @@ function HostGame() {
             socket.emit('get_game_settings', {Game_id: params.Game_id});
         }
 
+        console.log("Initializing Game");
+        socket.emit('init_game_server', { Game_id: params.Game_id });
+
         //get player data
         getUser();
 
@@ -327,7 +366,7 @@ function HostGame() {
                     gameCode={joinCode}
                     deckName={deckTitle}
                     displayName={userName}
-                    score={playerScore ? playerScore : "No Score Data"}
+                    score={playerScore}
                     isHost={isHost}
                     onAdvance={nextState}
                     onTimerEnd={onTimerEnd}
@@ -349,11 +388,11 @@ function HostGame() {
                 {state.currentPage === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {state.currentPage === QuizPages.LOADING && <LoadingPage/>}
                 {state.currentPage === QuizPages.LEADERBOARD && <LeaderboardPage
-                    leaderboard={leaderboard.leaderboard}
+                    leaderboard={leaderboardRef.current.leaderboard}
                     setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {state.currentPage === QuizPages.POSTGAME && <PostGamePage
-                    leaderboard={leaderboard}
+                    leaderboard={leaderboardRef.current}
                 />}
                 {state.currentPage === QuizPages.ERROR &&
                     <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1>}

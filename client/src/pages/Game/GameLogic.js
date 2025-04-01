@@ -28,20 +28,28 @@ export class Question {
     }
 
 
-    CheckAnswer(AnswerID) {
-        console.log(AnswerID === this.correctAnswerID);
-        console.log("Your answer vs server answer:", this.answers[AnswerID], this.answers[this.correctAnswerID])
-        if(AnswerID === this.correctAnswerID) {
-            return true;
-        } else {
-            return false;
-        }
+    CheckAnswer(answerID) {
+        console.log(answerID === this.correctAnswerID);
+        console.log("Your answer vs server answer:", this.answers[answerID], this.answers[this.correctAnswerID])
+        return answerID === this.correctAnswerID;
+    }
+
+    CalcPlayerScore(answerID, position, totalPos){
+        const isQuestionCorrect = this.CheckAnswer(answerID)
+        const positionReversed = totalPos - position;
+        var normalizedPosition = positionReversed / totalPos;
+        normalizedPosition = Math.abs(normalizedPosition);
+
+        var correctScore = (1000 * normalizedPosition) + 1000;
+        var positionScore = normalizedPosition * 100;
+        return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
     }
 }
 
 export class Player {
-    constructor(name, score) {
+    constructor(name, id, score) {
         this.name = name;
+        this.id = id;
         this.score = score;
     }
 }
@@ -51,24 +59,31 @@ export class Leaderboard {
         this.leaderboard = [];
     }
 
-    registerPlayer(name, score = 0) {
+    registerPlayer(name, id, score = 0) {
         this.leaderboard.push(
-            new Player(name, score)
+            new Player(name, id, score)
         );
     }
 
-    findPlayer(name) {
-        return this.leaderboard.find(player => player.name === name);
+    findPlayer(id) {
+        return this.leaderboard.find(player => player.id === id);
     }
 
-    updatePlayer(name, newScore) {
-        const player = this.findPlayer(name);
+    updatePlayer(id, addScore) {
+        const player = this.findPlayer(id);
+        console.log(this.leaderboard);
+        try{
+            console.log(`player ${player}   -   player score: ${player.score}`);
+        }catch(e){
+            console.error(e);
+        }
         if (player) {
-            player.score += newScore;
+            player.score += addScore;
         } else {
-            this.registerPlayer(name, newScore);
+            this.registerPlayer("Errored User", id, addScore);
         }
         this.leaderboard.sort();
+        console.log(`player ${player}   -   player score: ${player.score}`);
     }
 }
 

@@ -65,7 +65,7 @@ export default function Host(){
             return;
         }
 
-        if(getIsInActiveGame){
+        if(await getIsInActiveGame()){
             destroyGame();
         }
 
