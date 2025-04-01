@@ -4,6 +4,7 @@ const router = express.Router();
 //Import controller functions
 const {createGame, getAllGames, getGameByGameId, getGameByJoinCode, getGameByHostId, updateGame, deleteGame} = require("../controllers/gamesController");
 
+//TODO: Check if these two going to same route is causing issues
 //Create a new game
 router.post("/", createGame);
 

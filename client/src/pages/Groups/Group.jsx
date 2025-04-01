@@ -1,13 +1,13 @@
 import {React, useState, useEffect} from 'react';
 import TabButton from '../../components/TabButton.jsx';
-import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
-import { Link, } from 'react-router'
-import styles from "../../Stylesheets/Groups/GroupsPage.module.css";
+import styles from "../../Stylesheets/Groups/Group.module.css";
 import Decks from "../Decks/Decks.jsx"
+import {useAuth} from '../../context/AuthContext.jsx';
 
-export default function Groups({asInset = false})
+export default function Group()
 {
+    const {user, userName, loading} = useAuth();
     const [members, setMembers] = useState([]);
     const [decks, setDecks] = useState([]);
     const [activeGames, setActiveGames] = useState([]);
@@ -16,7 +16,7 @@ export default function Groups({asInset = false})
 
     const getGroupMembership = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groupMembership/");
+            const response = await fetch("/api/groupMembership/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -31,7 +31,7 @@ export default function Groups({asInset = false})
 
     const getDecks = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
+            const response = await fetch("/api/decks/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -45,7 +45,7 @@ export default function Groups({asInset = false})
 
     const getGames = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/games/");
+            const response = await fetch("/api/games/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -59,7 +59,7 @@ export default function Groups({asInset = false})
 
     const getGroup = async() => {
         try {
-            const response = await fetch("http://localhost:3000/api/groups/");
+            const response = await fetch("/api/groups/");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -100,7 +100,7 @@ export default function Groups({asInset = false})
             <div className={styles.groupHeaders}>
                 <h3>Active Games</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className = {styles.groupContainer}>
             {activeGames.map((games) => (
                         <TabButton>
                             <div className={styles.groupItem}>
@@ -117,7 +117,7 @@ export default function Groups({asInset = false})
             <div className={styles.groupHeaders}>
                 <h3>Leaderboards</h3>
             </div>
-            <div className = {asInset ? styles.groupContainerSmall : styles.groupContainer}>
+            <div className = {styles.groupContainer}>
 
             </div>
         </div>

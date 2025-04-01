@@ -2,12 +2,32 @@ const {Server} = require('socket.io');
 const supabase = require('./supabase.js');
 const { cursorTo } = require('readline');
 
-const activeGames = {} //Key: Game_id, Value: Game data (Deck_id, host(bool), User_id)
+//TODO: add gamesettings
+/**
+ * Key: Game_id
+ * Value:   Deck_id,
+ *          cards,
+ *          currentCardIndex,
+ *          timer,
+ *          players[{User_id (uuid), Username (int), Player_score (int), CurrentSubmitAnswer(bool)}]
+ */
+const activeGames = {};
+
+function CalcPlayerScore(isQuestionCorrect, position, totalPos){
+    const positionReversed = totalPos - position;
+    var normalizedPosition = positionReversed / totalPos;
+    normalizedPosition = Math.abs(normalizedPosition);
+
+    var correctScore = (1000 * normalizedPosition) + 1000;
+    var positionScore = normalizedPosition * 100;
+    return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
+}
 
 module.exports = (server) => {
+    console.log("Initializing Socket.IO...");
     const io = new Server(server, {
         cors: {
-            origin: "*", // Frontend URL
+            origin: process.env.INPUT_PORT, // Frontend URL
             methods: ["GET", "POST", "DELETE"], // Allow specific HTTP methods
             //allowedHeaders: ["my-custom-header"], // Optional: if you're using custom headers
             credentials: true // If needed for cookie/session sharing
@@ -46,14 +66,29 @@ module.exports = (server) => {
             if(isHost){
                 socket.data.host = true;
                 io.to(socket.id).emit("host_permissions", {canStartGame: true});
+                //initialize empty game
+                activeGames[Game_id] = {Deck_id: null, cards: null, currentCardIndex: 0, players: []};
             }
+
+            //Store player data in active game
+            activeGames[Game_id].players[User_id] = {
+                User_id: User_id,
+                Username: Username,
+                Player_score: 0,
+                CurrentSubmitAnswer: null,
+            };
         })
 
         //Host selects a deck
-        socket.on("deck_selected", async ({Game_id, Deck_id}) => {
+        socket.on("game_settings_selected", async ({Game_id, Game_Settings}) => {
             if(socket.data.host){
                 //Verify that host has access to this deck
                 console.log("Using ID: ", socket.data.User_id);
+                console.log("Using settings: ", Game_Settings);
+
+                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Timer = Game_Settings.timePerQuestion;
+
                 const {data, error} = await supabase
                     .from("Decks")
                     .select("Deck_id")
@@ -84,25 +119,37 @@ module.exports = (server) => {
                     console.log("No cards found for the selected deck.");
                     return;
                 }
+
+                //Shuffle cards
+                if(Game_Settings.shuffleDecks){
+                    for(let i = cards.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [cards[i], cards[j]] = [cards[j], cards[i]];
+                    }
+                }
     
                 console.log("Cards retrieved:", cards);
 
                 //Store Deck_id and cards in active games (server data)
-                activeGames[Game_id] = {Deck_id, cards, currentCardIndex: 0};
+                activeGames[Game_id].Deck_id = Deck_id;
+                activeGames[Game_id].cards = cards;
+                activeGames[Game_id].timer = Timer;
+
                 console.log("Active Games: ", activeGames[Game_id]);
             }
         });
 
-        //Socket to retrieve deck title upon page loading
-        socket.on("get_deck_title", async ({Game_id}) =>{
+        //Socket to retrieve game settings upon page loading
+        socket.on("get_game_settings", async ({Game_id}) =>{
             //Get current ID from activeGames
-            const deckId = activeGames[Game_id].Deck_id;
+            const Deck_id = activeGames[Game_id].Deck_id;
+            const Timer = activeGames[Game_id].timer;
 
             //Retrieve deck title from database
             const {data: deckTitle, error: titleError} = await supabase
                 .from("Decks")
                 .select("Title")
-                .eq("Deck_id", DeckId)
+                .eq("Deck_id", Deck_id)
                 .single();
 
             if(titleError){
@@ -110,7 +157,7 @@ module.exports = (server) => {
             }
 
             //Emit title as event to all clients connected to Game_id
-            io.to(Game_id).emit("deck_title", deckTitle);
+            io.to(Game_id).emit("game_settings", {Deck_Title: deckTitle, Timer: Timer});
         })
         
 
@@ -131,6 +178,8 @@ module.exports = (server) => {
             }
         });
         
+        //  Gameplay mechanics  //
+
         //Host sends card to clients
         socket.on("send_next_card", ({Game_id}) => {
             if(socket.data.host){ //Only host should be able to send cards
@@ -154,6 +203,25 @@ module.exports = (server) => {
                 }
             }
         });
+
+        //Host moves on to next question
+        socket.on("end_question", ({Game_id}) => {
+            if(socket.data.host){ //Only host can move to next game state
+                console.log("End question", activeGames[Game_id].players);
+                io.to(Game_id).emit("question_ended", {Scores: Object.values(activeGames[Game_id].players)});
+            }
+        })
+
+        //Player submits answer
+        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status, Timer_Status}) => {
+            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
+            totalPos = activeGames[Game_id].players.length + 1;
+            playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
+            activeGames[Game_id].players[Player_id].Player_score += playerScore;
+            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer += Answer_Status;
+
+            io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
+        })
 
         //Host ends the game
         socket.on("end_game", async ({Game_id}) => {
