@@ -148,7 +148,48 @@ async function getCardCount(req, res) {
     }
 }
 
-async function getUserDecks (req, res) {
+async function getUserDecks (req, res){
+    try {
+        const {User_id} = req.params;
+        const{data, error} = await supabase
+            .from("Decks")
+            .select("*")
+            .eq("User_id", User_id);
+        
+        if(error){
+            console.log("Error retrieving user decks: ", error.message);
+            return res.status(502).json(error);
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(502).json(error);
+    }
+}
+
+async function getNotUserDecks (req, res){
+    try {
+        const {User_id} = req.params;
+        const{data, error} = await supabase
+            .from("Decks")
+            .select("*")
+            .neq("User_id", User_id);
+        
+        if(error){
+            console.log("Error retrieving NOT user decks: ", error.message);
+            return res.status(502).json(error);
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(502).json(error);
+    }
+}
+
+
+async function getUserDecksCount (req, res) {
     try{
         const {User_id} = req.params;
         const {count: deckCount, error:countError} = await supabase
@@ -194,6 +235,8 @@ module.exports = {
     getAllDecks,
     getDeck,
     getUserDecks,
+    getNotUserDecks,
+    getUserDecksCount,
     getGroupDecks,
     updateDeck,
     deleteDeck,

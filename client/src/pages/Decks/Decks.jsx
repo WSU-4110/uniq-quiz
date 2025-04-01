@@ -33,6 +33,33 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }
     }
 
+    const getMyDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/decks/${user}/user_decks`);
+            setDecks(response.data);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getOtherDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/decks/${user}/other_decks`);
+            setDecks(response.data);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getLikedDecks = async() =>{
+        try{
+            const response = await axios.get(`/api/userLikedDecks/${user}`);
+            setDecks(response.data);
+        }catch (error) {
+            console.error(error.message);
+        }
+    }
+
     const createDeck = async() => {
         try{
             const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: user});
@@ -144,8 +171,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                             </div>
                             <div className={styles.rightButtons}>
                                 <TabButton className={styles.menuButton}>Filter</TabButton>
-                                <TabButton className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</TabButton>
-                                <TabButton className={styles.menuButton}>Find Decks</TabButton>
+                                <TabButton className={styles.menuButton} onClick={() => {getLikedDecks();}}>Liked Decks</TabButton>
+                                <TabButton className={styles.menuButton} onClick={() => {getMyDecks();}}>My Decks</TabButton>
+                                <TabButton className={styles.menuButton} onClick={() => {getOtherDecks();}}>Find Decks</TabButton>
                             </div>
                         </menu>
                     </div>

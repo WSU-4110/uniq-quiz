@@ -48,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
-app.use('/api/usersLikedDecks', userLikedDecksRouter);
+app.use('/api/userLikedDecks', userLikedDecksRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/groupMembership', groupMembershipRouter);
 app.use('/api/games', gamesRouter);
