@@ -17,8 +17,11 @@ export default function Group()
     const [isInGroup, setIsInGroup] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
     const [members, setMembers] = useState([]);
+    const [topMembers, setTopMembers] = useState([]);
     const [decks, setDecks] = useState([]);
     const [activeGames, setActiveGames] = useState([]);
+    const [editTitle, setEditTitle] = useState(false);
+    const [groupTitle, setGroupTitle] = useState("");
     const [refresh, setRefresh] = useState(0);
 
     const getMembers = async() => {
@@ -39,6 +42,7 @@ export default function Group()
         try{
             const response = await axios.post("api/users/list", { User_Ids: memberData });
             setMembers(response.data);
+            setTopMembers(response.data.sort((a,b) => a.Total_Score/a.Games_Played < b.Total_Score/b.Games_Played ? 1 : -1).slice(0,3));
             return response.data;
         } catch (error) {
             console.error(error.message);
@@ -50,6 +54,7 @@ export default function Group()
             const response = await axios.get(`/api/groups/${params.Group_id}`);
             setGroup(response.data);
             if(response.data.Founder_id === user) setIsOwner(true);
+            setGroupTitle(response.data.Group_Name);
             return response.data;
         }
         catch (error) {
@@ -107,6 +112,23 @@ export default function Group()
         }
     }
 
+    const renameGroup = async() => {
+        setEditTitle(!editTitle);
+        if (editTitle) {
+            try{
+                const response = await axios.put(`/api/groups/${params.Group_id}`, {Group_Name: groupTitle});
+                console.log(groupTitle);
+                console.log(response);
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+    }
+
+    const handleChangeTitle = (e) => {
+        setGroupTitle(e.target.value);
+    }
+
     const fetchData = () => {
         const groupData = getGroup();
         const memberData = getMembers();
@@ -126,45 +148,48 @@ export default function Group()
         <div class={styles.page}>
             <ProfileBanner/>
             <div className={styles.pageHeader}>
-                <h1>{group.Group_Name}</h1>
+                {!editTitle && <h1>{groupTitle}</h1>}
+                {editTitle && <input className={styles.input} type="text" required value={groupTitle} onChange={handleChangeTitle}></input>}
                 <div>
+                    {isOwner &&<button onClick={renameGroup} className={styles.menuButton}>{editTitle ? "Save" : "Rename Group"}</button>}
                     <button onClick={isInGroup ? leaveGroup : joinGroup} className={styles.menuButton}>{isInGroup ? "Leave Group" : "Join Group"}</button>
                     {isOwner && <button onClick={deleteGroup} className={styles.menuButton}>Delete Group</button>}
                 </div>
-            </div>
-            <div className={styles.groupHeaders}>
-                <h3>Active Games</h3>
-            </div>
-            <div className={styles.groupContainerSmall}>
-            {activeGames.map((games) => (
-                        <TabButton>
-                            <div className={styles.groupItem}>
-                                <h1>PlaceHolderGameName</h1>
-                                <p></p>
-                            </div>
-                        </TabButton>
-                    ))}
-            </div>
-            <div className={styles.groupHeaders}>
-                <h3>Decks</h3>
-            </div>
-            <div className={styles.groupContainerSmall}>
-
             </div>
             <div className={styles.groupHeaders}>
                 <h3>Leaderboards</h3>
             </div>
             <div className={styles.groupContainer}>
                 <div className={styles.leaderDiv}>
-                    {}
+                    <h3>Top Members</h3>
+                    {topMembers.map((member, key) => 
+                        <div key={key} className={styles.leaderboardItem}>
+                            <h2>{key+1} {member.Username}</h2>
+                            <p>Average Score: {(member.Total_Score / member.Games_Played).toFixed(2)}</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.leaderDiv}>
+                    <h3>All Members</h3>
                     {members.map(member => 
                         <div className={styles.leaderboardItem}>
                             <h2>{member.Username}</h2>
                         </div>
                     )}
                 </div>
+            </div>
+            <div className={styles.groupHeaders}>
+                <h3>Active Games</h3>
+            </div>
+            <div className={styles.groupContainerSmall}>
+                {activeGames.length === 0 && <p>No active games</p>}
+                {!activeGames.length === 0 && <p>There are active games</p>}
+            </div>
+            <div className={styles.groupHeaders}>
+                <h3>Decks</h3>
+            </div>
+            <div className={styles.groupContainerSmall}>
+
             </div>
         </div>
     )
