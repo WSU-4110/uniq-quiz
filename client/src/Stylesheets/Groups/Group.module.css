@@ -3,19 +3,26 @@
   font-size: 12;
 }
 
-.groupInterfaceContainer{ 
+.page{ 
   background-color: var(--darkest);
 }
 
+.pageHeader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--medium);
+}
+
 .groupHeaders{
-  height: 5vw;
+  height: 3vw;
   background-color: var(--medium);
   color: var(--lightest);
   text-align: center;
 }
 
 .menuButton{
-    background-color: var(--darkest);
+    background-color: var(--dark);
     color: var(--lightest);
     padding: 10px 20px;
     border: none;
@@ -68,7 +75,6 @@
   border-top: 2px solid var(--lightest);
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
 }
@@ -84,13 +90,4 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-}
-
-.groupMenu{
-  list-style-type: none;
-  padding: 0.5 0 0.5 0;
-  height: 5vw;
-  display: flex;
-  justify-content: space-between;
-  border: 2px solid var(--darkest);
 }
