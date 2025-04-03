@@ -3,6 +3,7 @@ import {useParams, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import TabButton from '../../components/TabButton.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
+import AddDeckModal from './AddDeckModal.jsx';
 import styles from "../../Stylesheets/Groups/Group.module.css";
 import Decks from "../Decks/Decks.jsx"
 import {useAuth} from '../../context/AuthContext.jsx';
@@ -19,9 +20,11 @@ export default function Group()
     const [members, setMembers] = useState([]);
     const [topMembers, setTopMembers] = useState([]);
     const [decks, setDecks] = useState([]);
+    const [myDecks, setMyDecks] = useState([]);
     const [activeGames, setActiveGames] = useState([]);
     const [editTitle, setEditTitle] = useState(false);
     const [groupTitle, setGroupTitle] = useState("");
+    const [viewAddDeck, setViewAddDeck] = useState(false);
     const [refresh, setRefresh] = useState(0);
 
     const getMembers = async() => {
@@ -130,7 +133,32 @@ export default function Group()
             const response = await axios.get("/api/decks/");
             const validDecks = response.data.filter(deck => deck.deck_id !== null);
             setDecks(validDecks.filter(deck => deck.group_id == params.Group_id));
+            setMyDecks(response.data.filter(deck => deck.user_id === user));
         } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const addDeck = async(deck) =>{
+        console.log("add deck called");
+        if(!decks.includes(deck)){
+            console.log("not in decks,", deck);
+            try{
+                const response = await axios.put(`/api/decks/${deck.deck_id}`, {Group_id: params.Group_id});
+                getDecks();
+            }catch (error){
+                console.error(error.message);
+            }
+        }else{
+            console.log("it actually has", deck);
+        }
+    }
+
+    const removeDeck = async(deck)=>{
+        try{
+            const response = await axios.put(`/api/decks/${deck.deck_id}`, {Group_id: null});
+            getDecks();
+        }catch (error){
             console.error(error.message);
         }
     }
@@ -194,6 +222,10 @@ export default function Group()
             </div>
             <div className={styles.groupHeaders}>
                 <h3>Decks</h3>
+                <div>
+                    {viewAddDeck && (<AddDeckModal decks={myDecks} onSelect={addDeck} onClose={() => setViewAddDeck(false)}/>)}
+                    <button onClick={()=>{setViewAddDeck(!viewAddDeck)}} className={styles.menuButton}>Add Deck</button>
+                </div>
             </div>
             <div className={styles.groupContainerSmall}>
                 {decks.length === 0 && <p>No decks in group</p>}
@@ -204,6 +236,7 @@ export default function Group()
                             <div className={styles.deckItemHeader}>
                                 <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
                                 <p>Author: {deck.username}</p>
+                                <button onClick={() => removeDeck(deck)} className={styles.hoverButton}>Remove from Group</button>
                             </div>
                         </div>
                     ))}

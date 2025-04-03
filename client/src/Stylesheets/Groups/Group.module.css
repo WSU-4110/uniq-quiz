@@ -19,7 +19,10 @@
   height: 3vw;
   background-color: var(--medium);
   color: var(--lightest);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
 }
 
 .menuButton{
@@ -61,8 +64,6 @@
   width: 200px;
   height: 200px;
   background-color: var(--darkest);
-  border-color: var(--lightest);
-  border-radius: 1px;
   color: var(--lightest);
 
   text-align: center;
@@ -72,7 +73,7 @@
   overflow-y: auto;
   height: 40vh;
   background-color: var(--medium);
-  border: 2px solid var(--darkest);
+  border-bottom: 4px solid var(--darkest);
   border-top: 2px solid var(--lightest);
   display: flex;
   flex-direction: row;
@@ -84,7 +85,7 @@
   overflow-y: auto;
   height: 25vh;
   background-color: var(--medium);
-  border: 2px solid var(--darkest);
+  border-bottom: 4px solid var(--darkest);
   border-top: 2px solid var(--lightest);
   display: flex;
   flex-direction: row;
@@ -138,9 +139,67 @@ input{
   border-color: var(--lightest);
   border-radius: 1px;
   color: var(--lightest);
+  overflow-y: auto;
 
   text-align: center;
 }
 .deckItem h1{
   font-size: 16px;
+}
+.modal{
+  position: relative;
+  background-color: var(--light);
+  border: 2px solid var(--dark);
+  border-radius: 20px;
+  top: 80px;
+  right: 0;
+  width:400px;
+  height:200px;
+  color: var(--feature-dark);
+  display: block;
+}
+.modal input{
+  appearance: none;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+
+  transition: 0.2s all linear;
+  margin-right: 5px;
+
+  position: relative;
+  top: 4px;
+  background-color: var(--dark);
+  border: 2px solid var(--darkest);
+}
+.modal input:checked{
+  border: 2px solid var(--feature-dark);
+  background-color: var(--feature);
+}
+.hoverButton{
+  display: none;
+}
+.deckItem:hover .hoverButton{
+  display: inline-flex;
+  background-color: var(--dark);
+  color: var(--lightest);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  height: 60%;
+  margin: 8px;
+
+  cursor: pointer;
+  &:hover {
+    background-color: var(--feature);
+  }
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  @media screen and (max-width: 600px) {
+    display: flex;
+    width: 100%;
+  }
 }
