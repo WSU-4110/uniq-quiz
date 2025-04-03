@@ -134,8 +134,10 @@ export default function GroupViewer({asInset = false}){
                                     <h1>{group.Group_Name ? group.Group_Name : "Untitled Group"}</h1>
                                 </div>
                                 <div className={styles.browseMenu}>
+                                    {!myGroups.includes(group) && (
+                                        <button onClick={() => joinGroup(group.Group_id)}>Join Group</button>
+                                    )}
                                     <button onClick={() => viewGroup(group.Group_id)}>View Group</button>
-                                    <button onClick={() => joinGroup(group.Group_id)}>Join Group</button>
                                 </div>
                             </div>
                     ))}
