@@ -1,24 +1,41 @@
 .pageContainer{
     display: flex;
+    /*position: absolute;*/
+    padding-left: 12vw;
     flex-direction: row;
     justify-content: center;
-    align-items: flex-end;
-    gap: 20vw;
+    align-items: center;
+    gap: 15vw;
 }
 
 .podiumContainer {
     display: flex;
     flex-direction: row;
+    align-items: flex-end;
+    gap: 4vw;
+    height: 42vh;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 5px solid white;
+    padding: 3vw 3vw 0 3vw;
+    margin-top: 13vw;
+}
+
+
+.podiumContainerOld {
+    display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: flex-end;
-    gap: 2vw;
+    gap: 4vw;
+    height: 40vh;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     border: 5px solid white;
     padding: 3vw 3vw 0 3vw;
 }
 
-.podiumContainer:after{
+.podiumContainerOld:after{
     padding-top: 29vh;
     z-index: -1;
     content: "";
@@ -32,28 +49,28 @@
 }
 
 .podiumSecond {
-    height: 20vh;
+    height: 30vh;
     width: 5vw;
     text-align: center;
-    background-color: #FFFFFF;
-    color: #C0C0C0;
+    background-color: #C0C0C0;
+    color: #000000;
 }
 
 
 .podiumFirst {
-    height: 25vh;
+    height: 35vh;
     width: 5vw;
     text-align: center;
-    background-color: #FFFFFF;
-    color: #FFD700;
+    background-color: #FFD700;
+    color: #000000;
 }
 
 .podiumThird{
-    height: 15vh;
+    height: 25vh;
     width: 5vw;
     text-align: center;
-    background-color: #FFFFFF;
-    color: #CD7F32;
+    background-color: #CD7F32;
+    color: #000000;
 }
 
 .leaderboardContainerContainer {
@@ -106,11 +123,16 @@
     text-align: center;
 }
 
+.podiumName {
+    color: var(--lightest);
+}
+
 .scrollContainer {
-    margin-top: 25vh;
+    margin-top: 15vw;
     padding-right: 18px;
-    max-height: 45vh;
     min-width: 25vw;
+    max-height: var(--scroll-max-height, 80vh); /* fallback to 80vh if not defined */
     overflow-y: auto;
     overflow-x: hidden;
 }
+

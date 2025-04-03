@@ -20,9 +20,8 @@ export function AuthProvider({ children }) {
                     setIsAuthenticated(false);
                 }
             } catch (error) {
-                console.error("Auth check failed:", error);
                 setIsAuthenticated(false);
-            } finally {
+            } finally { 
                 setLoading(false);
             }
         };
@@ -36,7 +35,6 @@ export function AuthProvider({ children }) {
                 try {
                     const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
                     setUserName(response.data.display_name);
-                    console.log(response.data);
                 } catch (err) {
                     console.error("Error fetching user:", err);
                 }

@@ -39,7 +39,7 @@ async function createDeck(req, res){
  */
 async function getAllDecks(req, res){
     try{
-        const {data, error} = await supabase.from("Decks").select('*');
+        const { data, error } = await supabase.rpc("get_user_decks");
         if(error) throw error;
         res.json(data);
     }catch(err){

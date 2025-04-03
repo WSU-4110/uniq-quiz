@@ -1,49 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import Decks from '../pages/Decks/Decks.jsx';
-import styles from '../Stylesheets/Profile.module.css';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Decks from '../Decks/Decks.jsx';
+import axios from 'axios';
+import styles from '../../Stylesheets/Profile.module.css';
 
 function Profile(){
     const [error, setError] = useState(null);
     const [userData, setUserData] = useState({});
-    const [deckData, setDeckNumber] = useState({});
+    const [deckData, setDeckData] = useState({});
     const {user, userName} = useAuth();
     const location = useLocation();
     const [profilePicture, setProfilePicture] = useState(null);
 
     const getUser = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setUserData(jsonData);
-            console.log(jsonData);
+            const response = await axios.get(`/api/users/${user}`);
+            setUserData(response.data);
         } catch (error) {
             console.error(error.message);
         }
     }
+    
     useEffect(()=>{
-            getUser();
-        }, [])
+        getUser();
+    }, [])
 
-    const getDeckNumber = async() =>{
+    const getMyDecks = async() =>{
         try {
-            const response = await fetch(`http://localhost:3000/api/decks/`);
+            const response = await fetch(`/api/decks/`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
               }
             const jsonData = await response.json();
-            setDeckNumber(jsonData);
-            console.log(jsonData);
+            setDeckData(jsonData.filter(deck => deck.User_id === user));
         } catch (error) {
             console.error(error.message);
         }
     }
     useEffect(()=>{
-            getDeckNumber();
+            getMyDecks();
         }, [])
 
     return (
