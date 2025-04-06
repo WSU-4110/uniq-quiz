@@ -73,7 +73,7 @@ export class Leaderboard {
         const player = this.findPlayer(id);
         console.log(this.leaderboard);
         try{
-            console.log(`player ${player}   -   player score: ${player.score}`);
+            console.log(`Before player ${player}   -   player score: ${player.score}`);
         }catch(e){
             console.error(e);
         }
@@ -83,7 +83,8 @@ export class Leaderboard {
             this.registerPlayer("Errored User", id, addScore);
         }
         this.leaderboard.sort();
-        console.log(`player ${player}   -   player score: ${player.score}`);
+        console.log(`After player ${player}   -   player score: ${player.score}`);
+        this.leaderboard.sort();
     }
 }
 

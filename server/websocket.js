@@ -175,9 +175,25 @@ module.exports = (server) => {
             }
         });
 
-        //Game Initilization,
-        socket.on("init_game_server", ({Game_id}) => {
-            io.to(Game_id).emit("init_game", {playerList: activeGames[Game_id].players, playerCount: 54});
+        //Game Initialization,
+        socket.on("init_game_call", ({Game_id, User_id}) => {
+            console.log("Step 1: Host initialization");
+            io.to(Game_id).emit("init_game_part_1", {playerList: activeGames[Game_id].players, playerCount: activeGames[Game_id].players.length});
+        })
+
+        socket.on("connect_game", ({Game_id, User_id}) => {
+            console.log(`Step 2: User connecting ${User_id}`);
+            io.to(Game_id).emit("player_connect", {Game_id, User_id});
+        })
+
+        socket.on("confirm_connection", ({Game_id, User_id}) => {
+            console.log(`Step 2.5: Confirm User ${User_id}`);
+            io.to(Game_id).emit("player_confirm", {Game_id, User_id});
+        })
+
+        socket.on("init_game_call_2", ({Game_id}) => {
+            console.log("Step 3: Player initialization");
+            io.to(Game_id).emit("init_game_part_2", {playerList: activeGames[Game_id].players, playerCount: activeGames[Game_id].players.length});
         })
         
         //  Gameplay mechanics  //
@@ -220,6 +236,11 @@ module.exports = (server) => {
             let totalPos = activeGames[Game_id].players.length + 1;
 
             io.to(Game_id).emit("check_answer", {Player_id: Player_id, Answer_id: Answer_id, position: position, totalPos: totalPos})
+        })
+
+        //Host brodcasts score
+        socket.on("broadcast_score", ({Game_id, Score, User_id}) => {
+            io.to(Game_id).emit("broadcast_score_client", {User_id: User_id, Score: Score});
         })
 
         //Host tells player what state to be in

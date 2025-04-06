@@ -36,37 +36,6 @@ const initQuestion = new Question(
     1
 );
 
-//TODO: consolidate? since it's repetitive.
-const quizReducer = (state, action) =>{
-    switch (action.type){
-        case 'START':
-            return {...state, currentPage: QuizPages.LOADING};
-        case 'LOADING':
-            return {...state, currentPage: QuizPages.QUESTION};
-        case 'QUESTION':
-            return{
-                ...state,
-                currentPage: action.isHost ? QuizPages.LEADERBOARD : QuizPages.POSTQUESTIONPAGE
-            };
-        case 'POSTQUESTION':
-            return{
-                ...state,
-                currentPage: action.isHost ? (state.isGameOver ? QuizPages.POSTGAME : QuizPages.LEADERBOARD) : state.currentPage
-            }
-        case 'LEADERBOARD':
-            return{
-                ...state,
-                currentPage: state.isGameOver ? QuizPages.POSTGAME : QuizPages.QUESTION
-            }
-        case 'POSTGAME':
-            return {...state, currentPage: QuizPages.POSTGAME, isGameOver: true}
-        case "ERROR":
-            return { ...state, currentPage: QuizPages.ERROR };
-        default:
-            return state;
-    }
-}
-
 function PlayerGame() {
     // Contexts
     const params = useParams();
@@ -87,6 +56,13 @@ function PlayerGame() {
     const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
     const [currentState, setCurrentState] = useState(QuizPages.START);
     const [isGameOver, setIsGameOver] = useState(false);
+    const [gameInitilized, setGameInitilized] = useState(false);
+    const leaderboardRef = useRef(new Leaderboard());
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+    const [connected, setConnected] = useState(false);
+    const [attempts, setAttempts] = useState(0);
+    const maxAttempts = 30;
+
 
     // Player Variables
     const isHost = false;
@@ -108,6 +84,7 @@ function PlayerGame() {
         try {
             const response = await axios.get(`/api/users/${user}`);
             setPlayerData(response.data);
+            params.User_id = response.data.User_id;
         } catch (error) {
             console.error(error.message);
         }
@@ -179,6 +156,25 @@ function PlayerGame() {
 
     //socket listener
     useEffect(() => {
+        //Initialize game
+        socket.on('player_confirm', ({Game_id, User_id}) => {
+           if (User_id === params.User_id) {
+                setConnected(true);
+           }
+        });
+
+        socket.on('init_game_part_2', ({playerList}) => {
+            let players = playerList;
+            for(let i = 0; i < players.length; i++){
+                let player = players[i];
+                leaderboardRef.current.registerPlayer(player.Username, player.User_id, 0);
+                console.log(`Registering Player ${player.Username}`);
+            }
+            setPlayerScore(0);
+            forceUpdate();
+            setGameInitilized(true);
+        });
+
         socket.on('card_for_client', (data) => {
             if(data.CardIndex === -999){
                 handleGameEnd();
@@ -221,6 +217,11 @@ function PlayerGame() {
             handleGameEnd();
         });
 
+        socket.on('broadcast_score_client', ({User_id, Score}) => {
+            console.log(`Updating user score ${User_id} ${Score}`);
+            leaderboardRef.current.updatePlayer(User_id, Score);
+        })
+
         socket.on('get_current_state', (data) => {
             setCurrentState(data.currentState);
             setIsGameOver(data.isGameOver);
@@ -235,6 +236,24 @@ function PlayerGame() {
             socket.off('get_current_state');
         };
     }, [socket]);
+
+    //Connection retry
+    useEffect(() => {
+        if(maxAttempts === attempts){
+            setCurrentState(QuizPages.ERROR);
+        }
+        if (!connected && attempts < maxAttempts) {
+            const intervalId = setInterval(() => {
+                if (!connected) {
+                    console.log(`Attempt ${attempts + 1} to connect...`);
+                    socket.emit('connect_game', { Game_id: params.Game_id, User_id: params.User_id });
+                    setAttempts(prev => prev + 1);
+                }
+            }, 1000);
+
+            return () => clearInterval(intervalId);
+        }
+    }, [connected, attempts, socket, params.Game_id, params.User_id]);
 
     //params listener
     useEffect(()=>{
@@ -255,6 +274,10 @@ function PlayerGame() {
 
         //get player data
         getUser();
+
+        console.log("Initializing Game");
+        socket.emit('connect_game', {Game_id: params.Game_id, User_id: params.User_id});
+
 
         return () => {
             delete window.changeQuizState;
@@ -292,14 +315,14 @@ function PlayerGame() {
                 {currentState === QuizPages.POSTQUESTION && <PostQuestionPage/>}
                 {currentState === QuizPages.LOADING && <LoadingPage/>}
                 {currentState === QuizPages.LEADERBOARD && <LeaderboardPage
-                    leaderboard={leaderboard}
+                    leaderboard={leaderboardRef.current}
                     setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentState === QuizPages.POSTGAME && <PostGamePage
                     leaderboard={leaderboard}
                 />}
                 {currentState === QuizPages.ERROR &&
-                    <h1>AN ERROR HAS OCCURRED AND THE DEVELOPER IS DRINKING PROFUSELY BECAUSE OF IT</h1>}
+                    <h1>Hey there bud, you have timed out, you know what that means? It means the developer in charged of this is a fucking dumb piece of shit.</h1>}
             </div>
         </div>
     );

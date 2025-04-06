@@ -83,7 +83,13 @@ function HostGame() {
     const [playerScore, setPlayerScore] = useState(0);
     const [playerData, setPlayerData] = useState({});
     const [isQuestionPageRendering, setIsQuestionPageRendering] = useState(false);
+    const [gameInitilized, setGameInitilized] = useState(false);
+    const [totalPlayerCount, setTotalPlayerCount] = useState(0);
+    const [connectedPlayerCount, setConnectedPlayerCount] = useState(0);
+    const [gameStarted, setGameStarted] = useState(false);
 
+
+    //LB
     const leaderboardRef = useRef(new Leaderboard());
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -223,24 +229,39 @@ function HostGame() {
 
     //socket listener
     useEffect(() => {
-        socket.on('init_game', ({playerList}) => {
-            console.log('init_game');
-            console.log(playerList);
-            let players = playerList;
-            for(let i = 0; i < players.length; i++){
-                let player = players[i];
+        //Game Initilization
+        socket.on('init_game_part_1', ({playerList, playerCount}) => {
+            for(let i = 0; i < playerList.length; i++){
+                let player = playerList[i];
                 leaderboardRef.current.registerPlayer(player.Username, player.User_id, 0);
                 console.log(`Registering Player ${player.Username}`);
             }
             setPlayerScore(0);
             forceUpdate();
+            setGameInitilized(true);
+            setTotalPlayerCount(playerCount);
         });
+
+        socket.on('player_connect', ({Game_id, User_id}) => {
+            if(leaderboardRef.current.findPlayer(User_id)){
+                setConnectedPlayerCount(connectedPlayerCount + 1);
+                console.log(`Connected Player ${connectedPlayerCount} out of ${totalPlayerCount} players`);
+                socket.emit('confirm_connection', {Game_id, User_id});
+                if(connectedPlayerCount === totalPlayerCount){
+                    socket.emit('init_game_call_2', {Game_id});
+                    setGameStarted(true);
+                }
+            } else {
+                console.error("User not found in lb")
+            }
+        })
 
         socket.on('card_for_client', (data) => {
             if(data.CardIndex === -999){
                 handleGameEnd();
             }
             setCard(data.Card);
+            setNumPlayerAnswers(0);
 
             setCurrentQuestion( new Question(
                 data.Card.Question,
@@ -258,9 +279,10 @@ function HostGame() {
             setNumPlayerAnswers(0);
         })
 
+        //Scrap?
         socket.on('answer_submitted', (data) => {
             if(data.AllSubmitted){
-                socket.emit('end_question', {Game_id: params.Game_id}); //If consolidated: put this under isHost
+                socket.emit('end_question', {Game_id: params.Game_id});
                 nextState(true);
             }else{
                 setNumPlayerAnswers(prevNumPlayerAnswers => prevNumPlayerAnswers + 1);
@@ -282,21 +304,12 @@ function HostGame() {
         socket.on('check_answer', ({Player_id, Answer_id, position, totalPos}) => {
             let score = currentQuestion.CalcPlayerScore(Answer_id, position, totalPos)
             leaderboardRef.current.updatePlayer(Player_id, score);
-            console.log(`IN check_answer  - ${Player_id} Score: ${score}`);
             let nScore = leaderboardRef.current.findPlayer(Player_id).score ;
-            console.warn(`pScore: ${nScore} Score: ${score} UPDATE`);
 
-            console.log(`User_ID ${playerData.User_id}`)
             if (Player_id === user) {
-                console.log("PID Match, update score AI SOL")
                 setPlayerScore(nScore);
             }
-
-            if (Player_id === playerData.User_id){
-                console.log("PID Match, update score")
-                setPlayerScore(nScore);
-            }
-            //socket.emit('broadcast_score', {Game_id: params.Game_id, Score: score, User_id: Player_id})
+            socket.emit('broadcast_score', {Game_id: params.Game_id, Score: score, User_id: Player_id})
         });
 
             return () => {
@@ -344,11 +357,11 @@ function HostGame() {
             socket.emit('get_game_settings', {Game_id: params.Game_id});
         }
 
-        console.log("Initializing Game");
-        socket.emit('init_game_server', { Game_id: params.Game_id });
-
         //get player data
         getUser();
+
+        console.log("Initializing Game");
+        socket.emit('init_game_call', { Game_id: params.Game_id, User_id: params.User_id });
 
         return () => {
             delete window.changeQuizState;
