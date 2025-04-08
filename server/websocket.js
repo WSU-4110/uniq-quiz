@@ -71,11 +71,12 @@ module.exports = (server) => {
             }
 
             //Store player data in active game
+            activeGames[Game_id].currentSubmittedAnswers = -1;
             activeGames[Game_id].players.push({
                 User_id: User_id,
                 Username: Username,
                 Player_score: 0,
-                CurrentSubmitAnswer: null,
+                CurrentSubmitAnswer: 1,
             });
         })
 
@@ -202,6 +203,7 @@ module.exports = (server) => {
         socket.on("send_next_card", ({Game_id}) => {
             if(socket.data.host){ //Only host should be able to send cards
                 const game = activeGames[Game_id];
+                activeGames[Game_id].currentSubmittedAnswers = 0;
 
                 if(game && game.currentCardIndex < game.cards.length){
                     const card = game.cards[game.currentCardIndex]; //Retrieve card
@@ -232,8 +234,13 @@ module.exports = (server) => {
 
         //Player submits answer
         socket.on("submit_answer", ({Game_id, Player_id, Answer_id, Timer_Status}) => {
-            let position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
-            let totalPos = activeGames[Game_id].players.length + 1;
+            //let position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
+            activeGames[Game_id].currentSubmittedAnswers  += activeGames[Game_id].currentSubmittedAnswers + 1;
+            let position = activeGames[Game_id].currentSubmittedAnswers;
+            let totalPos = activeGames[Game_id].players.length / 2;
+
+            console.log("pos ", position);
+            console.log("totalPos ", totalPos);
 
             io.to(Game_id).emit("check_answer", {Player_id: Player_id, Answer_id: Answer_id, position: position, totalPos: totalPos})
         })

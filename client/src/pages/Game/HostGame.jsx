@@ -318,6 +318,7 @@ function HostGame() {
             socket.off('answer_submitted');
             socket.off('deck_title');
             socket.off('game_ended');
+            socket.off('check_answer');
         };
     }, [socket]);
 

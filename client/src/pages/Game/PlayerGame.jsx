@@ -220,6 +220,7 @@ function PlayerGame() {
         socket.on('broadcast_score_client', ({User_id, Score}) => {
             console.log(`Updating user score ${User_id} ${Score}`);
             leaderboardRef.current.updatePlayer(User_id, Score);
+            forceUpdate();
         })
 
         socket.on('get_current_state', (data) => {

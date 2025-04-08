@@ -15,23 +15,34 @@ export class Question {
 
         this.question = question;
         const answers = [correctAnswer, incorrectAnswer1, incorrectAnswer2, incorrectAnswer3];
+        const idToLoc = [0, 1, 2, 3];
 
         // Using the Fisher-Yates algorithm to shuffle the questions
         // I had come across this algorithm while researching a fix to a bug
         for(let i = answers.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [answers[i], answers[j]] = [answers[j], answers[i]];
+            [idToLoc[i], idToLoc[j]] = [idToLoc[j], idToLoc[i]];
         }
 
+        console.log(answers);
+        console.log(idToLoc);
+
         this.answers = answers;
+        this.idToLoc = idToLoc;
         this.correctAnswerID = answers.indexOf(correctAnswer);
+
+        console.log(this.correctAnswerID);
     }
 
 
     CheckAnswer(answerID) {
         console.log(answerID === this.correctAnswerID);
         console.log("Your answer vs server answer:", this.answers[answerID], this.answers[this.correctAnswerID])
-        return answerID === this.correctAnswerID;
+        console.log("correctAnswer Array", this.idToLoc);
+        let indexOfAnswerID = this.idToLoc.indexOf(answerID);
+        return this.correctAnswerID === indexOfAnswerID;
+        //return this.idToLoc[answerID] === 0;
     }
 
     CalcPlayerScore(answerID, position, totalPos){

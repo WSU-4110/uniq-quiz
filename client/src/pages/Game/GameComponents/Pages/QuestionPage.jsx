@@ -24,25 +24,25 @@ http://creativecommons.org/licenses/by/4.0/
             <div className={styles.AnswerGridContainer}>
                 <div className={styles.AnswerGrid}>
                     <div className={`${styles.AnswerContainer} ${styles.ButtonCyan}`}>
-                        <button className={styles.AnswerButton} onClick={() => onAnswer(0)}>
+                        <button className={styles.AnswerButton} onClick={() => onAnswer(question.idToLoc[0])}>
                             <h3>{question.answers[0]}</h3>
                         </button>
                     </div>
 
                     <div className={`${styles.AnswerContainer} ${styles.ButtonYellow}`}>
-                        <button className={styles.AnswerButton} onClick={() => onAnswer(1)}>
+                        <button className={styles.AnswerButton} onClick={() => onAnswer(question.idToLoc[1])}>
                             <h3>{question.answers[1]}</h3>
                         </button>
                     </div>
 
                     <div className={`${styles.AnswerContainer} ${styles.ButtonMagenta}`}>
-                        <button className={styles.AnswerButton} onClick={() => onAnswer(2)}>
+                        <button className={styles.AnswerButton} onClick={() => onAnswer(question.idToLoc[2])}>
                             <h3>{question.answers[2]}</h3>
                         </button>
                     </div>
 
                     <div className={`${styles.AnswerContainer} ${styles.ButtonTeal}`}>
-                        <button className={styles.AnswerButton} onClick={() => onAnswer(3)}>
+                        <button className={styles.AnswerButton} onClick={() => onAnswer(question.idToLoc[3])}>
                             <h3>{question.answers[3]}</h3>
                         </button>
                     </div>
