@@ -36,7 +36,7 @@ async function signUp(req, res){
 
         //Insert new user into Users table
         console.log("User_id:", userId, "Email:", email)
-        const {error: insertError} = await supabase.from("Users").insert({User_id: userId, Username: email, Profile_Pic: "NullForNow"});
+        const {error: insertError} = await supabase.from("Users").insert({User_id: userId, Email: email, Username: display_name, Profile_Pic: "NullForNow"});
         if(insertError){
           console.log("Insert error: ", insertError);
         }
@@ -167,11 +167,41 @@ async function signUp(req, res){
   async function checkSession(req, res) {
     try {
         const token = req.cookies.session_token;
-        if (!token) {
+        const refreshToken = req.cookies.refresh_token;
+
+        if (!token && !refreshToken) {
+            console.log('Rejected due to null tokens');
             return res.json({ authenticated: false });
         }
 
-        const { data, error } = await supabase.auth.getUser(token);
+        let { data, error } = await supabase.auth.getUser(token);
+
+        //Check for Supabase session token expired
+        if (error && error.message.includes('token is expired')){
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+
+            if(refreshError){
+              console.log(`Session refresh failed: ${refreshError.message}`);
+
+              //Clear cookies on no refresh token
+              res.clearCookie("session_token", { httpOnly: true, secure: false, sameSite: "Strict" });
+              res.clearCookie("refresh_token", { httpOnly: true, secure: false, sameSite: "Strict" });
+
+              return res.json({isAuthenticated: false});
+            }
+
+            //Get data with new token
+            const newAccessToken = refreshData.session.access_token;
+            ({ data, error } = await supabase.auth.getUser(newAccessToken));
+            //Store new token as HTTP cookie
+            res.cookie("session_token", data.session.access_token, {
+              httpOnly: true,      // Prevents JavaScript access (XSS protection)
+              secure: false,        // Ensures cookie is only sent over HTTPS
+              sameSite: "Strict",  // Prevents CSRF attacks
+              maxAge: 60 * 60 * 1000 * 168 // 1 week expiry
+            });
+        }
+
         if (error || !data.user) {
             return res.json({ authenticated: false });
         }
@@ -179,6 +209,11 @@ async function signUp(req, res){
         return res.json({ authenticated: true, user: {id: data.user.id} });
     } catch (error) {
         console.error("Session check error:", error);
+
+        //clear cookies on error
+        res.clearCookie("session_token", { httpOnly: true, secure: false, sameSite: "Strict" });
+        res.clearCookie("refresh_token", { httpOnly: true, secure: false, sameSite: "Strict" });
+
         return res.json({ authenticated: false });
     }
 }
