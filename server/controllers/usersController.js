@@ -64,15 +64,12 @@ async function getUser(req, res) {
 async function updateUser(req, res) {
     try {
         const {id} = req.params;
-        const{Username, Games_Played, Wins, Total_Score, Highest_Score, HighestScoreId} = req.body;
+        const{Username, Password, Email} = req.body;
 
         const newData = {};
         if (Username) newData.Username = Username;
-        if (Games_Played) newData.Games_Played = Games_Played;
-        if (Wins) newData.Wins = Wins;
-        if (Total_Score) newData.Total_Score = Total_Score;
-        if (Highest_Score) newData.Highest_Score = Highest_Score;
-        if (HighestScoreId) newData.Highest_Score_id = HighestScoreId;
+        if (Password) newData.Password = Password;
+        if (Email) newData.Email = Email;
 
         const {data: updatedUser, error} = await supabase.from("Users").update(newData).eq('User_id', id).select("*");
         res.json(updatedUser);
@@ -104,11 +101,92 @@ async function deleteUser(req, res){
     }
 }
 
+//set user profile privacy
+async function setUserPrivacy(req, res){
+    try{
+        const {id} = req.params;
+        const {privacy} = req.body;
+        const{data, error} = await supabase.from("Users").update({Private: privacy}).eq('User_id', id);
+        if(error){
+            console.log("Error setting user to private: ", error.message);
+            return res.status(400).json({error: error.message});
+        }
+
+        return res.status(200).json({message: `User privacy set to ${privacy}`})
+    }
+    catch(err){
+        console.log(err.message);
+    }
+}
+
+//changes user's username
+async function updateUsername(req, res) {
+    try {
+        const { id } = req.params; // user_id from URL
+        const { Username } = req.body;
+
+        // Validation
+        const trimmedUsername = Username?.trim();
+        if (!trimmedUsername) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username cannot be empty'
+            });
+        }
+
+        if (trimmedUsername.length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username must be at least 3 characters'
+            });
+        }
+
+        // Check for existing username (excluding current user)
+        const { data: existingUser, error: lookupError } = await supabase
+            .from('Users')
+            .select('user_id')
+            .eq('Username', trimmedUsername)
+            .neq('user_id', id);
+
+        if (lookupError) throw lookupError;
+        if (existingUser.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username already taken'
+            });
+        }
+
+        // Update username
+        const { data, error } = await supabase
+            .from('Users')
+            .update({ username: trimmedUsername })
+            .eq('user_id', id)
+            .select();
+
+        if (error) throw error;
+
+        return res.status(200).json({
+            success: true,
+            message: 'Username updated successfully',
+            user: data[0]
+        });
+
+    } catch (err) {
+        console.error('Username update error:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+    
+}
 
 module.exports = {
     createUser,
     getAllUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    setUserPrivacy,
+    updateUsername
 };

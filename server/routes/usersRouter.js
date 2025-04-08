@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 //Import controller functions
-const {createUser, getAllUsers, getUser, updateUser, deleteUser} = require("../controllers/usersController");
+const {createUser, getAllUsers, getUser, updateUser, deleteUser, setUserPrivacy, updateUsername} = require("../controllers/usersController");
 
 //Create a new user
 router.post("/", createUser);
@@ -18,6 +18,12 @@ router.put("/:id", updateUser);
 
 //Delete a user via User_id
 router.delete("/:id", deleteUser);
+
+//Set user to private via User_id
+router.put("/:id/privacy", setUserPrivacy);
+
+//Updates a username via User_id
+router.put('/:id/username', updateUsername);
 
 //Export router to be used in main 
 module.exports = router;

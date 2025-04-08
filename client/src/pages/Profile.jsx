@@ -6,7 +6,7 @@ import styles from '../Stylesheets/Profile.module.css';
 
 function Profile(){
     const [error, setError] = useState(null);
-    const [userData, setUserData] = useState({});
+    const [userData, setUserData] = useState(null);
     const [deckData, setDeckNumber] = useState({});
     const {user, userName} = useAuth();
     const location = useLocation();
@@ -46,24 +46,32 @@ function Profile(){
             getDeckNumber();
         }, [])
 
-    return (
-        <div className={styles.profileBanner}>
-            <div className={styles.userInfo}>
-                <div className={styles.profilePicture}>
-                    {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
+        return (
+            <div className={styles.profileBanner}>
+                <div className={styles.userInfo}>
+                    <div className={styles.profilePicture}>
+                        {profilePicture ? (
+                            <img src={profilePicture} alt="Profile" />
+                        ) : (
+                            'Null'
+                        )}
+                    </div>
+                    <p className={styles.p}>{userName || 'Welcome'}</p>
                 </div>
-                <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
-            </div>
-            <div className="App">
-                <h1><ul>Stats: </ul></h1>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-                    <li><h2 style={{ display: 'inline' }}>Top Wins: {userData.Wins}</h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Total Points: {userData.Total_Score}</h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Best Deck: {userData.Highest_Score_id ? userData.Highest_Score_id : "None"}
-                         ; {userData.Highest_Score} </h2></li>
-                    <li><h2 style={{ display: 'inline' }}>Decks Made: {deckData.length}</h2></li>
-                </ul>
-            </div>
+                <div className="App">
+                    <h1><ul>Stats: </ul></h1>
+                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '2rem', justifyContent: 'center' }}>
+                        <li><h2 style={{ display: 'inline' }}>Top Wins: {userData?.Wins || 0}</h2></li>
+                        <li><h2 style={{ display: 'inline' }}>Total Points: {userData?.Total_Score || 0}</h2></li>
+                        <li>
+                            <h2 style={{ display: 'inline' }}>
+                                Best Deck: {userData?.Highest_Score_id || "None"}
+                                ; {userData?.Highest_Score && `; ${userData?.Highest_Score}`}
+                            </h2>
+                        </li>
+                        <li><h2 style={{ display: 'inline' }}>Decks Made: {deckData?.length || 0}</h2></li>
+                    </ul>
+                </div>
             <div className="App">
                 <h1><ul><Link to="/decks" className={styles.links}>Decks: </Link></ul></h1>
                 <Decks asInset={true} showOnlyDecks={true}/>
