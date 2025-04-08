@@ -20,9 +20,8 @@ export function AuthProvider({ children }) {
                     setIsAuthenticated(false);
                 }
             } catch (error) {
-                console.error("Auth check failed:", error);
                 setIsAuthenticated(false);
-            } finally {
+            } finally { 
                 setLoading(false);
             }
         };

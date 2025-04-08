@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json()); //req.body
 
 function generateJoinCode(){
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; //TODO: Remove lowercase
     let code = '';
     for (let i = 0; i < 4; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -37,7 +37,7 @@ async function createGame(req,res){
         }
     } catch (err) {
         console.error("Caught error:", err);  // Log other errors
-        res.status(201).json(data);
+        res.status(201).json(data); //TODO: CHANGE THIS TO THE CORRECT ERROR RESPONSE CODE :c
     }
 }
 

@@ -1,0 +1,54 @@
+.menuButton{
+	height: 10vh;
+	text-decoration: none;
+	text-transform: uppercase;
+  	align-items: center;
+  	width: 100%;
+  	max-width: 10vw;
+	border-radius: 10px;
+  	outline: 2px solid var(--lightest);
+  	outline-offset: -5px;
+    background-color: var(--dark);
+    color: var(--lightest);
+    font-size: 15px;
+}
+.menuButtonDisabled{
+	height: 10vh;
+	text-decoration: none;
+	text-transform: uppercase;
+  	align-items: center;
+  	width: 100%;
+  	max-width: 10vw;
+	border-radius: 10px;
+  	outline: 2px solid var(--feature-dark);
+  	outline-offset: -5px;
+    color: var(--light);
+    background-color: var(--dark);
+    font-size: 15px;
+    cursor: not-allowed;
+}
+
+.infoBlock{
+}
+
+.infoBlockEx{
+    
+    height: 50vh;
+}
+
+.deckSelect{
+    margin: 3vh 0;
+}
+
+.lobbyBlock{
+    background-color: var(--dark);
+    height: 100vw;
+}
+
+.deckSelect{
+
+}
+
+.buttonContainer{
+
+}

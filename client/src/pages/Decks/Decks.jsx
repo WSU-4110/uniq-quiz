@@ -4,6 +4,7 @@ import ListItem from '../../components/ListItem.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
 import { Link, } from 'react-router'
 import {useAuth} from '../../context/AuthContext.jsx';
+import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
@@ -25,29 +26,16 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getDecks = async() =>{
         try {
-            const response = await fetch("http://localhost:3000/api/decks/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setDecks(jsonData);
+            const response = await axios.get("/api/decks/");
+            setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
-            console.error(error.message);
+            console.error(error.message);   
         }
     }
 
     const createDeck = async() => {
         try{
-            const body = {Title: "Untitled Deck", User_id: user};
-            const response = await fetch("http://localhost:3000/api/decks/",{
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(body)
-            });
-            const jsonData = await response.json();
-            if(!response.ok) {
-                throw new Error(`Failed to create deck: ${response.statusText}`);
-            }
+            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: user});
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -56,21 +44,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     
     const updateDeck = async() =>{
         try{
-            const body = selectedDeck;
-            if(!selectedDeck){
-                throw new Error(`No deck selected!`);
+            if(selectedDeck){
+                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.Title});
             }
-            console.log(selectedDeck.Deck_id);
-            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
-            method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(body)
-            }
-          );
-          if(!response.ok){
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const jsonData = response.json();
         }catch(error){
           console.error(error.message);
         }
@@ -83,12 +59,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }
 
         try{
-            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`)
-            if (!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setCards(jsonData);
+            const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
+            setCards(response.data);
         } catch (error){
           console.error(error.message);  
         }
@@ -96,14 +68,14 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createCard = async() => {
         try{
-            const body = {Deck_id: selectedDeck.Deck_id, Question: "", Answer: "", Incorrect1: "", Incorrect2: "", Incorrect3: ""};
-            const response = await fetch(`http://localhost:3000/api/cards/${selectedDeck.Deck_id}`,{
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(body)
-            });
-            const jsonData = await response.json();
-            console.log(jsonData);
+            const response = await axios.post(`/api/cards/${selectedDeck.Deck_id}`, 
+                {   Deck_id: selectedDeck.Deck_id, 
+                    Question: "", 
+                    Answer: "", 
+                    Incorrect1: "", 
+                    Incorrect2: "", 
+                    Incorrect3: ""
+                });
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -112,10 +84,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const deleteDeck = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/decks/${selectedDeck.Deck_id}`, {
-                method: "DELETE"
-            });
-            setDecks(decks.filter(decks => decks.Deck_id !== selectedDeck.Deck_id));
+            await axios.delete(`api/decks/${selectedDeck.Deck_id}`);
             setRefresh(prev => prev + 1);
         } catch (error) {
             console.error(error.message);
@@ -192,12 +161,12 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
                 {!viewDeck && (<>
                     <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
-                    {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                    {decks.sort((a,b) => a.title > b.title ? 1 : -1)
                     .map((deck, index) => (
                         <TabButton onClick={()=>{handleSelectDeck(deck)}}>
                             <div key={index} className={styles.deckItem}>
-                                <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
-                                <p></p>
+                                <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
+                                <p>Author: {deck.username}</p>
                             </div>
                         </TabButton>
                     ))}
