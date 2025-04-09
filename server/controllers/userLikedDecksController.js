@@ -64,7 +64,8 @@ async function unlikeDeck (req, res) {
         const {data, error} = await supabase
             .from("UserLikedDecks")
             .delete()
-            .eq("Deck_id", Deck_id);
+            .eq("Deck_id", Deck_id)
+            .eq("User_id", User_id);
         
         if(error){
             console.log("Error deleting liked deck: ", error.message);

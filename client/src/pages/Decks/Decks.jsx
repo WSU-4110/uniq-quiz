@@ -11,6 +11,7 @@ import styles from "../../Stylesheets/Decks/Decks.module.css";
 export default function Decks({asInset = false, showOnlyDecks = false}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
+    const [likedDecks, setLikedDecks] = useState([]);
     const [cards, setCards] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
     const [viewDeck, setViewDeck] = useState(false);
@@ -38,6 +39,10 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         try {
             const response = await axios.get(`/api/decks/${user}/user_decks`);
             setDecks(response.data);
+            const response2 = await axios.get(`/api/userLikedDecks/${user}`);
+            const likedDecks = response2.data.map(deck => deck.Deck_id);
+            console.log(likedDecks);
+            setLikedDecks(likedDecks);
         } catch (error) {
             console.error(error.message);
         }
@@ -131,6 +136,22 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }));
     }
 
+    const toggleLikeDeck = async (deckId) => {
+        try {
+          if (likedDecks.includes(deckId)) {
+            // If already liked, remove from likedDecks
+            await axios.delete(`/api/userLikedDecks/${deckId}`);
+            setLikedDecks(prevLikedDecks => prevLikedDecks.filter(id => id !== deckId)); // Remove deckId
+          } else {
+            // If not liked, add to likedDecks
+            await axios.post(`/api/userLikedDecks/${deckId}`);
+            setLikedDecks(prevLikedDecks => [...prevLikedDecks, deckId]); // Add deckId
+          }
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+
     function handleDelete(){
         deleteDeck();
         setViewDeck(false);
@@ -200,8 +221,11 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                 {decks
                     .sort((a, b) => {
-                        if (filterType === "A-Z") return a.Title.localeCompare(b.Title);
-                        if (filterType === "Z-A") return b.Title.localeCompare(a.Title);
+                        const titleA = a.Title || ''; // Default to empty string if Title is undefined
+                        const titleB = b.Title || ''; // Default to empty string if Title is undefined
+                
+                        if (filterType === "A-Z") return titleA.localeCompare(titleB);
+                        if (filterType === "Z-A") return titleB.localeCompare(titleA);
                         return 0;
                 })
                 .map((deck, index) => (
@@ -210,6 +234,11 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                             <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
                             <p></p>
                         </div>
+                        <TabButton 
+                            className={styles.menuButton}
+                            onClick={()=> toggleLikeDeck(deck.Deck_id)}
+                            >{likedDecks.includes(deck.Deck_id) ? 'Unlike Deck' : 'Like Deck'}
+                        </TabButton>
                     </TabButton>
                 ))}
             </>)}
