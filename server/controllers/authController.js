@@ -36,7 +36,7 @@ async function signUp(req, res){
 
         //Insert new user into Users table
         console.log("User_id:", userId, "Email:", email)
-        const {error: insertError} = await supabase.from("Users").insert({User_id: userId, Username: email, Profile_Pic: "NullForNow"});
+        const {error: insertError} = await supabase.from("Users").insert({User_id: userId, Email: email, Username: display_name, Profile_Pic: "NullForNow"});
         if(insertError){
           console.log("Insert error: ", insertError);
         }
