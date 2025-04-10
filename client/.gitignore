@@ -169,6 +169,7 @@ web_modules/
 .env.development.local
 .env.development
 .env.test.local
+.env.test
 .env.production.local
 .env.local
 

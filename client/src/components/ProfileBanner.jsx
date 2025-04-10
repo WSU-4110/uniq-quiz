@@ -1,5 +1,4 @@
 import {useState, useEffect} from 'react';
-import axios from 'axios'; // Ensure axios is installed
 import {useAuth} from '../context/AuthContext';
 import styles from '../Stylesheets/Components/ProfileBanner.module.css';
 
