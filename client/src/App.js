@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
-import axios from 'axios';
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
+import configureAxios from './api/config.js';
 import Home from "./pages/Home/Home.jsx";
 import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
@@ -19,9 +19,7 @@ import HostGame from "./pages/Game/HostGame";
 import GroupViewer from './pages/Groups/GroupViewer.jsx';
 import Group from './pages/Groups/Group.jsx';
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+configureAxios();
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();

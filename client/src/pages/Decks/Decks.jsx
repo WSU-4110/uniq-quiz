@@ -26,7 +26,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getDecks = async() =>{
         try {
-            const response = await axios.get("/api/decks/");
+            const response = await axios.get("/api/decks/authors");
             setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
             console.error(error.message);   
