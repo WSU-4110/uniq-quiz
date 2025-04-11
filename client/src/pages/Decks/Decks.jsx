@@ -43,51 +43,93 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     }
     
     const updateDeck = async() =>{
-        try{
-            if(selectedDeck){
-                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.Title});
+        if(selectedDeck && selectedDeck.deck_id){
+            try{
+                const response = await axios.put(`api/decks/${selectedDeck.deck_id}`, {Title: selectedDeck.Title});
+            }catch(error){
+              console.error(error.message);
             }
-        }catch(error){
-          console.error(error.message);
+        }else if(selectedDeck){
+            try{
+                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.Title});
+            }catch(error){
+              console.error(error.message);
+            }
         }
+
     }
 
     const getCards = async () =>{
-        if (!selectedDeck.Deck_id) {
+        if (!selectedDeck.deck_id && !selectedDeck.Deck_id) {
             console.warn("No deck selected, skipping card fetch.");
             return;
         }
-
-        try{
-            const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
-            setCards(response.data);
-        } catch (error){
-          console.error(error.message);  
+        if(selectedDeck.deck_id){
+            try{
+                const response = await axios.get(`/api/cards/${selectedDeck.deck_id}`);
+                setCards(response.data);
+            } catch (error){
+              console.error(error.message);  
+            }
+        }else{
+            try{
+                console.log(selectedDeck.Deck_id);
+                const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
+                setCards(response.data);
+                console.log(response.data);
+            } catch (error){
+              console.error(error.message);  
+            }
         }
     }
 
     const createCard = async() => {
-        try{
-            const response = await axios.post(`/api/cards/${selectedDeck.Deck_id}`, 
-                {   Deck_id: selectedDeck.Deck_id, 
-                    Question: "", 
-                    Answer: "", 
-                    Incorrect1: "", 
-                    Incorrect2: "", 
-                    Incorrect3: ""
-                });
-            setRefresh(prev => prev + 1);
-        } catch (error){
-            console.error(error.message);
+        if(selectedDeck.deck_id){
+            try{
+                const response = await axios.post(`/api/cards/${selectedDeck.deck_id}`, 
+                    {   Deck_id: selectedDeck.deck_id, 
+                        Question: "", 
+                        Answer: "", 
+                        Incorrect1: "", 
+                        Incorrect2: "", 
+                        Incorrect3: ""
+                    });
+                setRefresh(prev => prev + 1);
+            } catch (error){
+                console.error(error.message);
+            }
+        }else{
+            try{
+                const response = await axios.post(`/api/cards/${selectedDeck.Deck_id}`, 
+                    {   Deck_id: selectedDeck.Deck_id, 
+                        Question: "", 
+                        Answer: "", 
+                        Incorrect1: "", 
+                        Incorrect2: "", 
+                        Incorrect3: ""
+                    });
+                setRefresh(prev => prev + 1);
+            } catch (error){
+                console.error(error.message);
+            }
         }
     }
 
     const deleteDeck = async () => {
-        try {
-            await axios.delete(`api/decks/${selectedDeck.Deck_id}`);
-            setRefresh(prev => prev + 1);
-        } catch (error) {
-            console.error(error.message);
+        if(selectedDeck.deck_id){
+            try {
+                await axios.delete(`api/decks/${selectedDeck.deck_id}`);
+                setRefresh(prev => prev + 1);
+            } catch (error) {
+                console.error(error.message);
+            }
+        }else{
+            try {
+                await axios.delete(`api/decks/${selectedDeck.Deck_id}`);
+                setRefresh(prev => prev + 1);
+            } catch (error) {
+                console.error(error.message);
+            }
         }
     }
 
@@ -113,7 +155,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     }, [refresh, selectedDeck]);
 
     useEffect(() => {
-        if (selectedDeck.Deck_id) {
+        if (selectedDeck.deck_id || selectedDeck.Deck_id) {
             getCards();
         }
     }, [refresh, selectedDeck]);
@@ -152,7 +194,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                     {viewDeck && (
                         <div className={styles.cardHead}>
                             {selectedDeck && (
-                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : (selectedDeck.title ? selectedDeck.title : "Untitled Deck")} contentType="Title" onChangeData={handleUpdateDeck}/>  
                             )}       
                         </div>
                     )}

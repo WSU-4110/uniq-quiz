@@ -127,8 +127,8 @@ describe('Decks', ()=>{
         // Check if correct API request was called
         expect(axios.put).toHaveBeenCalledTimes(2);
         expect(axios.put.mock.calls).toEqual([
-            ["api/decks/undefined", {"Title": undefined}, ], // First call from Edit click
-            ["api/decks/undefined", {"Title": "History of Anime"}]  // Second call from Save click
+            ["api/decks/1", {"Title": undefined}, ], // First call from Edit click
+            ["api/decks/1", {"Title": "History of Anime"}]  // Second call from Save click
           ]);
 
         // Check that screen updates
@@ -213,7 +213,7 @@ describe('Decks', ()=>{
 
         // Check if correct API response was called
         expect(axios.delete).toHaveBeenCalledTimes(1);
-        expect(axios.delete).toHaveBeenCalledWith('api/decks/undefined');
+        expect(axios.delete).toHaveBeenCalledWith('api/decks/3');
     });
     test('Decks handles empty getDecks gracefully', async ()=>{
         axios.get.mockResolvedValueOnce({data: []});
