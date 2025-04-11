@@ -3,3 +3,15 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+import { resetAuthMocks } from './test-utils';
+
+beforeEach(() => {
+    resetAuthMocks();
+  });
+
+jest.mock("axios");
+jest.mock("react-router");
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
