@@ -11,12 +11,14 @@ import styles from "../../Stylesheets/Decks/Decks.module.css";
 export default function Decks({asInset = false, showOnlyDecks = false}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
+    const [likedDecks, setLikedDecks] = useState([]);
     const [cards, setCards] = useState([]);
     const [selectedDeck, setSelectedDeck] = useState({});
     const [viewDeck, setViewDeck] = useState(false);
     const [refresh, setRefresh] = useState(0);
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [filterType, setFilterType] = useState("A-Z");
     const {user, userName, loading} = useAuth();
-
     let tab='My Decks';
 
     if(tabChoice === 1){ tab = 'My Decks' }
@@ -30,6 +32,37 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
             console.error(error.message);   
+        }
+    }
+
+    const getMyDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/decks/${user}/user_decks`);
+            setDecks(response.data);
+            const response2 = await axios.get(`/api/userLikedDecks/${user}`);
+            const likedDecks = response2.data.map(deck => deck.Deck_id);
+            console.log(response.data);
+            setLikedDecks(likedDecks);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getOtherDecks = async() =>{
+        try {
+            const response = await axios.get(`/api/decks/${user}/other_decks`);
+            setDecks(response.data);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const getLikedDecks = async() =>{
+        try{
+            const response = await axios.get(`/api/userLikedDecks/${user}`);
+            setDecks(response.data);
+        }catch (error) {
+            console.error(error.message);
         }
     }
 
@@ -145,13 +178,29 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
         }));
     }
 
+    const toggleLikeDeck = async (deckId) => {
+        try {
+          if (likedDecks.includes(deckId)) {
+            // If already liked, remove from likedDecks
+            await axios.delete(`/api/userLikedDecks/${deckId}`);
+            setLikedDecks(prevLikedDecks => prevLikedDecks.filter(id => id !== deckId)); // Remove deckId
+          } else {
+            // If not liked, add to likedDecks
+            await axios.post(`/api/userLikedDecks/${deckId}`);
+            setLikedDecks(prevLikedDecks => [...prevLikedDecks, deckId]); // Add deckId
+          }
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+
     function handleDelete(){
         deleteDeck();
         setViewDeck(false);
     }
 
     useEffect(()=>{
-        getDecks();
+        getMyDecks();
     }, [refresh, selectedDeck]);
 
     useEffect(() => {
@@ -168,64 +217,86 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     
 
     return (
-        <div className={styles.page}>
-            {!showOnlyDecks && <ProfileBanner />}
-            {!showOnlyDecks && (
-                <div className={styles.deckInterfaceContainer}>
-                    <div className={styles.deckTabs}>
-                        <menu className={styles.deckMenu}>
-                            <div className={styles.leftButtons}>
-                                {!viewDeck && (<>
-                                    <TabButton className={styles.menuButton} onClick={createDeck}>Add Deck</TabButton>
-                                </>)}
-                                {viewDeck && (<>
-                                    <TabButton className={styles.menuButton} onClick={()=>{setViewDeck(!viewDeck)}}>Back</TabButton>
-                                    <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
-                                    <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
-                                </>)}
-                            </div>
-                            <div className={styles.rightButtons}>
-                                <TabButton className={styles.menuButton}>Filter</TabButton>
-                                <TabButton className={styles.menuButton} onClick={() => {setViewDeck(false); setSelectedDeck({})}}>My Decks</TabButton>
-                                <TabButton className={styles.menuButton}>Find Decks</TabButton>
-                            </div>
-                        </menu>
-                    </div>
-                    {viewDeck && (
-                        <div className={styles.cardHead}>
-                            {selectedDeck && (
-                                <ListItem content={selectedDeck.Title ? selectedDeck.Title : (selectedDeck.title ? selectedDeck.title : "Untitled Deck")} contentType="Title" onChangeData={handleUpdateDeck}/>  
-                            )}       
+    <div className={styles.page}>
+        {!showOnlyDecks && <ProfileBanner />}
+        {!showOnlyDecks && (
+            <div className={styles.deckInterfaceContainer}>
+                <div className={styles.deckTabs}>
+                    <menu className={styles.deckMenu}>
+                        <div className={styles.leftButtons}>
+                            {!viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={createDeck}>Add Deck</TabButton>
+                            </>)}
+                            {viewDeck && (<>
+                                <TabButton className={styles.menuButton} onClick={()=>{setViewDeck(!viewDeck)}}>Back</TabButton>
+                                <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
+                                <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
+                            </>)}
                         </div>
-                    )}
+                        <div className={styles.rightButtons}>
+                            <TabButton className={styles.menuButton} onClick={() => setFilterOpen(!filterOpen)}>Filter</TabButton>
+                            <div style={{ position: "absolute" }}>
+                                {filterOpen && (
+                                    <div className={styles.filterDropdown}>
+                                        <TabButton className={styles.menuButton} onClick={() => { setFilterType("A-Z"); setFilterOpen(false); }}>A-Z</TabButton>
+                                        <TabButton className={styles.menuButton} onClick={() => { setFilterType("Z-A"); setFilterOpen(false); }}>Z-A</TabButton>
+                                    </div>
+                                )}
+                            </div>
+                            <TabButton className={styles.menuButton} onClick={() => {getLikedDecks();}}>Liked Decks</TabButton>
+                            <TabButton className={styles.menuButton} onClick={() => {getMyDecks();}}>My Decks</TabButton>
+                            <TabButton className={styles.menuButton} onClick={() => {getOtherDecks();}}>Find Decks</TabButton>
+                        </div>
+                    </menu>
                 </div>
-            )}
-            <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
-                {!viewDeck && (<>
-                    <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
-                    {decks.sort((a,b) => a.title > b.title ? 1 : -1)
-                    .map((deck, index) => (
-                        <TabButton onClick={()=>{handleSelectDeck(deck)}}>
-                            <div key={index} className={styles.deckItem}>
-                                <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
-                                <p>Author: {deck.username}</p>
-                            </div>
-                        </TabButton>
-                    ))}
-                </>)}
-                {viewDeck && (<>
-                    {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
-                    .map((card) => (
-                        <Link to={`/cards/${card.Card_id}`}>
-                            <div key={card.Card_id} className={styles.deckItem}>
-                                <h2>{card.Question ? card.Question : "Blank Card"}</h2>
-                                <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
-                                id: {card.Card_id}
-                            </div>
-                        </Link>
-                        ))}
-                </>)}
+                {viewDeck && (
+                    <div className={styles.cardHead}>
+                        {selectedDeck && (
+                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                        )}       
+                    </div>
+                )}
             </div>
+        )}
+        <div className={asInset ? styles.deckContainerSmall : styles.deckContainer}>
+            {!viewDeck && (<>
+                <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
+                {decks
+                    .sort((a, b) => {
+                        const titleA = a.Title || ''; // Default to empty string if Title is undefined
+                        const titleB = b.Title || ''; // Default to empty string if Title is undefined
+                
+                        if (filterType === "A-Z") return titleA.localeCompare(titleB);
+                        if (filterType === "Z-A") return titleB.localeCompare(titleA);
+                        return 0;
+                })
+                .map((deck, index) => (
+                    <TabButton onClick={()=>{handleSelectDeck(deck)}}>
+                        <div key={index} className={styles.deckItem}>
+                            <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
+                            <p></p>
+                        </div>
+                        <TabButton 
+                            className={styles.menuButton}
+                            onClick={(e)=> {e.stopPropagation(); toggleLikeDeck(deck.Deck_id);}}
+                            >{likedDecks.includes(deck.Deck_id) ? 'Unlike Deck' : 'Like Deck'}
+                        </TabButton>
+                    </TabButton>
+                ))}
+            </>)}
+            {viewDeck && (<>
+                {cards.sort((a,b) => a.Card_id > b.Card_id ? 1 : -1)
+                .map((card) => (
+                    <Link to={`/cards/${card.Card_id}`}>
+                        <div key={card.Card_id} className={styles.deckItem}>
+                            <h2>{card.Question ? card.Question : "Blank Card"}</h2>
+                            <p>{card.Answer ? card.Answer : "Blank Answer"}</p>
+                            id: {card.Card_id}
+                        </div>
+                    </Link>
+                    ))}
+            </>)}
         </div>
-    );
+    </div>
+);
 }

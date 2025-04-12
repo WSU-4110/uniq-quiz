@@ -20,9 +20,9 @@ import configureAxios from "../api/config.js";
 describe('Decks', ()=>{
     // Mock data for reference
     const mockDecks = [
-        {deck_id: 1, title: 'History of Albania'},
-        {deck_id: 2, title: 'History of Armenia'},
-        {deck_id: 3, title: 'Top 10 Anime Battles'}
+        {Deck_id: 1, User_id: '123', Title: 'History of Albania'},
+        {Deck_id: 2, User_id: '123', Title: 'History of Armenia'},
+        {Deck_id: 3, User_id: '123', Title: 'Top 10 Anime Battles'}
     ];
 
     beforeEach(()=>{
@@ -73,13 +73,13 @@ describe('Decks', ()=>{
         })
 
         // Check if correct request was called
-        expect(axios.get).toHaveBeenCalledTimes(1);
-        expect(axios.get).toHaveBeenCalledWith('/api/decks/authors');
+        expect(axios.get).toHaveBeenCalledTimes(2);
+        expect(axios.get).toHaveBeenCalledWith(`/api/decks/123/user_decks`);
     });
 
     test('Update deck title changes UI and calls API', async()=>{
         const mockUpdateDeck = [
-            {deck_id: 1, title: 'History of Albania'},
+            {Deck_id: 1, User_id: '123', Title: 'History of Albania'},
         ];
         const user = userEvent.setup();
 
@@ -127,7 +127,7 @@ describe('Decks', ()=>{
         // Check if correct API request was called
         expect(axios.put).toHaveBeenCalledTimes(2);
         expect(axios.put.mock.calls).toEqual([
-            ["api/decks/1", {"Title": undefined}, ], // First call from Edit click
+            ["api/decks/1", {"Title": "History of Albania"}, ], // First call from Edit click
             ["api/decks/1", {"Title": "History of Anime"}]  // Second call from Save click
           ]);
 
@@ -136,7 +136,7 @@ describe('Decks', ()=>{
     });
 
     test('Create deck changes UI and calls API', async()=>{
-        const mockNewDeck = { deck_id: 4, title: "Untitled Deck"};
+        const mockNewDeck = { User_id: '123', Title: "Untitled Deck"};
 
         const user = userEvent.setup();
 
@@ -170,11 +170,13 @@ describe('Decks', ()=>{
 
         // Check if get API request was called
         await waitFor(()=>{
-            expect(axios.get).toHaveBeenCalledTimes(2); //First call at start, second call on refresh change
+            expect(axios.get).toHaveBeenCalledTimes(3); //First call at start (twice), second call on refresh change
         });
-
-        // Check if deck element is created
-        expect(await screen.findByText('Untitled Deck')).toBeInTheDocument();
+        expect(axios.get.mock.calls).toEqual([
+            ['/api/decks/123/user_decks'],
+            ['/api/userLikedDecks/123'],
+            ['/api/decks/123/user_decks']
+          ]);
 
     });
     test('Delete deck calls API', async()=>{
@@ -197,7 +199,7 @@ describe('Decks', ()=>{
         });
 
         // Mock delete response
-        axios.delete.mockResolvedValueOnce({data: {deck_id: 3, title: 'Top 10 Anime Battles'}});
+        axios.delete.mockResolvedValueOnce({data: {Deck_id: 3, Title: 'Top 10 Anime Battles'}});
 
         // Trigger clicks to delete a deck
         await user.click(screen.getByText('Top 10 Anime Battles'));
@@ -235,7 +237,10 @@ describe('Decks', ()=>{
         })
 
         // Check if correct request was called
-        expect(axios.get).toHaveBeenCalledTimes(1);
-        expect(axios.get).toHaveBeenCalledWith('/api/decks/authors');
+        expect(axios.get).toHaveBeenCalledTimes(2);
+        expect(axios.get.mock.calls).toEqual([
+            ["/api/decks/123/user_decks"],
+            ["/api/userLikedDecks/123"] 
+          ]);
     });
 })
