@@ -236,7 +236,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                         </div>
                         <TabButton 
                             className={styles.menuButton}
-                            onClick={()=> toggleLikeDeck(deck.Deck_id)}
+                            onClick={(e)=> {e.stopPropagation(); toggleLikeDeck(deck.Deck_id);}}
                             >{likedDecks.includes(deck.Deck_id) ? 'Unlike Deck' : 'Like Deck'}
                         </TabButton>
                     </TabButton>
