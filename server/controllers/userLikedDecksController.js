@@ -26,10 +26,19 @@ async function likeDeck(req, res){
 
         //Actual like deck logic
         const{Deck_id} = req.params;
+        const{data: deck, error: err} = await supabase
+            .from("Decks")
+            .select("Title")
+            .eq("Deck_id", Deck_id)
+            .single();
+        
+        const Title = deck.Title;
+        
         const {data, error} = await supabase
             .from("UserLikedDecks")
-            .insert([{User_id: User_id, Deck_id: Deck_id}])
+            .insert([{User_id: User_id, Deck_id: Deck_id, Title: Title}])
             .select();
+
         if(error){
             return res.status(400).json({message: "Error inserting liked deck: ", error: error});
         }
