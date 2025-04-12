@@ -90,14 +90,6 @@
     background-color: var(--dark);
 }
 
-.Settings button important{
-    color: white;
-    font-size: 25px;
-    background-color:red;
-    border: 0.5px solid var(--dark);
-    border-radius: 10px;
-}
-
 .Settings button:hover{
     background-color: var(--lightest);
     color: var(--medium);

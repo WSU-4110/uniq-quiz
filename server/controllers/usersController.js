@@ -12,7 +12,7 @@ app.use(express.json()); //req.body
 //create user - Should not be used outside testing. User creation happens through Auth Signup.
 async function createUser(req, res) {
     try {
-        const { Username} = req.body;
+        const { Username } = req.body;
         console.log(req.body);
 
         // Log incoming data from Postman
@@ -96,23 +96,33 @@ async function updateUser(req, res) {
     }
 }
 
-//delete a user
-async function deleteUser(req, res){
-    try {
-        const {id} = req.params;
-        const {data: deleteUser, error} = await supabase.from("Users").delete().eq('User_id', id);
-
-        if(error){
-            console.log("Error deleting user: ", error);
-            return res.status(400).json({message: "Error deleting user", error});
-        }
-        console.log("User deleted: ", deleteUser);
-        return res.status(200).json({message: "User successfully deleted", deleteUser});
-    } catch (err) {
-        console.log(err.message);
+  //Delete an account
+  async function deleteUser(req, res){
+    //Get session token to check if user is logged in
+    const token = req.cookies['session_token'];
+    if(!token){
+      return res.status(401).json({error: "No token provided. Please log in first."});
     }
-}
 
+    //Actual deletion logic
+    try {
+      //Get user data
+      const {data: user, error: userError} = await supabase.auth.getUser(token);
+      if(userError || !user){
+        return res.status(401).json({error: "Invalid or expired token. Please log in again."})
+      }
+      const userId = user.user.id;
+      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteUser(userId);
+      if(deleteError){
+        return res.status(500).json({error: deleteError.message});
+      }
+      
+      res.clearCookie('session_token');
+      res.status(200).json({message: "Account deleted successfully"});
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
 
 //set user profile privacy
 async function setUserPrivacy(req, res){
@@ -157,9 +167,9 @@ async function updateUsername(req, res) {
         // Check for existing username (excluding current user)
         const { data: existingUser, error: lookupError } = await supabase
             .from('Users')
-            .select('user_id')
+            .select('User_id')
             .eq('Username', trimmedUsername)
-            .neq('user_id', id);
+            .neq('User_id', id);
 
         if (lookupError) throw lookupError;
         if (existingUser.length > 0) {
@@ -172,8 +182,8 @@ async function updateUsername(req, res) {
         // Update username
         const { data, error } = await supabase
             .from('Users')
-            .update({ username: trimmedUsername })
-            .eq('user_id', id)
+            .update({ Username: trimmedUsername })
+            .eq('User_id', id)
             .select();
 
         if (error) throw error;
@@ -194,6 +204,67 @@ async function updateUsername(req, res) {
     
 }
 
+async function updateProfilePic(req, res) {
+    try {
+      const userId = req.params.id;
+      const file = req.file;
+
+      console.log('userId:', userId, typeof userId);
+  
+      if (!file || !userId) {
+        console.log('Missing file or userId');
+        return res.status(400).json({ error: 'Missing file or userId' });
+      }
+  
+      const fileExt = file.originalname.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+  
+      console.log('Uploading to Supabase path:', filePath);
+  
+      const { data, error } = await supabase.storage
+        .from('profile-pictures')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true, 
+        });
+  
+      if (error) {
+        console.error('Supabase upload error:', error);
+        return res.status(500).json({ error: 'Failed to upload to Supabase' });
+      }
+  
+      const { data: publicUrlData } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(filePath);
+  
+      const publicUrl = publicUrlData?.publicUrl;
+  
+      if (!publicUrl) {
+        console.error('Failed to retrieve public URL');
+        return res.status(500).json({ error: 'Failed to generate public URL' });
+      }
+  
+      const { error: updateError } = await supabase
+        .from('Users')
+        .update({ Profile_Pic: publicUrl })
+        .eq('User_id', userId);
+  
+      if (updateError) {
+        console.error('DB update error:', updateError);
+        return res.status(500).json({ error: 'Failed to update user profile' });
+      }
+  
+      res.status(200).json({ message: 'Profile picture uploaded', url: publicUrl });
+  
+    } catch (err) {
+      console.error('Unexpected server error:', err);
+      res.status(500).json({ error: 'Unexpected server error' });
+    }
+    
+  }
+  
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -202,5 +273,6 @@ module.exports = {
     updateUser,
     deleteUser,
     setUserPrivacy,
-    updateUsername
+    updateUsername,
+    updateProfilePic
 };

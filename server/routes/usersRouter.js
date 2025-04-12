@@ -1,8 +1,14 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } }); // 2MB limit
 
 //Import controller functions
-const {createUser, getAllUsers, getUser, getUsersById, updateUser, deleteUser, setUserPrivacy, updateUsername} = require("../controllers/usersController");
+const {createUser, getAllUsers, 
+    getUser, getUsersById, updateUser, 
+    deleteUser, setUserPrivacy, 
+    updateUsername, updateProfilePic} 
+    = require("../controllers/usersController");
 
 //Create a new user
 router.post("/", createUser);
@@ -20,13 +26,16 @@ router.post("/list/", getUsersById);
 router.put("/:id", updateUser);
 
 //Delete a user via User_id
-router.delete("/:id", deleteUser);
+router.delete('/deleteaccount', deleteUser);
 
 //Set user to private via User_id
 router.put("/:id/privacy", setUserPrivacy);
 
 //Updates a username via User_id
-router.put('/:id/username', updateUsername);
+router.put("/:id/username", updateUsername);
+
+//Updates a user's storage with a profile picture
+router.post("/:id/profile-pic", upload.single('file'), updateProfilePic);
 
 //Export router to be used in main 
 module.exports = router;

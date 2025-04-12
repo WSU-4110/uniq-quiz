@@ -11,20 +11,24 @@ function Profile(){
     const [deckData, setDeckData] = useState({});
     const {user, userName} = useAuth();
     const location = useLocation();
-    const [profilePicture, setProfilePicture] = useState(null);
 
-    const getUser = async() =>{
+    const getUser = async() => {
         try {
-            const response = await axios.get(`/api/users/${user}`);
-            setUserData(response.data);
+            const response = await fetch(`http://localhost:3000/api/users/${user}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const jsonData = await response.json();
+            setUserData(jsonData);
         } catch (error) {
             console.error(error.message);
+            setError(error.message);
         }
     }
     
-    useEffect(()=>{
+    useEffect(() => {
         getUser();
-    }, [])
+    }, []);
 
     const getMyDecks = async() =>{
         try {
@@ -45,14 +49,10 @@ function Profile(){
         return (
             <div className={styles.profileBanner}>
                 <div className={styles.userInfo}>
-                    <div className={styles.profilePicture}>
-                        {profilePicture ? (
-                            <img src={profilePicture} alt="Profile" />
-                        ) : (
-                            'Null'
-                        )}
-                    </div>
-                    <p className={styles.p}>{userName || 'Welcome'}</p>
+              <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
+                width: "100px", 
+                height: "auto"}}/>
+              <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
                 </div>
                 <div className="App">
                     <h1><ul>Stats: </ul></h1>

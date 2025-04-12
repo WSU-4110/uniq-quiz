@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import axios from 'axios';
 import styles from '../../Stylesheets/Auth/Auth.module.css';
@@ -6,25 +6,18 @@ import styles from '../../Stylesheets/Auth/Auth.module.css';
 function Settings() {
     const [error, setError] = useState(null);
     const [userData, setUserData] = useState(null);
-    const { user } = useAuth();
+    const {user, updateUser} = useAuth();
+    
     const [newUsername, setNewUsername] = useState('');
     const [usernameError, setUsernameError] = useState('');
+    
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [file, setFile] = useState(null);
+    const [message, setMessage] = useState('');
+    
     const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
     const [showProfilePictureDropdown, setShowProfilePictureDropdown] = useState(false);
     const [showProfileStatusDropdown, setShowProfileStatusDropdown] = useState(false);
-    const [isUpdating, setIsUpdating] = useState(false);
-    
-    function handleDelete() {
-        axios.delete('/api/auth/deleteaccount', { withCredentials: true })
-            .then(response => {
-                alert('Your account has been deleted.');
-                window.location.href = '/';
-            })
-            .catch(error => {
-                console.error('Error deleting account:', error);
-                alert(`Error: ${error.response?.data?.message || 'Failed to delete account'}`);
-            });
-    }
 
     const getUser = async() => {
         try {
@@ -62,7 +55,18 @@ function Settings() {
             setShowUsernameDropdown(false);
             setShowProfilePictureDropdown(false);
         };
-        
+
+        function handleDelete() {
+            axios.delete('/api/auth/deleteuser', { withCredentials: true })
+                .then(response => {
+                    alert('Your account has been deleted.');
+                    window.location.href = '/'; // Redirect to home or login page
+                })
+                .catch(error => {
+                    console.error('Error deleting account:', error);
+                    alert(`Error: ${error.response?.data?.message || 'Failed to delete account'}`);
+                });
+        }
 
         const handleStatusChange = async () => {
             if (!userData) return;
@@ -128,7 +132,7 @@ function Settings() {
             try {
                 const response = await axios.put(
                     `/api/users/${user}/username`,
-                    { username: trimmedUsername },
+                    { Username: trimmedUsername },
                     {
                         withCredentials: true,
                         headers: {
@@ -136,11 +140,12 @@ function Settings() {
                         }
                     }
                 );
+                window.location.reload();
     
                 // Update local state
                 setUserData(prev => ({
                     ...prev,
-                    username: trimmedUsername
+                    Username: trimmedUsername
                 }));
                 
                 setNewUsername('');
@@ -160,59 +165,116 @@ function Settings() {
                 setIsUpdating(false);
             }
         };
-    
+
+        const handleFileChange = (e) => {
+            const selected = e.target.files[0];
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         
-
-    
-    return (
-        <div>
-            <div className={styles.Settings}>
-            <button onClick={toggleUsernameDropdown}> CHANGE USERNAME </button>
-                {showUsernameDropdown && (
-                    <div className={styles.InnerAuth}>
-                        <form onSubmit={handleUsernameUpdate}>
-                            <label> New Username:
-                                <input type="text" value={newUsername} onChange={(e) => {
-                                setNewUsername(e.target.value); 
-                                if (usernameError) setUsernameError('');}}
-                                minLength={3} maxLength={20} required/>
-                            </label>
-                    {usernameError && (<p className={styles.errorText}> {usernameError} </p>)}
-                        <button 
-                            type="submit" disabled={isUpdating || newUsername.trim().length < 3} >{isUpdating ? 'Updating...' : 'Update Username'}
-                        </button>
-                    </form>
-                </div>
-            )}
-
-            <button onClick={toggleProfilePictureDropdown}> CHANGE PROFILE PICTURE </button>
-            {showProfilePictureDropdown && (
-                <div className={styles.InnerAuth}>
-                    <label htmlFor="profilepicture">Insert Profile Picture </label><br/>
-                    <button type="insert">Insert</button>
-                    <button type="submit">Submit</button>
-                </div>
-            )}
-
-            <button onClick={toggleProfileStatusDropdown}>CHANGE PROFILE STATUS</button>
-                {showProfileStatusDropdown && (
-                    <div className={styles.InnerAuth}>
-                        <label htmlFor="profileStatus">Profile Status</label><br/>
-                        <label>{userData?.Private ? 'Private' : 'Public'}</label><br/>
-                        <button type="button" onClick={handleStatusChange} disabled={isUpdating}>
-            {isUpdating ? 'Updating...' : 
-                `Set to ${userData?.Private ? 'Public' : 'Private'}`
+            if (!selected) return;
+            if (!validTypes.includes(selected.type)) {
+              return setMessage('Only JPG, JPEG, and PNG files are allowed.');
             }
-                        </button>
-                    </div>
+            if (selected.size > 2 * 1024 * 1024) {
+              return setMessage('File size must be under 2MB.');
+            }
+        
+            setFile(selected);
+            setMessage('');
+          };        
+
+          const uploadProfilePic = async () => {
+            if (!file) return;
+        
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('id', userData?.User_id);
+        
+            try {
+              const response = await axios.post(`/api/users/${user}/profile-pic`, formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              });
+        
+              if (response.status === 200) {
+                setMessage('Upload successful!');
+              } else {
+                setMessage('Upload failed.');
+              }
+            } catch (err) {
+              console.error('Axios upload error:', err);
+              setMessage('Upload failed.');
+            }
+          };
+
+          return (
+            <div>
+              <div className={styles.Settings}>
+                {/* Username Change Section */}
+                <button onClick={toggleUsernameDropdown}>CHANGE USERNAME</button>
+                {showUsernameDropdown && (
+                  <div className={styles.InnerAuth}>
+                    <form onSubmit={handleUsernameUpdate}>
+                      <label>New Username:
+                        <input 
+                          type="text" 
+                          value={newUsername} 
+                          onChange={(e) => {
+                            setNewUsername(e.target.value); 
+                            if (usernameError) setUsernameError('');
+                          }}
+                          minLength={3} 
+                          maxLength={20} 
+                          required
+                        />
+                      </label>
+                      {usernameError && <p className={styles.errorText}>{usernameError}</p>}
+                      <button 
+                        type="submit" 
+                        disabled={isUpdating || newUsername.trim().length < 3}
+                      >
+                        {isUpdating ? 'Updating...' : 'Update Username'}
+                      </button>
+                    </form>
+                  </div>
                 )}
-            
-                <button onClick={handleDelete}> <important> DELETE CURRENT USER ACCOUNT </important></button>
+          
+                {/* Profile Picture Section */}
+                <button onClick={toggleProfilePictureDropdown}>CHANGE PROFILE PICTURE</button>
+      {showProfilePictureDropdown && (
+        <div className={styles.InnerAuth}>
+                 Upload Profile Picture
+                 <input
+        type="file"
+        accept=".jpg,.jpeg,.png"
+        onChange={handleFileChange}
+      />
+      <button onClick={uploadProfilePic}>Upload</button>
+    </div>
+      )}
+                {/* Profile Status Section */}
+                <button onClick={toggleProfileStatusDropdown}>CHANGE PROFILE STATUS</button>
+                {showProfileStatusDropdown && (
+                  <div className={styles.InnerAuth}>
+                    <label htmlFor="profileStatus">Profile Status</label><br/>
+                    <label>{userData?.Private ? 'Private' : 'Public'}</label><br/>
+                    <button 
+                      type="button" 
+                      onClick={handleStatusChange} 
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? 'Updating...' : `Set to ${userData?.Private ? 'Public' : 'Private'}`}
+                    </button>
+                  </div>
+                )}
+          
+                {/* Delete Account Section */}
+                <button onClick={handleDelete}>
+                  DELETE CURRENT USER ACCOUNT
+                </button>
+              </div>
             </div>
-
-
-        </div>
-    );
-}
+          );
+        }
 
 export default Settings;
