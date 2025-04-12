@@ -48,6 +48,17 @@ async function getAllDecks(req, res){
     }
 }
 
+async function getAllDecksWithAuthors(req, res){
+    try{
+        const { data, error } = await supabase.rpc("get_user_decks");
+        if(error) throw error;
+        res.json(data);
+    }catch(err){
+        console.log(err.message);
+        res.status(502).json({ error: "Failed to fetch decks." });
+    }
+}
+
 /**
  * @description read one deck by id
  * @param {express.Request} req     request
@@ -233,6 +244,7 @@ async function getGroupDecks (req, res) {
 module.exports = {
     createDeck,
     getAllDecks,
+    getAllDecksWithAuthors,
     getDeck,
     getUserDecks,
     getNotUserDecks,
