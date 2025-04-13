@@ -8,7 +8,7 @@ import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
-export default function Decks({asInset = false, showOnlyDecks = false}){
+export default function Decks({asInset = false, showOnlyDecks = false, viewUser = null}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
     const [likedDecks, setLikedDecks] = useState([]);
@@ -19,6 +19,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const [filterOpen, setFilterOpen] = useState(false);
     const [filterType, setFilterType] = useState("A-Z");
     const {user, userName, loading} = useAuth();
+    const [selectedUser, setSelectedUser] = useState(viewUser ? viewUser : user);
     let tab='My Decks';
 
     if(tabChoice === 1){ tab = 'My Decks' }
@@ -28,7 +29,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getDecks = async() =>{
         try {
-            const response = await axios.get("/api/decks/authors");
+            const response = await axios.get("/api/decks");
             setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
             console.error(error.message);   
@@ -37,11 +38,10 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getMyDecks = async() =>{
         try {
-            const response = await axios.get(`/api/decks/${user}/user_decks`);
-            setDecks(response.data);
-            const response2 = await axios.get(`/api/userLikedDecks/${user}`);
-            const likedDecks = response2.data.map(deck => deck.Deck_id);
-            console.log(response.data);
+            const response = await axios.get(`/api/decks/${selectedUser}/user_decks`);
+            setDecks(response.data.filter(deck => deck.deck_id !== null));
+            const response2 = await axios.get(`/api/userLikedDecks/${selectedUser}`);
+            const likedDecks = response2.data.map(deck => deck.deck_id);
             setLikedDecks(likedDecks);
         } catch (error) {
             console.error(error.message);
@@ -50,8 +50,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getOtherDecks = async() =>{
         try {
-            const response = await axios.get(`/api/decks/${user}/other_decks`);
-            setDecks(response.data);
+            const response = await axios.get(`/api/decks/${selectedUser}/other_decks`);
+            setDecks(response.data.filter(deck => deck.deck_id !== null));
         } catch (error) {
             console.error(error.message);
         }
@@ -59,8 +59,9 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getLikedDecks = async() =>{
         try{
-            const response = await axios.get(`/api/userLikedDecks/${user}`);
+            const response = await axios.get(`/api/userLikedDecks/${selectedUser}`);
             setDecks(response.data);
+            console.log("liked decks:", response.data);
         }catch (error) {
             console.error(error.message);
         }
@@ -68,7 +69,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createDeck = async() => {
         try{
-            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: user});
+            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: selectedUser});
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -78,13 +79,13 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const updateDeck = async() =>{
         if(selectedDeck && selectedDeck.deck_id){
             try{
-                const response = await axios.put(`api/decks/${selectedDeck.deck_id}`, {Title: selectedDeck.Title});
+                const response = await axios.put(`api/decks/${selectedDeck.deck_id}`, {Title: selectedDeck.title});
             }catch(error){
               console.error(error.message);
             }
         }else if(selectedDeck){
             try{
-                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.Title});
+                const response = await axios.put(`api/decks/${selectedDeck.Deck_id}`, {Title: selectedDeck.title});
             }catch(error){
               console.error(error.message);
             }
@@ -106,10 +107,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             }
         }else{
             try{
-                console.log(selectedDeck.Deck_id);
                 const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
                 setCards(response.data);
-                console.log(response.data);
             } catch (error){
               console.error(error.message);  
             }
@@ -252,7 +251,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 {viewDeck && (
                     <div className={styles.cardHead}>
                         {selectedDeck && (
-                            <ListItem content={selectedDeck.Title ? selectedDeck.Title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                            <ListItem content={selectedDeck.title ? selectedDeck.title : "Untitled Deck"} contentType="title" onChangeData={handleUpdateDeck}/>  
                         )}       
                     </div>
                 )}
@@ -263,8 +262,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 <div className={styles.emptyDecks}>{decks ? null : <p>Looks like you have no decks!</p>}</div>
                 {decks
                     .sort((a, b) => {
-                        const titleA = a.Title || ''; // Default to empty string if Title is undefined
-                        const titleB = b.Title || ''; // Default to empty string if Title is undefined
+                        const titleA = a.title || ''; // Default to empty string if Title is undefined
+                        const titleB = b.title || ''; // Default to empty string if Title is undefined
                 
                         if (filterType === "A-Z") return titleA.localeCompare(titleB);
                         if (filterType === "Z-A") return titleB.localeCompare(titleA);
@@ -273,13 +272,13 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
                 .map((deck, index) => (
                     <TabButton onClick={()=>{handleSelectDeck(deck)}}>
                         <div key={index} className={styles.deckItem}>
-                            <h1>{deck.Title ? deck.Title : "Untitled Deck"}</h1>
-                            <p></p>
+                            <h1>{deck.title ? deck.title : "Untitled Deck"}</h1>
+                            <p><Link to={`/profile/${deck.user_id}`} className={styles.links}>{deck.username}</Link></p>
                         </div>
                         <TabButton 
                             className={styles.menuButton}
-                            onClick={(e)=> {e.stopPropagation(); toggleLikeDeck(deck.Deck_id);}}
-                            >{likedDecks.includes(deck.Deck_id) ? 'Unlike Deck' : 'Like Deck'}
+                            onClick={(e)=> {e.stopPropagation(); toggleLikeDeck(deck.deck_id);}}
+                            >{likedDecks.includes(deck.deck_id) ? 'Unlike Deck' : 'Like Deck'}
                         </TabButton>
                     </TabButton>
                 ))}

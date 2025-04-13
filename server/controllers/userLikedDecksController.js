@@ -92,17 +92,12 @@ async function unlikeDeck (req, res) {
 async function getLikedDecks (req, res){
     try {
         const {User_id} = req.params;
-        const {data, error} = await supabase
-            .from("UserLikedDecks")
-            .select("*")
-            .eq("User_id", User_id);
-        
+        const {data, error} = await supabase.rpc("get_liked_decks", {my_user_id: User_id});
         if(error){
-            console.log("Error retrieving user liked decks: ", error.message);
+            console.log("Error retrieving user decks: ", error.message);
             return res.status(400).json({message: "Error retrieving user liked decks", error: error});
         }
-
-        return res.status(200).json(data);
+        return res.status(200).json(data); 
     } catch (err) {
         console.log("Server error retrieving liked decks: ", err.message);
         return res.status(500).json({message: "Server error retrieving liked decks", err});

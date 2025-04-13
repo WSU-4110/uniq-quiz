@@ -29,26 +29,94 @@
 }
 
 .infoBlock{
+	margin: 75px 0 0 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .infoBlockEx{
-    
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
     height: 50vh;
 }
 
 .deckSelect{
-    margin: 3vh 0;
+    margin: 75px 0 20px 0 ;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+label{
+	padding: 0 10px;
+}
+.deckSelect p{
+	padding: 0 5px;
+	color: var(--feature);
+}
+.timerSelect{
+	width: 80vw;
+    height: 100px;
+	margin: 20px auto;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+.timerSelect .inputBlockLeft, .inputBlockRight{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.timerSelect .inputBlockLeft{
+	width: 70%;
+}
+.timerSelect .inputBlockRight{
+	width: 20%;
+}
+.shuffleSelect{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .lobbyBlock{
     background-color: var(--dark);
     height: 100vw;
+	text-align: center;
 }
-
-.deckSelect{
-
-}
-
 .buttonContainer{
-
+	width: 33%;
+	margin: 0 33.5%;
+}
+.menu{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+.menu .menuButton:hover{
+	background-color: var(--feature-dark);
+	color: var(--feature-light);
+	outline-color: var(--feature-light);
+}
+.lobby{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.lobbyInfo{
+	display: flex;
+	flex-direction: row;
+	height: 500px;
+	overflow-y: hidden;
+}
+.lobbyInfo .lobbyItem{
+	padding: 0 200px;
+	border: 1px solid var(--light);
 }

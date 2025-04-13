@@ -1,15 +1,19 @@
 .links{
     color: var(--lightest);
+    text-decoration: none;
 }
-
 .links:visited {
     color: var(--lightest);
+    text-decoration: none;
 }
-
-.profileBanner{
-    background-color: var(--dark);
+.links:hover{
+    color: var(--feature); 
+   }
+.page{
+    background-color: var(--darkest);
 }
 .userInfo{
+    background-color: var(--dark);
     display: flex;
     justify-content: space-between;
     padding: 1vh 2vw;
@@ -28,4 +32,51 @@
     img{
         display: none;
     }
+}
+.sectionHeader{
+    border: 2px solid var(--lightest);
+    border-bottom: 2px solid var(--medium);
+    height: 75px;
+}
+.sectionHeader h1{
+    position: relative; 
+    top: -25%;
+}
+.sectionBody{
+    border: 2px solid var(--lightest);
+    border-top: 2px solid var(--dark);
+    border-bottom: 2px solid var(--dark);
+}
+.sectionBody ul{
+    list-style: none; 
+    padding: 0; 
+    display: flex; 
+    gap: 2rem; 
+    justify-content: center;
+}
+.sectionBody li{
+    display: inline;
+}
+.sectionBody h2{
+    color: var(--light);
+    font-size: 20px;
+    font-weight: normal;
+}
+.sectionBodyEnd{
+    border: 2px solid var(--lightest);
+    border-top: 2px solid var(--dark);
+}
+.pageHeader{
+    background-color: var(--darkest);
+    height: 75px;
+}
+.pageHeader h1{
+    position: relative; 
+    top: 25%;
+}
+.privateUser{
+    background-color: var(--darkest);
+}
+.privateUser p{
+    text-align: center;
 }

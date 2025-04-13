@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import styles from "../Stylesheets/Components/Navbar.module.css";
 
 export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth();
     const navigate = useNavigate();
 
     async function handleLogout() {
@@ -21,7 +21,7 @@ export default function Navbar({sidebar, setSidebar, isLoggedIn = false}){
         {text: "Play", link:"/join"},
         {text: "Decks", link:"/decks"},
         {text: "Groups", link:"/groups"},
-        {text: "Profile", link: "/profile"},
+        {text: "Profile", link: `/profile/${user}`},
         {text: "Settings", link: "/settings"},
     ];
 

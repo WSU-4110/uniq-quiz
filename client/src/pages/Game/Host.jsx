@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
-import {Link, Navigate} from 'react-router';
+import {Link, Navigate, useNavigate} from 'react-router';
 import Lobby from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Host.module.css'
@@ -10,6 +10,7 @@ import { GameSettings, Leaderboard } from './GameLogic';
 export default function Host(){
     // Contexts
     const socket = useSocket();
+    const navigate = useNavigate();
     const {user, userName, loading} = useAuth();
 
     // Game customization variables
@@ -38,7 +39,7 @@ export default function Host(){
     const getDecks = async() =>{
         try {
             const response = await axios.get("/api/decks/");
-            setDecks(response.data.filter(deck => deck.User_id === user));
+            setDecks(response.data.filter(deck => deck.user_id === user));
         } catch (error) {
             console.error(error.message);
         }
@@ -60,7 +61,7 @@ export default function Host(){
     const createGame = async() => {
         if (loading || !user) return;
     
-        if(!selectedDeck.Title || !timer){
+        if(!selectedDeck.title || !timer){
             setSelectError(true);
             return;
         }
@@ -85,7 +86,7 @@ export default function Host(){
     }
 
     const startGame = () => {
-        if(canStart && selectedDeck.Title){
+        if(canStart && selectedDeck.title){
             console.log("Starting game:", game.Game_id);
             setGameSettings(new GameSettings(timer, selectedDeck));
             socket.emit('start_game', { Game_id: game.Game_id });
@@ -190,7 +191,7 @@ export default function Host(){
             if(gameSettings.selectedDeck != null){
                 //Send game data to back-end
                 console.log("Sending this data:", gameSettings);
-                if(gameSettings?.selectedDeck.Deck_id && gameSettings?.timePerQuestion){
+                if(gameSettings?.selectedDeck.deck_id && gameSettings?.timePerQuestion){
                     console.log("right before emit:", game.Game_id, gameSettings);
                     socket.emit('game_settings_selected', { Game_id: game.Game_id, Game_Settings: gameSettings });
                 }else{
@@ -212,8 +213,7 @@ export default function Host(){
 
     return(<>
         {started && <Navigate to={`/host/${game.Game_id}`} replace />}
-        <Lobby started={setStarted} />
-            <Link to={'/join'} className={styles.menuButton}>Join</Link>
+        <Lobby started={setStarted} onClick={()=>{navigate("/join");}} caption={'JOIN'}/>
             {mode === "Info" && 
                 <div className={styles.InfoBlockEx}>
                     <div className={styles.deckSelect}>
@@ -222,18 +222,23 @@ export default function Host(){
                             <option key ={-1} value="">
                                 --No Deck Selected--
                             </option>
-                            {decks.sort((a,b) => a.Title > b.Title ? 1 : -1)
+                            {decks.sort((a,b) => a.title > b.title ? 1 : -1)
                             .map((deck, index) => (
-                                <option key={deck.Deck_id ? deck.Deck_id : index} value={deck.Title}>
-                                    {deck.Title ? deck.Title : "Untitled Deck"}
+                                <option key={deck.deck_id ? deck.deck_id : index} value={deck.title}>
+                                    {deck.title ? deck.title : "Untitled Deck"}
                                 </option>
                             ))}
                         </select>
-                        {selectError && <p>Please fill in all information before selecting a deck.</p>}
+                        {selectError && <p>Please fill in all information before starting a game.</p>}
                     </div>
                     <div className={styles.timerSelect}>
-                        <input type="range" name="timer" min="1" max="220" value={timer} onChange={updateTimer} />
-                        <input type="number" name="timerNum" min="1" max="220" value={timer} onChange={updateTimer} />
+                        <div className={styles.inputBlockLeft}>
+                            <label for="timer">Select timer (or 0 for no timer):</label>
+                            <input type="range" name="timer" min="1" max="220" value={timer} onChange={updateTimer} />
+                        </div>
+                        <div className={styles.inputBlockRight}>
+                            <input type="number" name="timerNum" min="1" max="220" value={timer} onChange={updateTimer} />
+                        </div>
                     </div>
                     <div className={styles.shuffleSelect}>
                         <label htmlFor="shuffleTrue">Shuffle Deck</label>
@@ -241,33 +246,44 @@ export default function Host(){
                         <label htmlFor="shuffleFalse">Don't Shuffle Deck</label>
                         <input type="radio" id="shuffleFalse" name="shuffle" value="false" onClick={() => setShuffleDeck(false)} defaultChecked />
                     </div>
-
-                    <button className={selectedDeck.Title ? styles.menuButton : styles.menuButtonDisabled} onClick={createGame}>Create Game</button>
+                    <div className={styles.menu}>
+                        <button className={selectedDeck.title ? styles.menuButton : styles.menuButtonDisabled} onClick={createGame}>Create Game</button>
+                    </div>
                 </div>
             }
             {mode === "Lobby" && 
-                <div className={styles.InfoBlock}>
-                    <h2>Deck Title: {selectedDeck.Title}</h2>
+                <div className={styles.infoBlock}>
+                    <h2>Deck Title: {selectedDeck.title}</h2>
                     <h2>Join Code: {game.Join_Code}</h2>
                 </div>
             }
 
             <div className={styles.lobbyBlock}>
+                <p>{joinMessage}</p>
                 <div className={styles.buttonContainer}>
-                    <p>{joinMessage}</p>
-                    <button className={styles.menuButton} onClick={()=>{setCanStart(true)}}>debug</button>
-                    {canStart && <button className={styles.menuButton} onClick={startGame}>Start Game</button>}
-                    <button className={styles.menuButton} onClick={destroyGame}>End Game</button>
+                    <div className={styles.menu}>
+                        {canStart && <button className={styles.menuButton} onClick={startGame}>Start Game</button>}
+                        <button className={styles.menuButton} onClick={destroyGame}>End Game</button>
+                    </div>
                 </div>
+                {mode === "Lobby" && (
                 <div className={styles.lobby}>
                     <p>{lobbyMessage}</p>
-                    {messages.map((msg, index) => (
-                            <div key={index}>{msg}</div>
-                        ))} 
-                    {players.map((player, index) => (
-                            <h1 key={index}>{player.Username ? player.Username : "Unknown Player"}</h1>
-                    ))}
-                </div>
+                    <div className={styles.lobbyInfo}>
+                        <div className={styles.lobbyItem}>
+                            <p>Messages</p>
+                            {messages.map((msg, index) => (
+                                <div key={index}>{msg}</div>
+                            ))} 
+                        </div>
+                        <div className={styles.lobbyItem}>
+                            <p>Players</p>
+                            {players.map((player, index) => (
+                                <h4 key={index}>{player.Username ? player.Username : "Unknown Player"}</h4>
+                            ))}
+                        </div>
+                    </div>
+                </div>)}
             </div>
 
     </>);
