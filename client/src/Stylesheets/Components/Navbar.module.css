@@ -23,7 +23,7 @@
 .navHeader {
 	grid-template-columns: 2fr 1fr;
 	grid-template-rows: 1fr;
-	height: 10vh;
+	height: 75px;
 }
 
 .navLogo {
@@ -90,7 +90,7 @@ button:hover span {
 }
 
 .menuItem {
-	height: 10vh;
+	height: 75px;
 	display: flex;
 	text-decoration: none;
 	text-transform: uppercase;

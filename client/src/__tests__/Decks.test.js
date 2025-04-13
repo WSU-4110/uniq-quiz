@@ -20,9 +20,9 @@ import configureAxios from "../api/config.js";
 describe('Decks', ()=>{
     // Mock data for reference
     const mockDecks = [
-        {Deck_id: 1, User_id: '123', Title: 'History of Albania'},
-        {Deck_id: 2, User_id: '123', Title: 'History of Armenia'},
-        {Deck_id: 3, User_id: '123', Title: 'Top 10 Anime Battles'}
+        {deck_id: 1, user_id: '123', title: 'History of Albania'},
+        {deck_id: 2, user_id: '123', title: 'History of Armenia'},
+        {deck_id: 3, user_id: '123', title: 'Top 10 Anime Battles'}
     ];
 
     beforeEach(()=>{
@@ -79,7 +79,7 @@ describe('Decks', ()=>{
 
     test('Update deck title changes UI and calls API', async()=>{
         const mockUpdateDeck = [
-            {Deck_id: 1, User_id: '123', Title: 'History of Albania'},
+            {deck_id: 1, user_id: '123', title: 'History of Albania'},
         ];
         const user = userEvent.setup();
 

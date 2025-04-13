@@ -64,7 +64,7 @@ function RootLayout() {
                   <Route path="/groups" element={<ProtectedRoute><GroupViewer /></ProtectedRoute>}></Route>
                   <Route path="/groups/:Group_id" element={<ProtectedRoute><Group /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/profile/:User_id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />

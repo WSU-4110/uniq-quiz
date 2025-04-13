@@ -149,3 +149,15 @@
 .deckMenu li {
     list-style-type: none;
 }
+
+.links{
+    color: var(--lightest);
+    text-decoration: none;
+}
+.links:visited {
+    color: var(--lightest);
+    text-decoration: none;
+}
+.links:hover{
+    color: var(--darkest);
+}
