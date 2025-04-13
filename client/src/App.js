@@ -22,7 +22,7 @@ import Group from './pages/Groups/Group.jsx';
 configureAxios();
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading } = useAuth();
   if (loading) {
       return <p>Loading...</p>;
   }
@@ -57,7 +57,7 @@ function RootLayout() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/" element={ isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing/>} />
                   <Route path="/game" element={<PlayerGame />} />
-              
+
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>

@@ -5,7 +5,7 @@ import Lobby from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Host.module.css'
 import axios from 'axios';
-import { GameSettings } from './GameLogic';
+import { GameSettings, Leaderboard } from './GameLogic';
 
 export default function Host(){
     // Contexts
@@ -25,6 +25,7 @@ export default function Host(){
     const [canStart, setCanStart] = useState(false);
     const [players, setPlayers] = useState([]);
     const [started, setStarted] = useState(false);
+    const [leaderboard, setLeaderboard] = useState(new Leaderboard());
 
     // UI variables
     const [joinMessage, setJoinMessage] = useState("");
@@ -65,7 +66,7 @@ export default function Host(){
             return;
         }
 
-        if(getIsInActiveGame){
+        if(await getIsInActiveGame()){
             destroyGame();
         }
 
@@ -132,6 +133,7 @@ export default function Host(){
                 `${data.Username} has joined the lobby.`
             ])
             console.log(`Player ${data.Username} joined lobby (Host: ${data.isHost})`);
+            leaderboard.registerPlayer(data.Username);
         })
 
         socket.on("host_permissions", (data) => {

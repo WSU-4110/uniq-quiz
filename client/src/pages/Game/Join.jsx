@@ -4,6 +4,7 @@ import {Link, Navigate, useNavigate} from 'react-router-dom';
 import LobbyHeader from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
+import axios from "axios";
 
 export default function Join(){
     const {user, userName, loading} = useAuth();
@@ -21,11 +22,8 @@ export default function Join(){
         e.preventDefault(); //form automatically reloads page
         if(joinCode){
             try {
-                const response = await fetch(`/api/games/${joinCode}/join`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
+                const response = await axios.get(`/api/games/${joinCode}/join`);
+                const jsonData = await response.data;
                 console.log(jsonData);
                 setGame(jsonData);
                 socket.emit('join_lobby', { Game_id: jsonData.Game_id, User_id: user, Username: userName });

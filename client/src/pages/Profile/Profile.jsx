@@ -23,7 +23,7 @@ function Profile(){
             console.error(error.message);
         }
     }
-    
+
     useEffect(()=>{
         getUser();
     }, [])
@@ -37,6 +37,7 @@ function Profile(){
             console.error(error.message);
         }
     }
+
     useEffect(()=>{
         getMyDecks();
     }, [])

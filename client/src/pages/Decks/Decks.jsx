@@ -75,7 +75,7 @@ export default function Decks({asInset = false, showOnlyDecks = false, viewUser 
             console.error(error.message);
         }
     }
-    
+
     const updateDeck = async() =>{
         if(selectedDeck && selectedDeck.deck_id){
             try{

@@ -15,6 +15,9 @@
 
 
 .gamenavContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background: #FFFFFF;
     color: #000000;
 }
@@ -22,6 +25,7 @@
 .gamenavInner {
     display: flex;
     justify-content: space-around;
+    gap: 40pc;
 }
 
 .hostButton {
