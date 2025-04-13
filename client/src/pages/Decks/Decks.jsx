@@ -8,7 +8,7 @@ import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
 
-export default function Decks({asInset = false, showOnlyDecks = false}){
+export default function Decks({asInset = false, showOnlyDecks = false, viewUser = null}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
     const [likedDecks, setLikedDecks] = useState([]);
@@ -19,6 +19,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
     const [filterOpen, setFilterOpen] = useState(false);
     const [filterType, setFilterType] = useState("A-Z");
     const {user, userName, loading} = useAuth();
+    const [selectedUser, setSelectedUser] = useState(viewUser ? viewUser : user);
     let tab='My Decks';
 
     if(tabChoice === 1){ tab = 'My Decks' }
@@ -37,11 +38,10 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getMyDecks = async() =>{
         try {
-            const response = await axios.get(`/api/decks/${user}/user_decks`);
+            const response = await axios.get(`/api/decks/${selectedUser}/user_decks`);
             setDecks(response.data);
-            const response2 = await axios.get(`/api/userLikedDecks/${user}`);
+            const response2 = await axios.get(`/api/userLikedDecks/${selectedUser}`);
             const likedDecks = response2.data.map(deck => deck.Deck_id);
-            console.log(response.data);
             setLikedDecks(likedDecks);
         } catch (error) {
             console.error(error.message);
@@ -50,7 +50,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getOtherDecks = async() =>{
         try {
-            const response = await axios.get(`/api/decks/${user}/other_decks`);
+            const response = await axios.get(`/api/decks/${selectedUser}/other_decks`);
             setDecks(response.data);
         } catch (error) {
             console.error(error.message);
@@ -59,7 +59,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const getLikedDecks = async() =>{
         try{
-            const response = await axios.get(`/api/userLikedDecks/${user}`);
+            const response = await axios.get(`/api/userLikedDecks/${selectedUser}`);
             setDecks(response.data);
         }catch (error) {
             console.error(error.message);
@@ -68,7 +68,7 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
 
     const createDeck = async() => {
         try{
-            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: user});
+            const response = await axios.post("/api/decks", { Title: "Untitled Deck", User_id: selectedUser});
             setRefresh(prev => prev + 1);
         } catch (error){
             console.error(error.message);
@@ -106,10 +106,8 @@ export default function Decks({asInset = false, showOnlyDecks = false}){
             }
         }else{
             try{
-                console.log(selectedDeck.Deck_id);
                 const response = await axios.get(`/api/cards/${selectedDeck.Deck_id}`);
                 setCards(response.data);
-                console.log(response.data);
             } catch (error){
               console.error(error.message);  
             }
