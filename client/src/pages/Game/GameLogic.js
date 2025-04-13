@@ -37,12 +37,13 @@ export class Question {
 
 
     CheckAnswer(answerID) {
-        console.log(answerID === this.correctAnswerID);
+        /*console.log(answerID === this.correctAnswerID);
         console.log("Your answer vs server answer:", this.answers[answerID], this.answers[this.correctAnswerID])
         console.log("correctAnswer Array", this.idToLoc);
         let indexOfAnswerID = this.idToLoc.indexOf(answerID);
-        return this.correctAnswerID === indexOfAnswerID;
-        //return this.idToLoc[answerID] === 0;
+        return this.correctAnswerID === indexOfAnswerID;*/
+        console.log(`Checking Answer ${answerID}`);
+        return answerID === 0;
     }
 
     CalcPlayerScore(answerID, position, totalPos){
@@ -52,7 +53,7 @@ export class Question {
         normalizedPosition = Math.abs(normalizedPosition);
 
         var correctScore = (1000 * normalizedPosition) + 1000;
-        var positionScore = normalizedPosition * 100;
+        var positionScore = normalizedPosition * 1000;
         return ( Math.ceil(isQuestionCorrect ? correctScore : positionScore));
     }
 }
@@ -80,6 +81,10 @@ export class Leaderboard {
         return this.leaderboard.find(player => player.id === id);
     }
 
+    #sort() {
+        this.leaderboard.sort((a, b) => b.score - a.score);
+    }
+
     updatePlayer(id, addScore) {
         const player = this.findPlayer(id);
         console.log(this.leaderboard);
@@ -93,9 +98,8 @@ export class Leaderboard {
         } else {
             this.registerPlayer("Errored User", id, addScore);
         }
-        this.leaderboard.sort();
+        this.#sort();
         console.log(`After player ${player}   -   player score: ${player.score}`);
-        this.leaderboard.sort();
     }
 }
 
@@ -114,39 +118,3 @@ export class GameSettings {
         return timePerQuestion <= 220 && timePerQuestion > 0;
     }
 }
-
-/*
-export class Deck { //TODO: Move this to backend
-    cards = [];
-    #onCard = 0;
-
-    constructor(name) {
-        this.name = name;
-    }
-
-    registerCard(card) {
-        this.cards.push(card);
-    }
-
-    shuffleDeck(){
-        for(let i = this.cards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-        }
-    }
-
-    getNextCard() {
-        if (this.#onCard >= this.cards.length) {
-            throw new Error("Attempting to get next card when card deck is empty");
-        }
-        const toReturn = this.cards[this.#onCard];
-        this.#onCard += 1;
-        return toReturn;
-    }
-
-    getRemainingCardCount() {
-        return this.cards.length - this.#onCard;
-    }
-
-}
-*/

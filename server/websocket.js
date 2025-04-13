@@ -235,9 +235,9 @@ module.exports = (server) => {
         //Player submits answer
         socket.on("submit_answer", ({Game_id, Player_id, Answer_id, Timer_Status}) => {
             //let position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
-            activeGames[Game_id].currentSubmittedAnswers  += activeGames[Game_id].currentSubmittedAnswers + 1;
+            activeGames[Game_id].currentSubmittedAnswers  += 1;
             let position = activeGames[Game_id].currentSubmittedAnswers;
-            let totalPos = activeGames[Game_id].players.length / 2;
+            let totalPos = activeGames[Game_id].players.length; //TODO: why does this work????
 
             console.log("pos ", position);
             console.log("totalPos ", totalPos);

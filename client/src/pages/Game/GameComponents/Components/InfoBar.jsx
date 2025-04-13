@@ -19,9 +19,9 @@ function InfoBar({gameCode, isHost, deckName, displayName, onAdvance, score, onT
                     <h2>{displayName} : {score}</h2>
                 </div>
                 <div className={styles.buttonContainer}>
-                    {numPlayerAnswers && <h2>Players Answered: {numPlayerAnswers}</h2>}
+                    {false && <h2>Players Answered: {numPlayerAnswers}</h2>}
                     {isHost ? <button className={styles.hostButton} onClick={onEndGame}><h2>{endGameText}</h2></button> : null}
-                    {!isHost ? <button className={styles.hostButton} onClick={onEndGame}><h2>Exit Game</h2></button> : null}
+                    {!isHost ? <button className={styles.hostButton} onClick={onEndGame}><h2>Leave</h2></button> : null}
                     {isHost ? <button className={styles.hostButton} onClick={() => onAdvance(isHost)}><h2 className={styles.hostButtonText}>Next</h2></button> : null}
                 </div>
             </div>

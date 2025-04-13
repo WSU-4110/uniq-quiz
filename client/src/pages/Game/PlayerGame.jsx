@@ -133,7 +133,7 @@ function PlayerGame() {
         socket.emit("submit_answer", {
             Game_id: params.Game_id,
             Player_id: user,
-            Answer_Status: currentQuestion.CheckAnswer(AnswerID),
+            Answer_id: AnswerID,
             Timer_Status: timerRef
         });
     }
@@ -199,11 +199,10 @@ function PlayerGame() {
             })
         })
 
-        socket.on('game_settings', (data) => {
-            if(data){
-                setDeckTitle(data.Title);
-                setTimer(data.Timer);
-            }
+        socket.on('game_settings', ({Deck_Title, Timer}) => {
+            console.log("Game Settings Data");
+            setDeckTitle(Deck_Title);
+            setTimer(Timer);
         })
 
         socket.on('deck_title', (data) => {
@@ -220,6 +219,9 @@ function PlayerGame() {
         socket.on('broadcast_score_client', ({User_id, Score}) => {
             console.log(`Updating user score ${User_id} ${Score}`);
             leaderboardRef.current.updatePlayer(User_id, Score);
+            if (User_id === params.User_id) {
+                setPlayerScore(leaderboardRef.current.findPlayer(User_id).score);
+            }
             forceUpdate();
         })
 
@@ -227,6 +229,7 @@ function PlayerGame() {
             setCurrentState(data.currentState);
             setIsGameOver(data.isGameOver);
             console.log(`Current state being set to ${data.currentState}`);
+            forceUpdate();
         })
 
         return () => {
@@ -320,7 +323,8 @@ function PlayerGame() {
                     setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentState === QuizPages.POSTGAME && <PostGamePage
-                    leaderboard={leaderboard}
+                    leaderboard={leaderboardRef.current}
+                    setIsQuestionPageRendering={setIsQuestionPageRendering}
                 />}
                 {currentState === QuizPages.ERROR &&
                     <h1>Hey there bud, you have timed out, you know what that means? It means the developer in charged of this is a fucking dumb piece of shit.</h1>}

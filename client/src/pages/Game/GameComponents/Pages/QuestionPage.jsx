@@ -14,6 +14,7 @@ function QuestionPage({ question, onAnswer, setIsQuestionPageRendering}) {
 Licensed under Creative Commons: By Attribution 4.0 License
 http://creativecommons.org/licenses/by/4.0/
      */
+    //idToLoc is the answer ID, the stored number is the ID not the index
     return (
         <div className={styles.PageContainer}>
             <audio src={song} autoPlay loop/>

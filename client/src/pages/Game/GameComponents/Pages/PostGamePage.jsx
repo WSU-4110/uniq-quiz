@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styles from '../../../../Stylesheets/Game/Components/PostGamePage.module.css';
 
-function PostGamePage({ leaderboard }) {
+function PostGamePage({ leaderboard, setIsQuestionPageRendering }) {
     const lb = leaderboard.leaderboard;
     const dynamicHeight = Math.min(lb.length * 30, 160);
 
@@ -10,6 +10,10 @@ function PostGamePage({ leaderboard }) {
             v = n % 100;
         return n + (s[(v - 20) % 10] || s[v] || s[0]);
     }
+
+    useEffect(() => {
+        setIsQuestionPageRendering(false);
+    }, [setIsQuestionPageRendering]);
 
     return (
         <div>
@@ -39,7 +43,7 @@ function PostGamePage({ leaderboard }) {
                             {lb.map((item, i) => (
                                 <div className={styles.leaderboardPosContainer}>
                                     <h3 className={styles.leaderboardPos}><strong>{getNumberWithOrdinal(i+1)} </strong></h3> <h3
-                                    className={styles.leaderboardName}>{item.name} : {item.score}</h3>
+                                    className={styles.leaderboardName}>{item?.name} : {item?.score}</h3>
                                 </div>
                             ))}
                         </div>
