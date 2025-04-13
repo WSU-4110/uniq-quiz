@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
-import axios from 'axios';
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
+import configureAxios from './api/config.js';
 import Home from "./pages/Home/Home.jsx";
 import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
@@ -16,11 +16,10 @@ import UserSettings from './pages/Auth/UserSettings';
 import Landing from './pages/Home/Landing.jsx';
 import PlayerGame from "./pages/Game/PlayerGame";
 import HostGame from "./pages/Game/HostGame";
-import Groups from './pages/Groups/GroupsPage.jsx';
+import GroupViewer from './pages/Groups/GroupViewer.jsx';
+import Group from './pages/Groups/Group.jsx';
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+configureAxios();
 
 function ProtectedRoute({ children }) {
     const { isAuthenticated, loading } = useAuth();
@@ -62,7 +61,8 @@ function RootLayout() {
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
-                  <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>}></Route>
+                  <Route path="/groups" element={<ProtectedRoute><GroupViewer /></ProtectedRoute>}></Route>
+                  <Route path="/groups/:Group_id" element={<ProtectedRoute><Group /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />

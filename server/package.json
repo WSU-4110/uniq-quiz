@@ -11,6 +11,7 @@
     "debug": "~2.6.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jwt-decode": "^4.0.0",
     "morgan": "~1.9.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"

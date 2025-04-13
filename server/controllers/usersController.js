@@ -3,6 +3,7 @@ const app = express();
 const cors = require("cors"); //middleware
 const env = require("dotenv").config(); //store environmental variables
 const supabase = require("../supabase"); //import supabase client
+const {jwtDecode} = require("jwt-decode"); //Needed for decoding a session token
 
 //middleware
 app.use(cors());
@@ -48,10 +49,23 @@ async function getUser(req, res) {
         const {id} = req.params;
         const {data: aUser, error}  = await supabase.from("Users").select('*').eq('User_id', id).single();
         console.log(aUser);
-        res.json(aUser);
+        res.status(201).json(aUser);
     } catch (err) {
         console.log(err.message);
-        res.status(201).json(aUser);
+        res.status(500).json({ error: "Error selecting user" });
+    }
+}
+
+//get users by ID array
+async function getUsersById(req, res){
+    try{
+        const { User_Ids } = req.body; 
+        console.log("User Ids:", User_Ids);
+        const {data, error} = await supabase.from("Users").select().in("User_id", User_Ids);
+        res.status(201).json(data);
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ error: "Error selecting user" });
     }
 }
 
@@ -99,11 +113,31 @@ async function deleteUser(req, res){
     }
 }
 
+//set user profile privacy
+async function setUserPrivacy(req, res){
+    try{
+        const {id} = req.params;
+        const {privacy} = req.body;
+        const{data, error} = await supabase.from("Users").update({Private: privacy}).eq('User_id', id);
+        if(error){
+            console.log("Error setting user to private: ", error.message);
+            return res.status(400).json({error: error.message});
+        }
+
+        return res.status(200).json({message: `User privacy set to ${privacy}`})
+    }
+    catch(err){
+        console.log(err.message);
+    }
+}
+
 
 module.exports = {
     createUser,
     getAllUsers,
     getUser,
+    getUsersById,
     updateUser,
-    deleteUser
+    deleteUser,
+    setUserPrivacy
 };
