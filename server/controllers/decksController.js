@@ -37,7 +37,7 @@ async function createDeck(req, res){
  * @param {express.Response} res    response
  * @return {json}                   status message
  */
-async function getAllDecks(req, res){
+async function getAllDecksOld(req, res){
     try{
         const {data, error} = await supabase.from("Decks").select('*');
         if(error) throw error;
@@ -48,11 +48,14 @@ async function getAllDecks(req, res){
     }
 }
 
-async function getAllDecksWithAuthors(req, res){
+async function getAllDecks(req, res){
     try{
-        const { data, error } = await supabase.rpc("get_user_decks");
-        if(error) throw error;
-        res.json(data);
+        const { data, error } = await supabase.rpc("get_all_decks");
+        if(error){
+            console.log("Error retrieving all decks: ", error.message);
+            return res.status(502).json(error);
+        }
+        return res.status(200).json(data);
     }catch(err){
         console.log(err.message);
         res.status(502).json({ error: "Failed to fetch decks." });
@@ -118,7 +121,7 @@ async function deleteDeck(req, res){
     try{
         const {id} = req.params;
         const {data, error} = await supabase.from("Decks").delete().eq("Deck_id", [id]).select();
-        res.json(data);
+        return res.status(200).json(data); 
     }catch(error){
         console.log(error.message);
         res.status(502).json({error: `Failed to delete deck ${req.params.id}`});
@@ -162,17 +165,12 @@ async function getCardCount(req, res) {
 async function getUserDecks (req, res){
     try {
         const {User_id} = req.params;
-        const{data, error} = await supabase
-            .from("Decks")
-            .select("*")
-            .eq("User_id", User_id);
-        
+        const {data, error} = await supabase.rpc("get_user_decks", {my_user_id: User_id});
         if(error){
             console.log("Error retrieving user decks: ", error.message);
             return res.status(502).json(error);
         }
-
-        return res.status(200).json(data);
+        return res.status(200).json(data); 
     } catch (error) {
         console.log(error.message);
         return res.status(502).json(error);
@@ -182,17 +180,12 @@ async function getUserDecks (req, res){
 async function getNotUserDecks (req, res){
     try {
         const {User_id} = req.params;
-        const{data, error} = await supabase
-            .from("Decks")
-            .select("*")
-            .neq("User_id", User_id);
-        
+        const {data, error} = await supabase.rpc("get_not_user_decks", {my_user_id: User_id});
         if(error){
             console.log("Error retrieving NOT user decks: ", error.message);
             return res.status(502).json(error);
         }
-
-        return res.status(200).json(data);
+        return res.status(200).json(data); 
     } catch (error) {
         console.log(error.message);
         return res.status(502).json(error);
@@ -244,7 +237,6 @@ async function getGroupDecks (req, res) {
 module.exports = {
     createDeck,
     getAllDecks,
-    getAllDecksWithAuthors,
     getDeck,
     getUserDecks,
     getNotUserDecks,
