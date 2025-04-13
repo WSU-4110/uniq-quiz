@@ -11,3 +11,30 @@
     color: var(--lightest);
     font-size: 15px;
 }
+.page{
+	width: 80vw;
+    height: 200px;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.page input{
+	width: 60vw;
+}
+.page button{
+	width: 15vw;
+	margin: 30px;
+}
+.page button:hover{
+	background-color: var(--feature-dark);
+	color: var(--feature-light);
+	border-color: var(--feature-light);
+	outline-color: var(--feature-light);
+}

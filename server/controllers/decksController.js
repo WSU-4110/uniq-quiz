@@ -100,10 +100,10 @@ async function updateDeck(req, res) {
         const {Title, Group_id} = req.body;
 
         const { data, error } = await supabase.from("Decks").update({ Title: Title, Group_id: Group_id }).eq("Deck_id", [id]).select();
-        res.status(200).json(data);
         if(error){
             return res.status(401).json({message: "Error updating group: ", error})
         }
+        res.status(200).json(data);
     }catch(err){
         console.log(err.message);
         res.status(502).json({error: `Failed to update deck ${req.params.id}`});

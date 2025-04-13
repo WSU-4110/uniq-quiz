@@ -251,7 +251,7 @@ export default function Decks({asInset = false, showOnlyDecks = false, viewUser 
                 {viewDeck && (
                     <div className={styles.cardHead}>
                         {selectedDeck && (
-                            <ListItem content={selectedDeck.title ? selectedDeck.title : "Untitled Deck"} contentType="Title" onChangeData={handleUpdateDeck}/>  
+                            <ListItem content={selectedDeck.title ? selectedDeck.title : "Untitled Deck"} contentType="title" onChangeData={handleUpdateDeck}/>  
                         )}       
                     </div>
                 )}
