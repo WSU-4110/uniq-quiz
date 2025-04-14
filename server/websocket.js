@@ -46,10 +46,10 @@ module.exports = (server) => {
 
             // Check if the player is the host
             const { data, error } = await supabase
-            .from("Games")
-            .select("Host_id")
-            .eq("Game_id", Game_id)
-            .single();
+                .from("Games")
+                .select("Host_id")
+                .eq("Game_id", Game_id)
+                .single();
 
             if(error){
                 console.log("Error fetching game: ", error.message);
@@ -87,7 +87,7 @@ module.exports = (server) => {
                 console.log("Using ID: ", socket.data.User_id);
                 console.log("Using settings: ", Game_Settings);
 
-                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Deck_id = Game_Settings.selectedDeck.deck_id;
                 const Timer = Game_Settings.timePerQuestion;
                 const deck_name = Game_Settings.selectedDeck.Title;
                 console.log(`Game data:;\nDeck_name: ${deck_name}\nDeck_id: ${Deck_id}\nDeck Timer${Timer}`);
@@ -96,9 +96,9 @@ module.exports = (server) => {
                     .from("Decks")
                     .select("Deck_id")
                     .eq("Deck_id", Deck_id)
-                    .eq("User_id", socket.data.User_id) 
+                    .eq("User_id", socket.data.User_id)
                     .single();
-                
+
                 if(error){
                     console.log("Error selecting deck", error.message);
                     return;
@@ -131,7 +131,7 @@ module.exports = (server) => {
                         [cards[i], cards[j]] = [cards[j], cards[i]];
                     }
                 }
-    
+
                 console.log("Cards retrieved:", cards);
 
                 //Store Deck_id and cards in active games (server data)
@@ -156,7 +156,7 @@ module.exports = (server) => {
             //Emit title as event to all clients connected to Game_id
             io.to(Game_id).emit("game_settings", {Deck_Title: deckTitle, Timer: Timer});
         })
-        
+
 
 
         // Host starts the game
@@ -196,7 +196,7 @@ module.exports = (server) => {
             console.log("Step 3: Player initialization");
             io.to(Game_id).emit("init_game_part_2", {playerList: activeGames[Game_id].players, playerCount: activeGames[Game_id].players.length});
         })
-        
+
         //  Gameplay mechanics  //
 
         //Host sends card to clients
@@ -264,7 +264,7 @@ module.exports = (server) => {
 
                     //Get all clients connected to host
                     const clients = await io.in(Game_id).fetchSockets();
-                    
+
                     //Disconnect each client from game
                     clients.forEach((socket) =>{
                         socket.leave(Game_id);
