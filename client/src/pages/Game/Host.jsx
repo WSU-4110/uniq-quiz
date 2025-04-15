@@ -38,8 +38,13 @@ export default function Host(){
     /**@todo convert this to a separate hook for reuse with decks */
     const getDecks = async() =>{
         try {
-            const response = await axios.get("/api/decks/");
-            setDecks(response.data.filter(deck => deck.user_id === user));
+            const response_user = await axios.get(`/api/decks/${user}/user_decks`);
+            const validUserDecks = response_user.data.filter(deck => deck.deck_id !== null);
+            
+            const response_liked = await axios.get(`/api/userLikedDecks/${user}`);
+
+            const comboDecks = validUserDecks.concat(response_liked.data);
+            setDecks(comboDecks);
         } catch (error) {
             console.error(error.message);
         }

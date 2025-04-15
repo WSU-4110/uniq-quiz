@@ -157,6 +157,7 @@ input{
   height:200px;
   color: var(--feature-dark);
   display: block;
+  overflow-y: auto;
 }
 .modal input{
   appearance: none;
@@ -213,4 +214,28 @@ input{
 }
 .links:hover{
  color: var(--feature); 
+}
+.kickUserButton{
+  background-color: var(--dark);
+  color: var(--lightest);
+  border: none;
+  border-radius: 5px;
+  height: 50px;
+  margin: 8px;
+
+  cursor: pointer;
+  &:hover {
+    background-color: var(--feature);
+  }
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  @media screen and (max-width: 600px) {
+    display: flex;
+    width: 100%;
+  }
+}
+.kickUserButton p{
+  margin: auto;
 }
