@@ -69,6 +69,9 @@
 .pageHeader{
     background-color: var(--darkest);
     height: 75px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    
 }
 .pageHeader h1{
     position: relative; 
