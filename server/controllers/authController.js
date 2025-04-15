@@ -15,7 +15,6 @@ async function signUp(req, res){
     try {
         //Create user in Auth table
         const {email, password, display_name} = req.body;
-        console.log(`Email: ${email}, Password: ${password}, display_name: ${display_name}`);
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,

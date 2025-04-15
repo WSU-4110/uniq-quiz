@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import {AuthProvider, useAuth} from './context/AuthContext.jsx';  
 import {SocketProvider} from './context/SocketContext.jsx';
-import axios from 'axios';
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
+import configureAxios from './api/config.js';
 import Home from "./pages/Home/Home.jsx";
 import Signup from './pages/Auth/Signup';
 import Login from './pages/Auth/Login';
@@ -19,12 +19,10 @@ import HostGame from "./pages/Game/HostGame";
 import GroupViewer from './pages/Groups/GroupViewer.jsx';
 import Group from './pages/Groups/Group.jsx';
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+configureAxios();
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading } = useAuth();
   if (loading) {
       return <p>Loading...</p>;
   }
@@ -59,14 +57,14 @@ function RootLayout() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/" element={ isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing/>} />
                   <Route path="/game" element={<PlayerGame />} />
-              
+
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
                   <Route path="/cards" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
                   <Route path="/groups" element={<ProtectedRoute><GroupViewer /></ProtectedRoute>}></Route>
                   <Route path="/groups/:Group_id" element={<ProtectedRoute><Group /></ProtectedRoute>}></Route>
                   <Route path="/cards/:card_id" element={<ProtectedRoute><Cards /></ProtectedRoute>}></Route>
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/profile/:User_id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
 
                   <Route path="/join" element={<ProtectedRoute><Join /></ProtectedRoute>} />

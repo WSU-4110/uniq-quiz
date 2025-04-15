@@ -1,13 +1,15 @@
 import {useState, useEffect} from 'react';
 import {useAuth} from '../../context/AuthContext.jsx';
-import {Link, Navigate} from 'react-router-dom';
-import Lobby from './LobbyHeader.jsx';
+import {Link, Navigate, useNavigate} from 'react-router-dom';
+import LobbyHeader from './LobbyHeader.jsx';
 import {useSocket} from '../../context/SocketContext.jsx';
 import styles from '../../Stylesheets/Game/Join.module.css'
+import axios from "axios";
 
 export default function Join(){
     const {user, userName, loading} = useAuth();
     const socket = useSocket();
+    const navigate = useNavigate();
 
     const [joinCode, setJoinCode] = useState("");
     const [messages, setMessages] = useState([]); 
@@ -20,11 +22,8 @@ export default function Join(){
         e.preventDefault(); //form automatically reloads page
         if(joinCode){
             try {
-                const response = await fetch(`/api/games/${joinCode}/join`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const jsonData = await response.json();
+                const response = await axios.get(`/api/games/${joinCode}/join`);
+                const jsonData = await response.data;
                 console.log(jsonData);
                 setGame(jsonData);
                 socket.emit('join_lobby', { Game_id: jsonData.Game_id, User_id: user, Username: userName });
@@ -83,19 +82,20 @@ export default function Join(){
 
     return(<>
         {started && <Navigate to={`/join/${game.Game_id}`} replace />}
-        <Lobby />
-            <Link to={'/host/start'} className={styles.menuButton}>Host</Link>
-            <form onSubmit={joinGame}>
-                <label htmlFor="Join Code">Join Code </label><br/>
-                <input type="text" id="join_code" name="join code" value={joinCode} placeholder=""
-                        onChange={(e) => setJoinCode(e.target.value)} required/>
-                <button className={styles.menuButton} type="submit">Go</button>
-            </form>
-            <div className={styles.lobby}>
-                <p>{lobbyMessage}</p>
-                {messages.map((msg, index) => (
-                        <div key={index}>{msg}</div>
-                    ))} 
+        <LobbyHeader onClick={()=>{navigate("/host/start");}} caption={'HOST'}/>
+            <div className={styles.page}>
+                <form onSubmit={joinGame}>
+                    <label htmlFor="Join Code"/><br/>
+                    <input type="text" id="join_code" name="join code" value={joinCode} placeholder="JOIN CODE"
+                            onChange={(e) => setJoinCode(e.target.value)} required/>
+                    {!joinSuccessful && <button className={styles.menuButton} type="submit">Go</button>}
+                </form>
+                <div className={styles.lobby}>
+                    <p>{lobbyMessage}</p>
+                    {messages.map((msg, index) => (
+                            <div key={index}>{msg}</div>
+                        ))} 
+                </div>
             </div>
     </>);
 }

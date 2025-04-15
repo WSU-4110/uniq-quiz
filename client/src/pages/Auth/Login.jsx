@@ -10,17 +10,21 @@ function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         const { success, error } = await login(email, password);
         if (error) {
-            setError(error);
+            //TODO: Implement proper error handling, setError sets the error that is displayed to end user
+            setError("A login error has occurred");
+            console.log(error);
         } else if (success) {
             navigate("/dashboard");
         }
     };
+
 
     return (
 

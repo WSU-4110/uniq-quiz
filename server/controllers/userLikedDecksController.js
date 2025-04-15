@@ -26,10 +26,19 @@ async function likeDeck(req, res){
 
         //Actual like deck logic
         const{Deck_id} = req.params;
+        const{data: deck, error: err} = await supabase
+            .from("Decks")
+            .select("Title")
+            .eq("Deck_id", Deck_id)
+            .single();
+        
+        const Title = deck.Title;
+        
         const {data, error} = await supabase
             .from("UserLikedDecks")
-            .insert([{User_id: User_id, Deck_id: Deck_id}])
+            .insert([{User_id: User_id, Deck_id: Deck_id, Title: Title}])
             .select();
+
         if(error){
             return res.status(400).json({message: "Error inserting liked deck: ", error: error});
         }
@@ -64,7 +73,8 @@ async function unlikeDeck (req, res) {
         const {data, error} = await supabase
             .from("UserLikedDecks")
             .delete()
-            .eq("Deck_id", Deck_id);
+            .eq("Deck_id", Deck_id)
+            .eq("User_id", User_id);
         
         if(error){
             console.log("Error deleting liked deck: ", error.message);
@@ -82,17 +92,12 @@ async function unlikeDeck (req, res) {
 async function getLikedDecks (req, res){
     try {
         const {User_id} = req.params;
-        const {data: likedDecks, error} = await supabase
-            .from("UserLikedDecks")
-            .select("*")
-            .eq("User_id", User_id);
-        
+        const {data, error} = await supabase.rpc("get_liked_decks", {my_user_id: User_id});
         if(error){
-            console.log("Error retrieving user liked decks: ", error.message);
+            console.log("Error retrieving user decks: ", error.message);
             return res.status(400).json({message: "Error retrieving user liked decks", error: error});
         }
-
-        return res.status(200).json({message: "User liked decks: ", likedDecks});
+        return res.status(200).json(data); 
     } catch (err) {
         console.log("Server error retrieving liked decks: ", err.message);
         return res.status(500).json({message: "Server error retrieving liked decks", err});

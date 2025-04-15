@@ -1,5 +1,4 @@
 import {useState, useEffect} from 'react';
-import axios from 'axios'; // Ensure axios is installed
 import {useAuth} from '../context/AuthContext';
 import styles from '../Stylesheets/Components/ProfileBanner.module.css';
 
@@ -30,8 +29,12 @@ export default function ProfileBanner(){
         <div className={styles.profileBanner}>
             <div className={styles.userInfo}>
               <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
-                width: "100px", 
-                height: "auto"}}/>
+                width: "50px", 
+                height: "50px",
+                overflow: "hidden",
+                borderRadius: "50%",
+                objectFit: "cover"
+                }}/>
             <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
             </div>
         </div>

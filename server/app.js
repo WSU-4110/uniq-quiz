@@ -27,16 +27,14 @@ const app = express();
 
 //allow api requests from front-end run on 3001
 
+
 console.log("Input port:", process.env.INPUT_PORT);
 app.use(cors({
    origin: process.env.INPUT_PORT,
    credentials: true
 }));
-// app.use(cors({
-//     origin: 'http://68.43.32.87',
-//     credentials: true
-// }));
-//app.use(cors()); //full permissions granted with cors- DEBUG.
+
+//missions granted with cors- DEBUG.
 
 //middleware
 app.use(logger('dev'));
@@ -48,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
-app.use('/api/usersLikedDecks', userLikedDecksRouter);
+app.use('/api/userLikedDecks', userLikedDecksRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/groupMembership', groupMembershipRouter);
 app.use('/api/games', gamesRouter);

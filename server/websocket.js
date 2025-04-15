@@ -71,12 +71,13 @@ module.exports = (server) => {
             }
 
             //Store player data in active game
-            activeGames[Game_id].players[User_id] = {
+            activeGames[Game_id].currentSubmittedAnswers = -1;
+            activeGames[Game_id].players.push({
                 User_id: User_id,
                 Username: Username,
                 Player_score: 0,
-                CurrentSubmitAnswer: null,
-            };
+                CurrentSubmitAnswer: 1,
+            });
         })
 
         //Host selects a deck
@@ -86,8 +87,10 @@ module.exports = (server) => {
                 console.log("Using ID: ", socket.data.User_id);
                 console.log("Using settings: ", Game_Settings);
 
-                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Deck_id = Game_Settings.selectedDeck.deck_id;
                 const Timer = Game_Settings.timePerQuestion;
+                const deck_name = Game_Settings.selectedDeck.Title;
+                console.log(`Game data:;\nDeck_name: ${deck_name}\nDeck_id: ${Deck_id}\nDeck Timer${Timer}`);
 
                 const {data, error} = await supabase
                     .from("Decks")
@@ -106,7 +109,8 @@ module.exports = (server) => {
                 const {data: cards, error: cardError} = await supabase
                     .from("Cards")
                     .select("*")
-                    .eq("Deck_id", Deck_id);
+                    .eq("Deck_id", Deck_id)
+                    .order("Card_id");
 
                 console.log("Cards data retrieved: ", cards);
                 if(cardError){
@@ -134,6 +138,7 @@ module.exports = (server) => {
                 activeGames[Game_id].Deck_id = Deck_id;
                 activeGames[Game_id].cards = cards;
                 activeGames[Game_id].timer = Timer;
+                activeGames[Game_id].deck_name = deck_name;
 
                 console.log("Active Games: ", activeGames[Game_id]);
             }
@@ -144,17 +149,9 @@ module.exports = (server) => {
             //Get current ID from activeGames
             const Deck_id = activeGames[Game_id].Deck_id;
             const Timer = activeGames[Game_id].timer;
+            const deckTitle = activeGames[Game_id].deck_name;
 
-            //Retrieve deck title from database
-            const {data: deckTitle, error: titleError} = await supabase
-                .from("Decks")
-                .select("Title")
-                .eq("Deck_id", Deck_id)
-                .single();
-
-            if(titleError){
-                console.log("Error retrieving title: ", titleError.message);
-            }
+            console.log(`Sending Data { \nDeck_Title: ${deckTitle}\nTimer: ${Timer}\n}`);
 
             //Emit title as event to all clients connected to Game_id
             io.to(Game_id).emit("game_settings", {Deck_Title: deckTitle, Timer: Timer});
@@ -171,12 +168,34 @@ module.exports = (server) => {
                 console.log(`Game ${Game_id} started by the host`);
 
                 //Emit game start to all clients
+                console.log(activeGames[Game_id].players);
                 io.to(Game_id).emit("game_started");
             }
             else{
                 console.log("Start game: Game not found");
             }
         });
+
+        //Game Initialization,
+        socket.on("init_game_call", ({Game_id, User_id}) => {
+            console.log("Step 1: Host initialization");
+            io.to(Game_id).emit("init_game_part_1", {playerList: activeGames[Game_id].players, playerCount: activeGames[Game_id].players.length});
+        })
+
+        socket.on("connect_game", ({Game_id, User_id}) => {
+            console.log(`Step 2: User connecting ${User_id}`);
+            io.to(Game_id).emit("player_connect", {Game_id, User_id});
+        })
+
+        socket.on("confirm_connection", ({Game_id, User_id}) => {
+            console.log(`Step 2.5: Confirm User ${User_id}`);
+            io.to(Game_id).emit("player_confirm", {Game_id, User_id});
+        })
+
+        socket.on("init_game_call_2", ({Game_id}) => {
+            console.log("Step 3: Player initialization");
+            io.to(Game_id).emit("init_game_part_2", {playerList: activeGames[Game_id].players, playerCount: activeGames[Game_id].players.length});
+        })
         
         //  Gameplay mechanics  //
 
@@ -184,6 +203,7 @@ module.exports = (server) => {
         socket.on("send_next_card", ({Game_id}) => {
             if(socket.data.host){ //Only host should be able to send cards
                 const game = activeGames[Game_id];
+                activeGames[Game_id].currentSubmittedAnswers = 0;
 
                 if(game && game.currentCardIndex < game.cards.length){
                     const card = game.cards[game.currentCardIndex]; //Retrieve card
@@ -213,14 +233,26 @@ module.exports = (server) => {
         })
 
         //Player submits answer
-        socket.on("submit_answer", ({Game_id, Player_id, Answer_Status, Timer_Status}) => {
-            position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
-            totalPos = activeGames[Game_id].players.length + 1;
-            playerScore = CalcPlayerScore(Answer_Status, position, totalPos);
-            activeGames[Game_id].players[Player_id].Player_score += playerScore;
-            activeGames[Game_id].players[Player_id].CurrentSubmitAnswer += Answer_Status;
+        socket.on("submit_answer", ({Game_id, Player_id, Answer_id, Timer_Status}) => {
+            //let position = Object.values(activeGames[Game_id].players).filter(player => player.CurrentSubmitAnswer !== null).length + 1;
+            activeGames[Game_id].currentSubmittedAnswers  += 1;
+            let position = activeGames[Game_id].currentSubmittedAnswers;
+            let totalPos = activeGames[Game_id].players.length; //TODO: why does this work????
 
-            io.to(Game_id).emit("answer_submitted", {Player_Position: position, AllSubmitted: position === totalPos});
+            console.log("pos ", position);
+            console.log("totalPos ", totalPos);
+
+            io.to(Game_id).emit("check_answer", {Player_id: Player_id, Answer_id: Answer_id, position: position, totalPos: totalPos})
+        })
+
+        //Host brodcasts score
+        socket.on("broadcast_score", ({Game_id, Score, User_id}) => {
+            io.to(Game_id).emit("broadcast_score_client", {User_id: User_id, Score: Score});
+        })
+
+        //Host tells player what state to be in
+        socket.on("send_current_state", ({Game_id, currentState, isGameOver}) => {
+            io.to(Game_id).emit("get_current_state", {currentState: currentState, isGameOver: isGameOver});
         })
 
         //Host ends the game

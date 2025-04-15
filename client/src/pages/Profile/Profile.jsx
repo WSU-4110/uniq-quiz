@@ -1,81 +1,97 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
+import GroupViewer from '../Groups/GroupViewer.jsx';
 import axios from 'axios';
 import styles from '../../Stylesheets/Profile.module.css';
 
 function Profile(){
+    const params = useParams();
+    const location = useLocation();
     const [error, setError] = useState(null);
     const [userData, setUserData] = useState({});
     const [deckData, setDeckData] = useState({});
     const {user, userName} = useAuth();
-    const location = useLocation();
+    const [profilePicture, setProfilePicture] = useState(null);
 
     const getUser = async() => {
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${user}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const jsonData = await response.json();
-            setUserData(jsonData);
+            const response = await axios.get(`/api/users/${params.User_id}`);
+            setUserData(response.data);
         } catch (error) {
             console.error(error.message);
             setError(error.message);
         }
     }
-    
-    useEffect(() => {
+
+    useEffect(()=>{
         getUser();
     }, []);
 
     const getMyDecks = async() =>{
         try {
-            const response = await fetch(`/api/decks/`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-            const jsonData = await response.json();
-            setDeckData(jsonData.filter(deck => deck.User_id === user));
+            const response = await axios.get(`/api/decks/${params.User_id}/user_decks`);
+            console.log(`deck data for ${params.User_id}`, response.data);
+            setDeckData(response.data.filter(deck => deck.User_id === params.User_id));
         } catch (error) {
             console.error(error.message);
         }
     }
-    useEffect(()=>{
-            getMyDecks();
-        }, [])
 
-        return (
-            <div className={styles.profileBanner}>
-                <div className={styles.userInfo}>
-              <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
-                width: "100px", 
-                height: "auto"}}/>
-              <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
+    useEffect(()=>{
+        getMyDecks();
+    }, [])
+    useEffect(()=>{
+        getMyDecks();
+    }, [userData]) 
+
+    return (
+        <div className={styles.page}>
+            <div className={styles.userInfo}>
+                <div className={styles.profilePicture}>
+                <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
+                    width: "50px", 
+                    height: "50px",
+                    overflow: "hidden",
+                    borderRadius: "50%",
+                    objectFit: "cover"
+                    }}/>
                 </div>
-                <div className="App">
+                <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
+            </div>
+            <div className={styles.pageHeader}>
+                <h1>{userData.Username ? userData.Username : 'Unnamed User'}</h1>
+            </div>
+            {(user === userData.User_id || !userData.Private) && (<>
+                <div className={styles.sectionHeader}>
                     <h1><ul>Stats: </ul></h1>
-                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-                        <li><h2 style={{ display: 'inline' }}>Top Wins: {userData?.Wins || 0}</h2></li>
-                        <li><h2 style={{ display: 'inline' }}>Total Points: {userData?.Total_Score || 0}</h2></li>
-                        <li>
-                            <h2 style={{ display: 'inline' }}>
-                                Best Deck: {userData?.Highest_Score_id || "None"}
-                                ; {userData?.Highest_Score && `; ${userData?.Highest_Score}`}
-                            </h2>
-                        </li>
-                        <li><h2 style={{ display: 'inline' }}>Decks Made: {deckData?.length || 0}</h2></li>
+                </div>
+                <div className={styles.sectionBody}>
+                    <ul>
+                        <li><h2>Top Wins: {userData.Wins}</h2></li>
+                        <li><h2>Total Points: {userData.Total_Score}</h2></li>
+                        <li><h2>Best Deck: {userData.Highest_Score_id ? userData.Highest_Score_id : "None"}
+                            ; {userData.Highest_Score} </h2></li>
+                        <li><h2>Decks Made: {deckData.length}</h2></li>
                     </ul>
                 </div>
-            <div className="App">
-                <h1><ul><Link to="/decks" className={styles.links}>Decks: </Link></ul></h1>
-                <Decks asInset={true} showOnlyDecks={true}/>
-            </div>
-            <div className="App">
-                <h1><ul>Groups: </ul></h1>
-                {/* <Groups asInset={true}/> */}
-            </div>
+                <div className={styles.sectionHeader}>
+                    <h1><ul><Link to="/decks" className={styles.links}>Decks: </Link></ul></h1>
+                </div>
+                <div className={styles.sectionBody}>
+                    <Decks asInset={true} showOnlyDecks={true} viewUser={params.User_id}/>
+                </div>
+                <div className={styles.sectionHeader}>
+                    <h1><ul><Link to="/groups" className={styles.links}>Groups: </Link></ul></h1>
+                </div>
+                <div className={styles.sectionBodyEnd}>
+                    <GroupViewer asInset={true} viewUser={params.User_id}/>
+                </div>
+            </>)}   
+            {(user !== userData.User_id && userData.Private) && (<div className={styles.privateUser}>
+                <p>User profile is private</p>
+            </div>)}
         </div>
         );
 }

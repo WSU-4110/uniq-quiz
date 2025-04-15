@@ -2,7 +2,6 @@ import {Link} from 'react-router-dom';
 import styles from '../../Stylesheets/Home/Landing.module.css';
 
 const links = [
-    {text: "JOIN GAME", link:"/join"},
     {text: "Login", link:"/login"},
     {text: "Signup", link:"/signup"},
 ];
