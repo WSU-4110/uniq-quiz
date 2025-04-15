@@ -8,13 +8,14 @@ import configureAxios from "../api/config.js";
 
 /**
  * Assignment 5 Unit Tests
- * Author: Hayley Spellicy-Ryan
+ * Author: Keegan Miller
  * Methods tested: 
- *      1. Decks()
- *      2. getDecks()
- *      3. createDeck()
- *      4. updateDeck()
- *      5. deleteDeck()
+ *      1. getGroups()
+ *      2. createGroup()
+ *      3. deleteGroup()
+ *      4. leaveGroup()
+ *      5. viewGroup()
+ *      6. joinGroup()
  */
 
 describe('Decks', ()=>{
@@ -31,15 +32,51 @@ describe('Decks', ()=>{
         axios.delete.mockClear();
     });
 
-    test('GroupViewer component renders with auth', ()=>{
-        // Import render wrapper to pass auth information to Decks
+    test('getGroups fetches and displays all groups', async () => {
+        const mockGroups = [
+            { Group_id: 1, Group_Name: 'Group One', Founder_id: 1234 },
+            { Group_id: 2, Group_Name: 'Group Two', Founder_id: 5678 }
+        ];
+    
+        axios.get.mockResolvedValueOnce({ data: mockGroups });
+    
         renderWithAuth(<GroupViewer />, {
             authState: {
-            isAuthenticated: true,
-            user: '123',
-            userName: 'Test User',
-            loading: false
+                isAuthenticated: true,
+                user: '123',
+                userName: 'Test User',
+                loading: false
             }
         });
+
+        console.log("AXIOS CALLS", axios.get.mock.calls);
+
+            // Mock clicking the "Find Groups" button
+        userEvent.click(screen.getByText('Find Groups'));
+    
+        // Wait for groups to appear in the DOM
+        await waitFor(() => {
+            expect(screen.getByText('Group One')).toBeInTheDocument();
+            expect(screen.getByText('Group Two')).toBeInTheDocument();
+        });
+    
+        expect(axios.get).toHaveBeenCalledWith('/api/groups/');
+        expect(axios.get).toHaveBeenCalledTimes(2)
     });
+
+    // test('',  ()=>{
+
+    // })
+
+    // test('',  ()=>{
+
+    // })
+
+    // test('',  ()=>{
+
+    // })
+
+    // test('',  ()=>{
+
+    // })
 });
