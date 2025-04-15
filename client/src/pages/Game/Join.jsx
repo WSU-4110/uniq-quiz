@@ -87,7 +87,7 @@ export default function Join(){
                 <form onSubmit={joinGame}>
                     <label htmlFor="Join Code"/><br/>
                     <input type="text" id="join_code" name="join code" value={joinCode} placeholder="JOIN CODE"
-                            onChange={(e) => setJoinCode(e.target.value)} required/>
+                            onChange={(e) => setJoinCode(e.target.value.toUpperCase())} required/>
                     {!joinSuccessful && <button className={styles.menuButton} type="submit">Go</button>}
                 </form>
                 <div className={styles.lobby}>

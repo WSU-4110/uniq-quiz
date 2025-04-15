@@ -29,6 +29,14 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/" replace />;
 }
 
+function LogOutRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+if (loading) {
+    return <p>Loading...</p>;
+}
+return !isAuthenticated ? children : <Navigate to="/dashboard" replace />;
+}
+
 function RootLayout() {
   const {isAuthenticated} = useAuth();
   const location = useLocation();
@@ -53,10 +61,10 @@ function RootLayout() {
           {isAuthenticated && !isGame && <Navbar sidebar={sidebar} setSidebar={setSidebar} />}
           <div className={isAuthenticated && !isGame ? (sidebar ? "body" : "bodyNX") : "bodyFull"}>
               <Routes>
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<LogOutRoute><Signup /></LogOutRoute>} />
+                  <Route path="/login" element={<LogOutRoute><Login /></LogOutRoute>} />
                   <Route path="/" element={ isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing/>} />
-                  <Route path="/game" element={<PlayerGame />} />
+                  <Route path="/game" element={<ProtectedRoute><PlayerGame /></ProtectedRoute>} />
 
                   <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>}></Route>
