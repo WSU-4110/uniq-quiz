@@ -15,18 +15,19 @@ function Profile(){
     const {user, userName} = useAuth();
     const [profilePicture, setProfilePicture] = useState(null);
 
-    const getUser = async() =>{
+    const getUser = async() => {
         try {
             const response = await axios.get(`/api/users/${params.User_id}`);
             setUserData(response.data);
         } catch (error) {
             console.error(error.message);
+            setError(error.message);
         }
     }
 
     useEffect(()=>{
         getUser();
-    }, [])
+    }, []);
 
     const getMyDecks = async() =>{
         try {
@@ -49,7 +50,13 @@ function Profile(){
         <div className={styles.page}>
             <div className={styles.userInfo}>
                 <div className={styles.profilePicture}>
-                    {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
+                <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
+                    width: "50px", 
+                    height: "50px",
+                    overflow: "hidden",
+                    borderRadius: "50%",
+                    objectFit: "cover"
+                    }}/>
                 </div>
                 <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
             </div>

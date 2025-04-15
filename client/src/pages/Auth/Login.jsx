@@ -1,7 +1,7 @@
 import React from 'react';
 import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
-import '../../Stylesheets/Auth/Auth.css'
+import styles from '../../Stylesheets/Auth/Auth.module.css';
 
 function Login() {
     const [email, setEmail] = React.useState('');
@@ -28,10 +28,10 @@ function Login() {
 
     return (
 
-        <div className="Login">
-            <div className="OuterAuth">
-                <div className="AuthBlock">
-                    <div className="InnerAuth">
+        <div className={styles.Login}>
+            <div className={styles.OuterAuth}>
+                <div className={styles.AuthBlock}>
+                    <div className={styles.InnerAuth}>
                         <h2>Login</h2>
                         {error && <p style={{color: 'red'}}>{error}</p>}
                         <form onSubmit={handleSubmit}>

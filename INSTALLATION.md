@@ -10,3 +10,4 @@ npm install styled-components\
 npm install axios\
 npm install socket.io-client\
 npm install jwt-decode\
+npm install multer\

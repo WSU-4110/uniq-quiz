@@ -72,7 +72,7 @@ export default function Cards(){
 
     useEffect(()=>{
       if (Object.keys(card).length > 0) {
-        updateCard();
+        updateCard_OLD();
       } 
     }, [card])
 
