@@ -20,7 +20,8 @@ function Login() {
             //TODO: Implement proper error handling, setError sets the error that is displayed to end user
             setError("A login error has occurred");
             console.log(error);
-        } else if (success) {
+        }
+        else if (success) {
             navigate("/dashboard");
         }
     };

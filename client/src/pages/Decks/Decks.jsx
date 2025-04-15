@@ -7,7 +7,6 @@ import {useAuth} from '../../context/AuthContext.jsx';
 import axios from 'axios';
 import styles from "../../Stylesheets/Decks/Decks.module.css";
 
-
 export default function Decks({asInset = false, showOnlyDecks = false, viewUser = null}){
     const [tabChoice, setTabChoice] = useState(1);
     const [decks, setDecks] = useState([]);
@@ -20,6 +19,7 @@ export default function Decks({asInset = false, showOnlyDecks = false, viewUser 
     const [filterType, setFilterType] = useState("A-Z");
     const {user, userName, loading} = useAuth();
     const [selectedUser, setSelectedUser] = useState(viewUser ? viewUser : user);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     let tab='My Decks';
 
     if(tabChoice === 1){ tab = 'My Decks' }
@@ -194,8 +194,13 @@ export default function Decks({asInset = false, showOnlyDecks = false, viewUser 
       }
 
     function handleDelete(){
-        deleteDeck();
+        setShowDeleteModal(true);
+    }
+
+    const confirmDelete = async () => {
+        await deleteDeck();
         setViewDeck(false);
+        setShowDeleteModal(false);
     }
 
     useEffect(()=>{
@@ -229,6 +234,18 @@ export default function Decks({asInset = false, showOnlyDecks = false, viewUser 
                             {viewDeck && (<>
                                 <TabButton className={styles.menuButton} onClick={()=>{setViewDeck(!viewDeck)}}>Back</TabButton>
                                 <TabButton className={styles.menuButton} onClick={createCard}>Add Card</TabButton>
+                                {showDeleteModal && (
+                                    <div className={styles.modalOverlay}>
+                                        <div className={styles.modal}>
+                                            <h2>Delete Deck</h2>
+                                            <p>Are you sure you want to delete this deck? This action cannot be undone.</p>
+                                            <div className={styles.modalButtons}>
+                                                <button className={styles.modalButton} onClick={confirmDelete}>Delete</button>
+                                                <button className={styles.modalButtonCancel} onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <TabButton className={styles.menuButton} onClick={handleDelete}>Delete This Deck</TabButton>
                             </>)}
                         </div>
