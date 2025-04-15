@@ -50,7 +50,13 @@ function Profile(){
         <div className={styles.page}>
             <div className={styles.userInfo}>
                 <div className={styles.profilePicture}>
-                    {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
+                <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
+                    width: "50px", 
+                    height: "50px",
+                    overflow: "hidden",
+                    borderRadius: "50%",
+                    objectFit: "cover"
+                    }}/>
                 </div>
                 <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
             </div>

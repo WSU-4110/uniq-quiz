@@ -88,7 +88,7 @@ export default function Join(){
                     <label htmlFor="Join Code"/><br/>
                     <input type="text" id="join_code" name="join code" value={joinCode} placeholder="JOIN CODE"
                             onChange={(e) => setJoinCode(e.target.value)} required/>
-                    <button className={styles.menuButton} type="submit">Go</button>
+                    {!joinSuccessful && <button className={styles.menuButton} type="submit">Go</button>}
                 </form>
                 <div className={styles.lobby}>
                     <p>{lobbyMessage}</p>
