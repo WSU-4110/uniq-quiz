@@ -87,7 +87,7 @@ module.exports = (server) => {
                 console.log("Using ID: ", socket.data.User_id);
                 console.log("Using settings: ", Game_Settings);
 
-                const Deck_id = Game_Settings.selectedDeck.Deck_id;
+                const Deck_id = Game_Settings.selectedDeck.deck_id;
                 const Timer = Game_Settings.timePerQuestion;
                 const deck_name = Game_Settings.selectedDeck.Title;
                 console.log(`Game data:;\nDeck_name: ${deck_name}\nDeck_id: ${Deck_id}\nDeck Timer${Timer}`);

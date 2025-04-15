@@ -130,7 +130,7 @@ export default function Group()
 
     const getDecks = async() =>{
         try{
-            const response = await axios.get("/api/decks/authors");
+            const response = await axios.get("/api/decks/");
             const validDecks = response.data.filter(deck => deck.deck_id !== null);
             setDecks(validDecks.filter(deck => deck.group_id == params.Group_id));
             setMyDecks(response.data.filter(deck => deck.user_id === user));
