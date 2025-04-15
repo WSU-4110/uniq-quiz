@@ -33,8 +33,9 @@ export function AuthProvider({ children }) {
         if(isAuthenticated){
             const fetchUserName = async () => {
                 try {
-                    const response = await axios.get('/api/auth/getdisplayname' , { withCredentials: true });
-                    setUserName(response.data.display_name);
+                    const response = await axios.get(`/api/users/${user}` , { withCredentials: true });
+                    setUserName(response.data.Username);
+                    console.log(response.data);
                 } catch (err) {
                     console.error("Error fetching user:", err);
                 }
@@ -70,7 +71,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, user, userName, loading }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, user, userName, loading, userId: user?.User_id}}>
             {!loading && children}
         </AuthContext.Provider>
     );

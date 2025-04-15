@@ -2,7 +2,7 @@ import React from 'react';
 import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
-import '../../Stylesheets/Auth/Auth.css'
+import styles from '../../Stylesheets/Auth/Auth.module.css';
 
 function Signup() {
     const [email, setEmail] = React.useState('');
@@ -107,10 +107,10 @@ function Signup() {
     }
 
     return (
-        <div className="Signup">
-            <div className="OuterAuth">
-                <div className="AuthBlock">
-                    <div className="InnerAuth">
+        <div className={styles.Signup}>
+            <div className={styles.OuterAuth}>
+                <div className={styles.AuthBlock}>
+                    <div className={styles.InnerAuth}>
                         <h2>Signup</h2>
                         <form onSubmit={handleSubmit}>
                             <label htmlFor="email">Email </label><br/>
