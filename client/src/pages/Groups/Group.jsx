@@ -1,5 +1,5 @@
 import {React, useState, useEffect} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
+import {useParams, useNavigate, Link} from 'react-router-dom';
 import axios from 'axios';
 import TabButton from '../../components/TabButton.jsx';
 import ProfileBanner from '../../components/ProfileBanner.jsx';
@@ -130,7 +130,7 @@ export default function Group()
 
     const getDecks = async() =>{
         try{
-            const response = await axios.get("/api/decks/");
+            const response = await axios.get("/api/decks/authors");
             const validDecks = response.data.filter(deck => deck.deck_id !== null);
             setDecks(validDecks.filter(deck => deck.group_id == params.Group_id));
             setMyDecks(response.data.filter(deck => deck.user_id === user));
@@ -199,7 +199,9 @@ export default function Group()
                     <h3>Top Members</h3>
                     {topMembers.map((member, key) => 
                         <div key={key} className={styles.leaderboardItem}>
-                            <h2>{key+1} {member.Username}</h2>
+                            <Link to={`/profile/${member.User_id}`} className={styles.links}>
+                                <h2>{key+1} {member.Username}</h2>
+                            </Link>
                             <p>Average Score: {(member.Total_Score / member.Games_Played).toFixed(2)}</p>
                         </div>
                     )}
@@ -208,17 +210,10 @@ export default function Group()
                     <h3>All Members</h3>
                     {members.map(member => 
                         <div className={styles.leaderboardItem}>
-                            <h2>{member.Username}</h2>
+                            <Link to={`/profile/${member.User_id}`} className={styles.links}><h2>{member.Username}</h2></Link>
                         </div>
                     )}
                 </div>
-            </div>
-            <div className={styles.groupHeaders}>
-                <h3>Active Games</h3>
-            </div>
-            <div className={styles.groupContainerSmall}>
-                {activeGames.length === 0 && <p>No active games</p>}
-                {!activeGames.length === 0 && <p>There are active games</p>}
             </div>
             <div className={styles.groupHeaders}>
                 <h3>Decks</h3>
