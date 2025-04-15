@@ -161,3 +161,15 @@
 .links:hover{
     color: var(--darkest);
 }
+.modal{
+    position: relative;
+    background-color: var(--medium);
+    border: 2px solid var(--dark);
+    border-radius: 20px;
+    top: 80px;
+    right: 0;
+    width:400px;
+    height:200px;
+    color: var(--darkest);
+    display: block;
+  }
