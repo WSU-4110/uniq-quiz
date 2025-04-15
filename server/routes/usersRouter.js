@@ -6,7 +6,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 *
 //Import controller functions
 const {createUser, getAllUsers, 
     getUser, getUsersById, updateUser, 
-    deleteUser, setUserPrivacy, 
+    deleteAccount, setUserPrivacy, 
     updateUsername, updateProfilePic} 
     = require("../controllers/usersController");
 
@@ -26,7 +26,7 @@ router.post("/list/", getUsersById);
 router.put("/:id", updateUser);
 
 //Delete a user via User_id
-router.delete('/deleteaccount', deleteUser);
+router.delete('/deleteaccount', deleteAccount);
 
 //Set user to private via User_id
 router.put("/:id/privacy", setUserPrivacy);

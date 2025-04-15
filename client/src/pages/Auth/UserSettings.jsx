@@ -57,7 +57,7 @@ function Settings() {
         };
 
         function handleDelete() {
-            axios.delete('/api/auth/deleteuser', { withCredentials: true })
+            axios.delete('/api/auth/deleteaccount', { withCredentials: true })
                 .then(response => {
                     alert('Your account has been deleted.');
                     window.location.href = '/'; // Redirect to home or login page

@@ -97,7 +97,7 @@ async function updateUser(req, res) {
 }
 
   //Delete an account
-  async function deleteUser(req, res){
+  async function deleteAccount(req, res){
     //Get session token to check if user is logged in
     const token = req.cookies['session_token'];
     if(!token){
@@ -112,7 +112,7 @@ async function updateUser(req, res) {
         return res.status(401).json({error: "Invalid or expired token. Please log in again."})
       }
       const userId = user.user.id;
-      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteUser(userId);
+      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteAccount(userId);
       if(deleteError){
         return res.status(500).json({error: deleteError.message});
       }
@@ -271,7 +271,7 @@ module.exports = {
     getUser,
     getUsersById,
     updateUser,
-    deleteUser,
+    deleteAccount,
     setUserPrivacy,
     updateUsername,
     updateProfilePic
