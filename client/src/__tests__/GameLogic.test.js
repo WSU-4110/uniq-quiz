@@ -72,7 +72,7 @@ describe('Question', () => {
     });
 
     it('should calculate score for an incorrect answer', () => {
-        const q = new Question("Test?", "Correct", "Wrong1", "Wrong2", "Wrong3");
+        const q = new Question(question, correctAnswer, incorect1, incorect2, incorect3);
         const score = q.CalcPlayerScore(1, 2, 5);
         expect(score).toBe(Math.ceil(0.6 * 1000));
     });
