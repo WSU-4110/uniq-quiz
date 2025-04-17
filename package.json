@@ -16,5 +16,12 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "babel-install": "2.1.0"
   }
 }
