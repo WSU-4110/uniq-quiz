@@ -212,6 +212,7 @@ describe('Decks', ()=>{
 
         // Trigger delete button click
         await user.click(screen.getByText('Delete This Deck'));
+        await user.click(screen.getByText('Delete'));
 
         // Check if correct API response was called
         expect(axios.delete).toHaveBeenCalledTimes(1);
