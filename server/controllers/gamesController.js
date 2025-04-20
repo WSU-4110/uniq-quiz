@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json()); //req.body
 
 function generateJoinCode(){
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; //TODO: Remove lowercase
+    const chars = 'ABCDEFGHJKLMNOPQRSTUVWXYZ0123456789'; //TODO: Remove lowercase
     let code = '';
     for (let i = 0; i < 4; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));

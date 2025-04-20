@@ -130,10 +130,17 @@ export default function Group()
 
     const getDecks = async() =>{
         try{
-            const response = await axios.get("/api/decks/authors");
+            const response = await axios.get("/api/decks/");
             const validDecks = response.data.filter(deck => deck.deck_id !== null);
             setDecks(validDecks.filter(deck => deck.group_id == params.Group_id));
-            setMyDecks(response.data.filter(deck => deck.user_id === user));
+
+            const response_user = await axios.get(`/api/decks/${user}/user_decks`);
+            const validUserDecks = response_user.data.filter(deck => deck.deck_id !== null);
+            
+            const response_liked = await axios.get(`/api/userLikedDecks/${user}`);
+
+            const comboDecks = validUserDecks.concat(response_liked.data);
+            setMyDecks(comboDecks);
         } catch (error) {
             console.error(error.message);
         }
@@ -158,6 +165,15 @@ export default function Group()
         try{
             const response = await axios.put(`/api/decks/${deck.deck_id}`, {Group_id: null});
             getDecks();
+        }catch (error){
+            console.error(error.message);
+        }
+    }
+
+    const kickUser = async(User_id)=>{
+        try{
+            const response = await axios.delete('api/groupMembership/', { data: {Group_id: params.Group_id, User_id: User_id} });
+            setRefresh(prev => prev + 1);
         }catch (error){
             console.error(error.message);
         }
@@ -211,6 +227,7 @@ export default function Group()
                     {members.map(member => 
                         <div className={styles.leaderboardItem}>
                             <Link to={`/profile/${member.User_id}`} className={styles.links}><h2>{member.Username}</h2></Link>
+                            {isOwner && member.User_id !== user && <button onClick={()=>{kickUser(member.User_id)}} className={styles.kickUserButton}><h4>Kick User</h4></button>}
                         </div>
                     )}
                 </div>

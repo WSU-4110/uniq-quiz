@@ -83,10 +83,10 @@ export default function GroupViewer({asInset = false, viewUser = null}){
         await getMyGroups(allGroupsData);
     }
 
-    //refresh listener
-    useEffect(()=>{
-        fetchData();
-    }, [refresh])
+    // //refresh listener
+    // useEffect(()=>{
+    //     fetchData();
+    // }, [refresh])
 
     //component mount listener
     useEffect(()=>{

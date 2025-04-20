@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import styles from "../../Stylesheets/Groups/Group.module.css";
 
-export default function AddDeckModal({decks, onSelect, onClose}){
+export default function DeleteModal({decks, onSelect, onClose}){
     const [myDecks, setMyDecks] = useState(decks);
     const [deck, setDeck] = useState({});
 

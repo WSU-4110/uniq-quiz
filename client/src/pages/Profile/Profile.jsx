@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Decks from '../Decks/Decks.jsx';
 import GroupViewer from '../Groups/GroupViewer.jsx';
+import ProfileBanner from '../../components/ProfileBanner.jsx';
 import axios from 'axios';
 import styles from '../../Stylesheets/Profile.module.css';
 
@@ -15,18 +16,19 @@ function Profile(){
     const {user, userName} = useAuth();
     const [profilePicture, setProfilePicture] = useState(null);
 
-    const getUser = async() =>{
+    const getUser = async() => {
         try {
             const response = await axios.get(`/api/users/${params.User_id}`);
             setUserData(response.data);
         } catch (error) {
             console.error(error.message);
+            setError(error.message);
         }
     }
 
     useEffect(()=>{
         getUser();
-    }, [])
+    }, []);
 
     const getMyDecks = async() =>{
         try {
@@ -47,14 +49,16 @@ function Profile(){
 
     return (
         <div className={styles.page}>
-            <div className={styles.userInfo}>
-                <div className={styles.profilePicture}>
-                    {profilePicture ? <img src={profilePicture} /> : 'Null Picture'}
-                </div>
-                <p className={styles.p}>{userName ? userName : 'Welcome'}</p>
-            </div>
+            <ProfileBanner />
             <div className={styles.pageHeader}>
                 <h1>{userData.Username ? userData.Username : 'Unnamed User'}</h1>
+                <img src={userData?.Profile_Pic} alt={`${userName}'s profile`} style={{ 
+                    width: "50px", 
+                    height: "50px",
+                    overflow: "hidden",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    }}/>
             </div>
             {(user === userData.User_id || !userData.Private) && (<>
                 <div className={styles.sectionHeader}>

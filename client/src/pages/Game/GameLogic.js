@@ -25,24 +25,13 @@ export class Question {
             [idToLoc[i], idToLoc[j]] = [idToLoc[j], idToLoc[i]];
         }
 
-        console.log(answers);
-        console.log(idToLoc);
-
         this.answers = answers;
         this.idToLoc = idToLoc;
         this.correctAnswerID = answers.indexOf(correctAnswer);
-
-        console.log(this.correctAnswerID);
     }
 
 
     CheckAnswer(answerID) {
-        /*console.log(answerID === this.correctAnswerID);
-        console.log("Your answer vs server answer:", this.answers[answerID], this.answers[this.correctAnswerID])
-        console.log("correctAnswer Array", this.idToLoc);
-        let indexOfAnswerID = this.idToLoc.indexOf(answerID);
-        return this.correctAnswerID === indexOfAnswerID;*/
-        console.log(`Checking Answer ${answerID}`);
         return answerID === 0;
     }
 
@@ -87,7 +76,6 @@ export class Leaderboard {
 
     updatePlayer(id, addScore) {
         const player = this.findPlayer(id);
-        console.log(this.leaderboard);
         try{
             console.log(`Before player ${player}   -   player score: ${player.score}`);
         }catch(e){

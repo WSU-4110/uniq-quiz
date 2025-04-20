@@ -15,7 +15,6 @@ async function signUp(req, res){
     try {
         //Create user in Auth table
         const {email, password, display_name} = req.body;
-        console.log(`Email: ${email}, Password: ${password}, display_name: ${display_name}`);
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
@@ -125,7 +124,7 @@ async function signUp(req, res){
         return res.status(401).json({error: "Invalid or expired token. Please log in again."})
       }
       const userId = user.user.id;
-      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteUser(userId);
+      const {error: deleteError} = await supabaseAdmin.auth.admin.deleteAccount(userId);
       if(deleteError){
         return res.status(500).json({error: deleteError.message});
       }

@@ -8,6 +8,7 @@ export default function Cards(){
     const params = useParams();
     const navigate = useNavigate();
     const [card, setCard] = useState({});
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     
     const getCard = async () =>{
       try{
@@ -39,22 +40,19 @@ export default function Cards(){
     }
 
     const deleteCard = async () => {
-        try {
-            const response = await axios.delete(`/api/cards/${params.card_id}`);
-            handleClose();
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
-    const deleteCard_OLD = async () => {
       try {
-          await axios.delete(`/api/cards/${params.card_id}`);
+          const response = await axios.delete(`/api/cards/${params.card_id}`);
           handleClose();
       } catch (error) {
           console.error(error.message);
       }
   }
+  
+  const confirmDelete = async () => {
+      await deleteCard();
+      setShowDeleteModal(false);
+  }
+  
 
     function handleSave(property, newProperty){
       setCard(prevCard => ({
@@ -72,7 +70,7 @@ export default function Cards(){
 
     useEffect(()=>{
       if (Object.keys(card).length > 0) {
-        updateCard();
+        updateCard_OLD();
       } 
     }, [card])
 
@@ -97,7 +95,19 @@ export default function Cards(){
             </div>
           <div className={styles.buttonContainer}>
             <button class={styles.button} onClick={() => handleClose()}>Close</button>
-            <button class={`${styles.button} ${styles.delete}`} onClick={deleteCard}>Delete Card</button>
+            {showDeleteModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Delete Card</h2>
+                        <p>Are you sure you want to delete this card? This action cannot be undone.</p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.modalButton} onClick={confirmDelete}>Delete</button>
+                            <button className={styles.modalButtonCancel} onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <button class={`${styles.button} ${styles.delete}`} onClick={() => setShowDeleteModal(true)}>Delete Card</button>
           </div>
         </div>
       </>);

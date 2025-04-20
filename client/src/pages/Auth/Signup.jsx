@@ -2,7 +2,7 @@ import React from 'react';
 import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
-import '../../Stylesheets/Auth/Auth.css'
+import styles from '../../Stylesheets/Auth/Auth.module.css';
 
 function Signup() {
     const [email, setEmail] = React.useState('');
@@ -107,10 +107,10 @@ function Signup() {
     }
 
     return (
-        <div className="Signup">
-            <div className="OuterAuth">
-                <div className="AuthBlock">
-                    <div className="InnerAuth">
+        <div className={styles.Signup}>
+            <div className={styles.OuterAuth}>
+                <div className={styles.AuthBlock}>
+                    <div className={styles.InnerAuth}>
                         <h2>Signup</h2>
                         <form onSubmit={handleSubmit}>
                             <label htmlFor="email">Email </label><br/>
@@ -124,12 +124,25 @@ function Signup() {
 
                             <label htmlFor="password">Password </label><br/>
                             <input type="password" id="password" name="password" placeholder="••••••••" value={password}
-                                   onChange={(e) => setPassword(e.target.value)} required/><br/><br/>
+                                   onChange={(e) => setPassword(e.target.value)} required/>
+                                   <br/>
+                                   <div style={{textAlign: 'left', marginLeft: '10%', fontSize: '0.8rem', color: 'var(--lightest)'}}>
+                                    <p>Password must contain:</p>
+                                        <ul>
+                                            <li>At least 6 characters</li>
+                                            <li>At least 1 uppercase letter</li>
+                                            <li>At least 1 lowercase letter</li>
+                                            <li>At least 1 number</li>
+                                            <li>At least 1 special character</li>
+                                        </ul>
+                                    </div>
+                                   <br/>
 
                             <label htmlFor="passwordConfirm">Confirm Password </label><br/>
                             <input type="password" id="password" name="password" placeholder="••••••••"
                                    value={passwordConfirm}
-                                   onChange={(e) => setPasswordConfirm(e.target.value)} required/><br/><br/>
+                                   onChange={(e) => setPasswordConfirm(e.target.value)} required/>
+                                   <br/><br/> 
 
                             <label htmlFor="displayname">Displayname </label><br/>
                             <input type="text" id="displayname" name="displayname" placeholder="User001" value={display_name}
